@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "784648360818",
+    "firebase_url": "https://pitstop-7215d.firebaseio.com",
+    "project_id": "pitstop-7215d",
+    "storage_bucket": "pitstop-7215d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:784648360818:android:60a3a89c63cf7374",
+        "android_client_info": {
+          "package_name": "pitstop.com.br.pitstop"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "784648360818-3hjk36vfnp600bjgc7o7e8fumtmiteru.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCeIJ6ZzQ6tpggzvNCBRnuNSoi1NpYJxAg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

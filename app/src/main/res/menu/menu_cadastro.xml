@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools"
+    tools:context="pitstop.com.br.pitstop.activity.CadastroProdutoActivity">
+
+
+
+
+    <!--<item android:id="@+id/sincronizar_dados"-->
+        <!--android:title="Sincronizar"-->
+        <!--android:icon="@mipmap/ic_enviar"-->
+        <!--app:showAsAction="always"/>-->
+
+    <item android:id="@+id/menu_cadastro_ok"
+        android:title="Ok"
+        android:icon="@mipmap/ic_confirmar"
+        app:showAsAction="always"/>
+
+</menu>

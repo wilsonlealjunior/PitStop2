@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="pitstop.com.br.pitstop">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/laucher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity
+            android:name=".activity.MainActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
+        <activity
+            android:name=".activity.CadastroProdutoActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
+        <activity android:name=".barraInferior" />
+        <activity android:name=".SignupActivity" />
+        <activity
+            android:name=".LoginActivity"
+            android:noHistory="true"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".activity.CadastroLojaActivity" />
+        <activity android:name=".activity.NavigationViewActivity" />
+        <activity android:name=".activity.CadastroEntradaProdutoActivity" />
+        <activity android:name=".activity.CadastrarVendasActivity" />
+        <activity android:name=".activity.CadastroMovimentacaoProdutoActivity" />
+        <activity android:name=".activity.RelatorioVendasActivity" />
+        <activity android:name=".activity.RelatorioEntradaProdutoActivity" />
+        <activity android:name=".activity.RelatorioMovimentacaoProdutoActivity" />
+        <activity android:name=".activity.CadastroAvariaActivity" />
+        <activity android:name=".activity.NavigationViewFuncionarioActivity" />
+        <activity android:name=".activity.RelatorioAvariaActivity" />
+        <activity android:name=".activity.CadastroFuroActivity" />
+        <activity android:name=".activity.RelatorioFuroActivity"></activity>
+        <activity android:name=".activity.RelatorioGeralActivity"></activity>
+    </application>
+
+</manifest>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:background="#FFFFFF"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="15dp"
+        android:paddingBottom="15dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:text="Custom Dialog With List"
+        android:gravity="center_horizontal"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textColor="#FFFFFF"
+        android:background="#283593"
+        android:visibility="invisible"
+
+        />
+    <SearchView
+        android:id="@+id/pesquisa"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:focusable="true"
+        android:focusedByDefault="true"
+        android:gravity="center_horizontal"
+        android:padding="8dp"
+        android:background="#D3D3D3"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:queryHint="pesquise aqui"
+
+
+        android:tooltipText="adsas" />
+
+
+
+
+    <ListView
+        android:layout_margin="8dp"
+        android:id="@+id/listview"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_below="@+id/pesquisa">
+
+    </ListView>
+
+
+    <Button
+        android:id="@+id/buttoncancellist"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#283593"
+        android:text="CANCEL"
+        android:layout_alignParentBottom="true"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="#FFFFFF" />
+
+</RelativeLayout>

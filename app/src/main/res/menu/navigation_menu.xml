@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Main Menus -->
+    <group android:checkableBehavior="single">
+
+
+        <item
+            android:id="@+id/loja"
+            android:checkable="true"
+            android:checked="true"
+            android:icon="@mipmap/loja"
+            android:title="@string/nav_item_loja" />
+
+
+        <item
+            android:id="@+id/produto"
+            android:checkable="true"
+            android:checked="false"
+            android:icon="@mipmap/garrafadecerveja"
+            android:title="@string/nav_item_produto" />
+
+        <item
+            android:id="@+id/entrada_de_produto"
+            android:checkable="true"
+            android:checked="false"
+            android:icon="@mipmap/entradaproduto"
+            android:title="@string/entrada" />
+        <item
+            android:id="@+id/cad_vendas"
+            android:checkable="true"
+            android:checked="false"
+            android:icon="@mipmap/caixaregistradora"
+            android:title="@string/nav_item_cadastrar_vendas" />
+
+        <item
+            android:id="@+id/cad_avaria"
+            android:checkable="true"
+            android:checked="false"
+            android:icon="@mipmap/prejuizo"
+            android:title="@string/nav_item_cadastrar_avaria" />
+        <item
+            android:id="@+id/cadastrar_furo"
+            android:checkable="true"
+            android:checked="false"
+            android:icon="@mipmap/cadfuro"
+            android:title="@string/nav_item_cadastrar_furo" />
+        <item
+            android:id="@+id/movimentacao_produto"
+            android:checkable="true"
+            android:checked="false"
+            android:icon="@mipmap/movimentodeestoque"
+            android:title="@string/nav_item_movimentacao_Produto" />
+        <item
+            android:id="@+id/relatorio_vendas"
+            android:checkable="true"
+            android:checked="false"
+            android:icon="@mipmap/performancedevendas"
+            android:title="@string/nav_item_relatorio_venda" />
+        <item
+            android:id="@+id/relatorio_entrada_produto"
+            android:checkable="true"
+            android:checked="false"
+            android:icon="@mipmap/relatorio"
+            android:title="@string/nav_item_relatorio_Entrada_Produto" />
+        <item
+            android:id="@+id/relatorio_avaria"
+            android:checkable="true"
+            android:checked="false"
+            android:icon="@mipmap/garrafapartida"
+            android:title="@string/nav_item_relatorio_avaria" />
+        <item
+            android:id="@+id/relatorio_furo"
+            android:checkable="true"
+            android:checked="false"
+            android:icon="@mipmap/relatorio"
+            android:title="@string/nav_item_relatorio_furo" />
+
+        <item
+            android:id="@+id/relatorio_movimentacao_produto"
+            android:checkable="true"
+            android:checked="false"
+            android:icon="@mipmap/relatoriomovimentodeestoque"
+            android:title="@string/nav_item_relatorio_movimentacao_Produto" />
+
+        <item
+            android:id="@+id/relatorio_geral"
+            android:checkable="true"
+            android:checked="false"
+            android:icon="@mipmap/relatorio"
+            android:title="@string/nav_item_relatorio_geral" />
+        <!--<item-->
+            <!--android:id="@+id/relatorio_geral"-->
+            <!--android:checkable="true"-->
+            <!--android:checked="false"-->
+            <!--android:icon="@mipmap/geral"-->
+            <!--android:title="@string/nav_item_relatorio_geral" />-->
+
+
+
+        <item
+            android:id="@+id/cadastrar_usuario"
+            android:checkable="true"
+            android:checked="false"
+            android:icon="@mipmap/adduser"
+            android:title="@string/nav_item_cadastrar_usuario" />
+
+
+    </group>
+
+    <!--  Sub Menus  -->
+    <!--<item android:title="Relatorios" >-->
+    <!--<menu android:checkableBehavior="single">-->
+
+    <!--<group >-->
+
+    <!--<item-->
+    <!--android:id="@+id/share_app"-->
+    <!--android:icon="@mipmap/ic_no_image"-->
+    <!--android:title="@string/share" />-->
+    <!--<item-->
+    <!--android:id="@+id/rate_app"-->
+    <!--android:icon="@mipmap/ic_no_image"-->
+    <!--android:title="@string/rate" />-->
+    <!--<item-->
+    <!--android:id="@+id/settings"-->
+    <!--android:icon="@mipmap/ic_no_image"-->
+    <!--android:title="@string/settings" />-->
+    <!--<item-->
+    <!--android:id="@+id/help"-->
+    <!--android:icon="@mipmap/ic_no_image"-->
+    <!--android:title="@string/help" />-->
+    <!--</group>-->
+    <!--</menu>-->
+    <!--</item>-->
+
+
+</menu>
