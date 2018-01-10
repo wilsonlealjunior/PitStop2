@@ -41,8 +41,7 @@
                     android:padding="10dp"
                     android:shadowColor="@android:color/holo_blue_light"
                     android:text="PRODUTO"
-                    android:textColor="@android:color/white"
-                    android:textSize="16dp" />
+                    android:textColor="@android:color/white" />
 
                 <TextView
                     android:id="@+id/sincronizado"
@@ -53,7 +52,6 @@
                     android:text="sincronizado"
                     android:textAlignment="center"
                     android:textColor="@color/white"
-                    android:textSize="14dp"
                     android:textStyle="bold" />
 
                 <ImageButton
@@ -63,7 +61,8 @@
                     android:background="@drawable/button_logout"
                     android:backgroundTint="@color/white"
                     android:clickable="true"
-                    android:src="@mipmap/editar" />
+                    android:src="@mipmap/editar"
+                    />
 
 
             </LinearLayout>

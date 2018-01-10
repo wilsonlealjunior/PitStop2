@@ -18,26 +18,33 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
 
-            <TextView
-                android:id="@+id/loja"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/holo_blue_dark"
-                android:padding="5dp"
-                android:shadowColor="@android:color/holo_blue_light"
-                android:text="LOJA"
-                android:textColor="@android:color/white"
-                android:textSize="20dp" />
+                android:orientation="horizontal"
+                android:shadowColor="@android:color/holo_blue_light">
 
-            <ImageButton
-                android:clickable="true"
-                android:id="@+id/editar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:background="@drawable/button_logout"
-                android:backgroundTint="@color/white"
-                android:src="@mipmap/editar" />
+                <TextView
+                    android:id="@+id/loja"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:padding="10dp"
+
+                    android:text="LOJA"
+                    android:textColor="@android:color/white" />
+
+                <ImageButton
+                    android:id="@+id/editar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:background="@drawable/button_logout"
+                    android:backgroundTint="@color/white"
+                    android:clickable="true"
+                    android:src="@mipmap/editar" />
+            </LinearLayout>
 
 
         </RelativeLayout>
@@ -52,8 +59,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
-                android:text="Endereço: "
-                android:textSize="18dp" />
+                android:text="Endereço: " />
 
             <TextView
                 android:id="@+id/endereco"
@@ -62,7 +68,6 @@
                 android:layout_margin="8dp"
                 android:layout_weight="1"
                 android:text="Endereço valor"
-                android:textSize="18dp"
                 android:textStyle="bold" />
         </LinearLayout>
 
@@ -76,13 +81,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
-                android:layout_margin="8dp"
                 android:background="@drawable/oval"
-                android:padding="8dp"
+                android:padding="4dp"
+                android:layout_margin="8dp"
                 android:text="sincronizado"
                 android:textAlignment="center"
                 android:textColor="@color/white"
-                android:textSize="18dp"
                 android:textStyle="bold" />
         </RelativeLayout>
 
