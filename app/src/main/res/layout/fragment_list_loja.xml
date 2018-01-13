@@ -3,30 +3,29 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <SearchView
-        android:id="@+id/text_pesquisa_loja"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:focusable="true"
-        android:focusedByDefault="true"
-        android:padding="8dp"
+    <!--<android.support.v7.widget.SearchView-->
+        <!--android:id="@+id/text_pesquisa_loja"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_alignParentTop="true"-->
+        <!--android:focusable="true"-->
+        <!--android:focusedByDefault="true"-->
+        <!--android:padding="8dp"-->
 
-
-        />
+        <!--/>-->
 
 
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipe_lista_loja"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/text_pesquisa_loja">
+        >
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/card_recycler_loja_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/text_pesquisa_loja">
+          >
 
         </android.support.v7.widget.RecyclerView>
     </android.support.v4.widget.SwipeRefreshLayout>

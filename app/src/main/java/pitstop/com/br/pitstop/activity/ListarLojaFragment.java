@@ -9,9 +9,12 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,38 +24,41 @@ import de.greenrobot.event.Subscribe;
 import de.greenrobot.event.ThreadMode;
 import pitstop.com.br.pitstop.R;
 import pitstop.com.br.pitstop.adapter.LojaRecicleViewAdpater;
-import pitstop.com.br.pitstop.adapter.ProdutoRecicleViewAdapter;
 import pitstop.com.br.pitstop.dao.LojaDAO;
 import pitstop.com.br.pitstop.event.AtualizaListaLojasEvent;
+import pitstop.com.br.pitstop.event.AtualizaListaProdutoEvent;
 import pitstop.com.br.pitstop.model.Loja;
-import pitstop.com.br.pitstop.model.Produto;
+import pitstop.com.br.pitstop.sic.ObjetosSinkSincronizador;
 
 
 import android.app.Activity;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+
 import android.widget.Button;
-import android.widget.ListView;
-import android.widget.SearchView;
+
+import android.support.v7.widget.SearchView;
 import android.widget.Toast;
+
 
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class ListarLojaFragment extends Fragment {
+public class ListarLojaFragment extends Fragment implements SearchView.OnQueryTextListener {
 
     Context context;
     private RecyclerView recyclerView;
     private LojaRecicleViewAdpater lojaRecicleViewAdpater;
     private SwipeRefreshLayout swipe;
+    Toolbar toolbar;
+    SearchView searchView;
+    ObjetosSinkSincronizador objetosSinkSincronizador;
+    EventBus bus = EventBus.getDefault();
 
 
     List<Loja> lojas = new ArrayList<>();
     LojaRecicleViewAdpater adapterPesquisa;
     Button novaLoja;
     ArrayList<Loja> pesquisa = new ArrayList<>();
-    private SearchView textPesquisaLoja;
 
 
     public ListarLojaFragment() {
@@ -63,7 +69,46 @@ public class ListarLojaFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
 
+
+    }
+
+    private void setUpToolbar() {
+        toolbar.inflateMenu(R.menu.menu_sinc);
+        toolbar.setTitle("Listagem de Lojas");
+
+        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem) {
+                switch (menuItem.getItemId()) {
+                    case R.id.sincronizar_dados:
+                        objetosSinkSincronizador.buscaTodos();
+                        bus.post(new AtualizaListaProdutoEvent());
+                        bus.post(new AtualizaListaLojasEvent());
+
+                        break;
+                }
+                return false;
+            }
+        });
+
+
+    }
+
+    public void setupSearchView() {
+        MenuItem searchItem = toolbar.getMenu().findItem(R.id.action_search);
+        searchView = (SearchView) searchItem.getActionView();
+        searchView.setQueryHint("Pesquisar...");
+        searchView.setOnQueryTextListener(this);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+
+        setUpToolbar();
+        setupSearchView();
 
     }
 
@@ -86,6 +131,8 @@ public class ListarLojaFragment extends Fragment {
                 carregaLista();
             }
         });
+        toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
+
 
         lojaRecicleViewAdpater.setOnItemClickListener(new LojaRecicleViewAdpater.ItemClickListener() {
             @Override
@@ -120,9 +167,8 @@ public class ListarLojaFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
 
-        textPesquisaLoja = (SearchView) view.findViewById(R.id.text_pesquisa_loja);
+        objetosSinkSincronizador = new ObjetosSinkSincronizador(context);
         novaLoja = (Button) view.findViewById(R.id.nova_loja);
-        textPesquisaLoja.setQueryHint("Digite sua busca aqui");
 
 
         EventBus eventBus = EventBus.getDefault();
@@ -131,26 +177,6 @@ public class ListarLojaFragment extends Fragment {
 
         adapterPesquisa = new LojaRecicleViewAdpater(pesquisa, context);
 
-
-        textPesquisaLoja.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String searchQuery) {
-                pesquisar(searchQuery.toString().trim());
-
-
-                recyclerView.setAdapter(adapterPesquisa);
-
-//                textPesquisa.invalidate();
-                return true;
-            }
-        });
 
         novaLoja.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -211,4 +237,17 @@ public class ListarLojaFragment extends Fragment {
     }
 
 
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        return false;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        pesquisar(newText.toString().trim());
+
+
+        recyclerView.setAdapter(adapterPesquisa);
+        return false;
+    }
 }

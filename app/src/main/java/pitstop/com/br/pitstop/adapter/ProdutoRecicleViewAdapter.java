@@ -18,6 +18,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import pitstop.com.br.pitstop.R;
 import pitstop.com.br.pitstop.activity.CadastroProdutoActivity;
@@ -25,7 +26,7 @@ import pitstop.com.br.pitstop.model.Produto;
 import pitstop.com.br.pitstop.preferences.UsuarioPreferences;
 
 public class ProdutoRecicleViewAdapter extends RecyclerView.Adapter<ProdutoRecicleViewAdapter.ViewHolder> {
-    private ArrayList<Produto> produtos;
+    private List<Produto> produtos;
     private static ItemClickListener itemClickListener;
     Context contexto;
 
@@ -34,7 +35,7 @@ public class ProdutoRecicleViewAdapter extends RecyclerView.Adapter<ProdutoRecic
         this.contexto = contexto;
     }
 
-    public ProdutoRecicleViewAdapter(ArrayList<Produto> produtos, Context context) {
+    public ProdutoRecicleViewAdapter(List<Produto> produtos, Context context) {
         this.produtos = produtos;
         this.contexto=context;
     }

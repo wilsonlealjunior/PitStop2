@@ -210,6 +210,41 @@ public class ProdutoDAO {
 
     }
 
+    public List<Produto> listaProdutosPorParteDoNome(String nome) {
+        SQLiteDatabase db = databaseHelper.getReadableDatabase();
+        String sql = "SELECT * FROM Produtos WHERE nome like '%"+nome+"%'";
+        Cursor c = db.rawQuery(sql, null);
+        List<Produto> produtos = new ArrayList<Produto>();
+        while (c.moveToNext()) {
+            Produto produto = new Produto();
+            produto.setId(c.getString(c.getColumnIndex("id")));
+            produto.setNome(c.getString(c.getColumnIndex("nome")));
+            produto.setPreco(Double.parseDouble(c.getString(c.getColumnIndex("preco"))));
+            produto.setQuantidade(Integer.parseInt(c.getString(c.getColumnIndex("quantidade"))));
+            produto.setSincronizado(Integer.parseInt(c.getString(c.getColumnIndex("sincronizado"))));
+            produto.setEstoqueMinimo(Integer.parseInt(c.getString(c.getColumnIndex("estoque_minimo"))));
+            produto.setVinculo(Integer.parseInt(c.getString(c.getColumnIndex("vinculo"))));
+            produto.setIdProdutoPrincipal(c.getString(c.getColumnIndex("id_ProdutoPrincipal")));
+            LojaDAO lojaDAO = new LojaDAO(context);
+            Loja l = new Loja();
+            l = lojaDAO.procuraPorId(c.getString(c.getColumnIndex("loja_id")));
+            //Log.e("TESTE-->>",l.getNome());
+            produto.setLoja(l);
+            lojaDAO.close();
+
+            ProdutoVinculoDAO produtoVinculoDAO = new ProdutoVinculoDAO(context);
+            List<String> vinculos = produtoVinculoDAO.procuraPorProduto(produto.getId());
+            produtoVinculoDAO.close();
+            produto.setIdProdutoVinculado(vinculos);
+
+
+            produtos.add(produto);
+        }
+        c.close();
+        return produtos;
+
+    }
+
     public void altera(Produto produto) {
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
 

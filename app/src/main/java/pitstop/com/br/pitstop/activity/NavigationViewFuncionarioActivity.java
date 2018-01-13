@@ -139,7 +139,7 @@ public class NavigationViewFuncionarioActivity extends AppCompatActivity {
 
     /*  Init all views  */
     private void initViews() {
-        toolbar = (Toolbar) findViewById(R.id.main_toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -204,7 +204,7 @@ public class NavigationViewFuncionarioActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_sinc, menu);
+//        getMenuInflater().inflate(R.menu.menu_sinc, menu);
         return true;
     }
 
