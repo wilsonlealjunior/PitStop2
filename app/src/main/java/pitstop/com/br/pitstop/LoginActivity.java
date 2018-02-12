@@ -1,6 +1,7 @@
 package pitstop.com.br.pitstop;
 
 import android.app.ProgressDialog;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -15,6 +16,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -38,17 +40,18 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class LoginActivity extends AppCompatActivity {
-    Spinner spinerLojas;
+//    Spinner spinerLojas;
 
 
     private EditText inputUsuario, inputPassword;
     private ProgressBar progressBar;
     private Button btnLogin, btnReset;
     Loja lojaEscolhida;
+    TextView tvLoja;
     List<Loja> lojas;
     List<String> labelsLojas = new ArrayList<>();
     LojaDAO lojaDAO = new LojaDAO(this);
-    ArrayAdapter<String> spinnerAdapterLojas;
+    //    ArrayAdapter<String> spinnerAdapterLojas;
     UsuarioPreferences usuarioPreferences;
 
     String nomeusuario;
@@ -69,14 +72,21 @@ public class LoginActivity extends AppCompatActivity {
 //        setSupportActionBar(toolbar);
         progressDialog = new ProgressDialog(this);
 
-        spinerLojas = (Spinner) findViewById(R.id.spiner_loja);
+//        spinerLojas = (Spinner) findViewById(R.id.spiner_loja);
         objetosSinkSincronizador = new ObjetosSinkSincronizador(this);
         inputUsuario = (EditText) findViewById(R.id.usuario);
         inputPassword = (EditText) findViewById(R.id.password);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         btnLogin = (Button) findViewById(R.id.btn_login);
+        tvLoja = (TextView) findViewById(R.id.loja);
         usuarioPreferences = new UsuarioPreferences(getApplicationContext());
+        //Aeroporto
+        lojaEscolhida = lojaDAO.procuraPorId("1703eebf-34ac-4dbf-b7ee-c0c7dc13bf4e");
+        if (lojaEscolhida != null) {
 
+            tvLoja.setText(lojaEscolhida.getNome());
+
+        }
 
         if (usuarioPreferences.temUsuario()) {
 //            progressDialog.setCancelable(false);
@@ -86,17 +96,18 @@ public class LoginActivity extends AppCompatActivity {
             Usuario u = usuarioPreferences.getUsuario();
             Log.e("NomeUsuario", u.getNome());
             Log.e("SenhaUsuario", u.getSenha());
-            if (u.getRole().equals("Funcionario"))
-            {
+            if (u.getRole().equals("Funcionario")) {
 
                 Intent intent = new Intent(getApplicationContext(), NavigationViewFuncionarioActivity.class);
                 startActivity(intent);
+                finish();
+                return;
 
-            }else{
-
-
+            } else {
                 Intent intent = new Intent(getApplicationContext(), NavigationViewActivity.class);
                 startActivity(intent);
+                finish();
+                return;
 
             }
 
@@ -109,22 +120,22 @@ public class LoginActivity extends AppCompatActivity {
             labelsLojas.add(loja.getNome());
 
         }
-        spinnerAdapterLojas = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, labelsLojas);
+//        spinnerAdapterLojas = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, labelsLojas);
 
-        spinnerAdapterLojas.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinerLojas.setAdapter(spinnerAdapterLojas);
-        spinerLojas.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                lojaEscolhida = lojas.get(i);
-
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
-            }
-        });
+//        spinnerAdapterLojas.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//        spinerLojas.setAdapter(spinnerAdapterLojas);
+//        spinerLojas.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//            @Override
+//            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+//                lojaEscolhida = lojas.get(i);
+//
+//            }
+//
+//            @Override
+//            public void onNothingSelected(AdapterView<?> adapterView) {
+//
+//            }
+//        });
 
 
         btnLogin.setOnClickListener(new View.OnClickListener() {
@@ -164,7 +175,7 @@ public class LoginActivity extends AppCompatActivity {
             labelsLojas.add(loja.getNome());
 
         }
-        spinnerAdapterLojas.notifyDataSetChanged();
+//        spinnerAdapterLojas.notifyDataSetChanged();
 
 
     }

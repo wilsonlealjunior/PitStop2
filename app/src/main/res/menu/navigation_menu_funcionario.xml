@@ -16,7 +16,7 @@
             android:checkable="true"
             android:checked="false"
             android:icon="@mipmap/caixaregistradora"
-            android:title="@string/nav_item_cadastrar_vendas" />
+            android:title="@string/nav_item_vendas" />
         <item
             android:id="@+id/relatorio_vendas"
             android:checkable="true"

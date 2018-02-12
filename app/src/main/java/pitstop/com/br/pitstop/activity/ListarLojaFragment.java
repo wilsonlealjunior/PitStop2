@@ -1,7 +1,9 @@
 package pitstop.com.br.pitstop.activity;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -22,12 +24,14 @@ import android.view.ViewGroup;
 import de.greenrobot.event.EventBus;
 import de.greenrobot.event.Subscribe;
 import de.greenrobot.event.ThreadMode;
+import dmax.dialog.SpotsDialog;
 import pitstop.com.br.pitstop.R;
 import pitstop.com.br.pitstop.adapter.LojaRecicleViewAdpater;
 import pitstop.com.br.pitstop.dao.LojaDAO;
 import pitstop.com.br.pitstop.event.AtualizaListaLojasEvent;
 import pitstop.com.br.pitstop.event.AtualizaListaProdutoEvent;
 import pitstop.com.br.pitstop.model.Loja;
+import pitstop.com.br.pitstop.model.Usuario;
 import pitstop.com.br.pitstop.sic.ObjetosSinkSincronizador;
 
 
@@ -36,6 +40,7 @@ import android.app.Activity;
 import android.widget.Button;
 
 import android.support.v7.widget.SearchView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 
@@ -84,8 +89,9 @@ public class ListarLojaFragment extends Fragment implements SearchView.OnQueryTe
                 switch (menuItem.getItemId()) {
                     case R.id.sincronizar_dados:
                         objetosSinkSincronizador.buscaTodos();
-                        bus.post(new AtualizaListaProdutoEvent());
-                        bus.post(new AtualizaListaLojasEvent());
+//                        bus.post(new AtualizaListaProdutoEvent());
+//                        bus.post(new AtualizaListaLojasEvent());
+//                        carregaLista();
 
                         break;
                 }
@@ -115,7 +121,7 @@ public class ListarLojaFragment extends Fragment implements SearchView.OnQueryTe
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
+        bus.register(this);
         View rootView = inflater.inflate(R.layout.fragment_list_loja, container, false);
         recyclerView = (RecyclerView) rootView.findViewById(R.id.card_recycler_loja_view);
         recyclerView.setHasFixedSize(true);
@@ -160,7 +166,7 @@ public class ListarLojaFragment extends Fragment implements SearchView.OnQueryTe
     @Override
     public void onResume() {
         super.onResume();
-        carregaLista();
+//        carregaLista();
 
     }
 
@@ -169,10 +175,6 @@ public class ListarLojaFragment extends Fragment implements SearchView.OnQueryTe
 
         objetosSinkSincronizador = new ObjetosSinkSincronizador(context);
         novaLoja = (Button) view.findViewById(R.id.nova_loja);
-
-
-        EventBus eventBus = EventBus.getDefault();
-        eventBus.register(this);
 
 
         adapterPesquisa = new LojaRecicleViewAdpater(pesquisa, context);
@@ -189,9 +191,16 @@ public class ListarLojaFragment extends Fragment implements SearchView.OnQueryTe
         });
 
 
-        carregaLista();
+//        carregaLista();
 
 
+    }
+
+    @Override
+    public void onDestroy() {
+        // Unregister
+        bus.unregister(this);
+        super.onDestroy();
     }
 
 
@@ -200,11 +209,13 @@ public class ListarLojaFragment extends Fragment implements SearchView.OnQueryTe
         pesquisa.clear();
 
         for (int i = 0; i < lojas.size(); i++) {
-            if (textlength <= lojas.get(i).getNome().length()) {
-                if (txtPesquisa.equalsIgnoreCase((String) lojas.get(i).getNome().subSequence(0, textlength))) {
-                    pesquisa.add(lojas.get(i));
-                }
-            }
+            if (lojas.get(i).getNome().toLowerCase().contains(txtPesquisa.toLowerCase()))
+                pesquisa.add(lojas.get(i));
+//            if (textlength <= lojas.get(i).getNome().length()) {
+//                if (txtPesquisa.equalsIgnoreCase((String) lojas.get(i).getNome().subSequence(0, textlength))) {
+//                    pesquisa.add(lojas.get(i));
+//                }
+//            }
         }
     }
 
@@ -216,12 +227,14 @@ public class ListarLojaFragment extends Fragment implements SearchView.OnQueryTe
 
 
     private void carregaLista() {
-        LojaDAO lojaDAO = new LojaDAO(context);
-        lojas.clear();
-        lojas.addAll(lojaDAO.listarLojas());
-        lojaDAO.close();
-        lojaRecicleViewAdpater.notifyDataSetChanged();
-        swipe.setRefreshing(false);
+        CarregandoListaDeLoja carregandoListaDeLoja = new CarregandoListaDeLoja(context);
+        carregandoListaDeLoja.execute();
+//        LojaDAO lojaDAO = new LojaDAO(context);
+//        lojas.clear();
+//        lojas.addAll(lojaDAO.listarLojas());
+//        lojaDAO.close();
+//        lojaRecicleViewAdpater.notifyDataSetChanged();
+//        swipe.setRefreshing(false);
     }
 
     @Override
@@ -246,8 +259,41 @@ public class ListarLojaFragment extends Fragment implements SearchView.OnQueryTe
     public boolean onQueryTextChange(String newText) {
         pesquisar(newText.toString().trim());
 
-
         recyclerView.setAdapter(adapterPesquisa);
         return false;
+    }
+
+    public class CarregandoListaDeLoja extends AsyncTask<Void, Void, String> {
+        private Context context;
+        AlertDialog dialog;
+
+        public CarregandoListaDeLoja(Context context) {
+            this.context = context;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            dialog = new SpotsDialog(context, "Carregando Lista de Lojas", R.style.progressDialog);
+            dialog.setCancelable(false);
+            dialog.show();
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            LojaDAO lojaDAO = new LojaDAO(context);
+            lojas.clear();
+            lojas.addAll(lojaDAO.listarLojas());
+            lojaDAO.close();
+            String resposta = "Lista de lojas carregada";
+            return resposta;
+        }
+
+        @Override
+        protected void onPostExecute(String resposta) {
+            dialog.dismiss();
+            Toast.makeText(context, resposta, Toast.LENGTH_LONG).show();
+            swipe.setRefreshing(false);
+            lojaRecicleViewAdpater.notifyDataSetChanged();
+        }
     }
 }

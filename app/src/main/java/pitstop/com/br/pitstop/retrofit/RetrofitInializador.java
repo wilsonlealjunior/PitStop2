@@ -41,7 +41,7 @@ public class RetrofitInializador {
         //Gson gson = new GsonBuilder().setLenient().create();
 
 
-        retrofit = new Retrofit.Builder().baseUrl("http://10.0.0.8:8080/webServiceEstoque/")
+        retrofit = new Retrofit.Builder().baseUrl("http://50.30.43.161:8080/webServiceEstoque/")
                 .addConverterFactory(GsonConverterFactory.create()).client(client.build()).build();
 
 

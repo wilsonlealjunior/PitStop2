@@ -171,11 +171,13 @@ public class ListarMovimentacaoProdutoFragment extends Fragment {
         for (int i = 0; i < movimentacaoProdutos.size(); i++) {
             ProdutoDAO produtoDAO = new ProdutoDAO(context);
             Produto p = produtoDAO.procuraPorId(movimentacaoProdutos.get(i).getIdProduto());
-            if (textlength <= p.getNome().length()) {
-                if (txtPesquisa.equalsIgnoreCase((String) p.getNome().subSequence(0, textlength))) {
-                    pesquisa.add(movimentacaoProdutos.get(i));
-                }
-            }
+//            if (textlength <= p.getNome().length()) {
+//                if (txtPesquisa.equalsIgnoreCase((String) p.getNome().subSequence(0, textlength))) {
+//                    pesquisa.add(movimentacaoProdutos.get(i));
+//                }
+//            }
+            if (p.getNome().toLowerCase().contains(txtPesquisa.toLowerCase()))
+                pesquisa.add(movimentacaoProdutos.get(i));
         }
     }
 

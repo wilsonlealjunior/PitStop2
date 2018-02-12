@@ -21,9 +21,9 @@
 
         <RelativeLayout
             android:id="@+id/ll_nome_produto"
-            android:background="@android:color/holo_blue_dark"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:background="@android:color/holo_blue_dark">
 
 
             <LinearLayout
@@ -36,9 +36,9 @@
                     android:id="@+id/produto"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_margin="8dp"
                     android:layout_weight="1"
                     android:background="@android:color/holo_blue_dark"
-                    android:padding="10dp"
                     android:shadowColor="@android:color/holo_blue_light"
                     android:text="PRODUTO"
                     android:textColor="@android:color/white" />
@@ -47,8 +47,10 @@
                     android:id="@+id/sincronizado"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/oval"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginRight="8dp"
                     android:padding="4dp"
+                    android:background="@drawable/oval"
                     android:text="sincronizado"
                     android:textAlignment="center"
                     android:textColor="@color/white"
@@ -58,11 +60,11 @@
                     android:id="@+id/editar"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
                     android:background="@drawable/button_logout"
                     android:backgroundTint="@color/white"
                     android:clickable="true"
-                    android:src="@mipmap/editar"
-                    />
+                    android:src="@mipmap/editar" />
 
 
             </LinearLayout>

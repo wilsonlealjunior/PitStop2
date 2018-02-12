@@ -1,15 +1,16 @@
 package pitstop.com.br.pitstop.activity;
 
-import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
-import android.app.TimePickerDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.StrictMode;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -24,13 +25,11 @@ import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
 import java.io.File;
@@ -38,16 +37,18 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
+import de.greenrobot.event.EventBus;
 import okhttp3.ResponseBody;
 import pitstop.com.br.pitstop.R;
-import pitstop.com.br.pitstop.adapter.LstViewTabelaDescricaoAvariaAdapter;
 import pitstop.com.br.pitstop.adapter.LstViewTabelaDescricaoFuroAdapter;
 import pitstop.com.br.pitstop.adapter.LstViewTabelaRelatorioFuro;
 import pitstop.com.br.pitstop.dao.EntradaProdutoDAO;
@@ -55,8 +56,7 @@ import pitstop.com.br.pitstop.dao.FuroDAO;
 import pitstop.com.br.pitstop.dao.LojaDAO;
 import pitstop.com.br.pitstop.dao.ProdutoDAO;
 import pitstop.com.br.pitstop.dao.UsuarioDAO;
-import pitstop.com.br.pitstop.model.Avaria;
-import pitstop.com.br.pitstop.model.AvariaEntradaProduto;
+import pitstop.com.br.pitstop.event.AtualizaListaProdutoEvent;
 import pitstop.com.br.pitstop.model.EntradaProduto;
 import pitstop.com.br.pitstop.model.Furo;
 import pitstop.com.br.pitstop.model.FuroEntradaProduto;
@@ -74,18 +74,11 @@ public class RelatorioFuroActivity extends AppCompatActivity {
     Furo furoClicado;
 
     SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-    Calendar dateTimeDe = Calendar.getInstance();
-    Calendar dateTimeAte = Calendar.getInstance();
 
-    private TextView mDisplayDateDe;
-    private DatePickerDialog.OnDateSetListener mDateSetListenerDe;
-    private TimePickerDialog.OnTimeSetListener mHoraSetListenerDe;
-
-    private TextView mDisplayDateAte;
-    private DatePickerDialog.OnDateSetListener mDateSetListenerAte;
-    private TimePickerDialog.OnTimeSetListener mHoraSetListenerAte;
     private Toolbar toolbar;
     private Button btnGerarRelatorio;
+    private Snackbar snackbar;
+    private LinearLayout linearLayoutRootRelatorioFuro;
     List<Furo> relatorioFuros = new ArrayList<>();
     List<Furo> furos = new ArrayList<>();
     private TextView total;
@@ -107,6 +100,15 @@ public class RelatorioFuroActivity extends AppCompatActivity {
     UsuarioDAO usuarioDAO = new UsuarioDAO(this);
     Button btnGerarRelatorioPDF;
     ProgressDialog progressDialog;
+    private Boolean furoDeletada = false;
+    private EventBus bus = EventBus.getDefault();
+    TextView tvResumeCardLucro;
+    TextView tvResumeCardTotal;
+    TextView tvLucro;
+    CardView cardViewResumo;
+    CardView cardViewFiltros;
+    ViewGroup viewRoot;
+    DataHoraView dataHoraView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,6 +116,8 @@ public class RelatorioFuroActivity extends AppCompatActivity {
         setContentView(R.layout.activity_relatorio_furo);
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
         StrictMode.setVmPolicy(builder.build());
+        viewRoot = (ViewGroup) findViewById(android.R.id.content);
+        dataHoraView = new DataHoraView(viewRoot, this);
 
         lojas = lojaDAO.listarLojas();
         if (lojas.size() == 0) {
@@ -122,12 +126,12 @@ public class RelatorioFuroActivity extends AppCompatActivity {
             return;
 
         }
-        labelsLojas.add("Escolha a Loja");
+        labelsLojas.add("Todas");
         for (Loja l : lojas) {
             labelsLojas.add(l.getNome());
         }
         usuarios = usuarioDAO.listarUsuarios();
-        labelsUsuarios.add("Escolha um usuario");
+        labelsUsuarios.add("Todos");
         for (Usuario u : usuarios) {
             labelsUsuarios.add(u.getNome());
         }
@@ -148,25 +152,22 @@ public class RelatorioFuroActivity extends AppCompatActivity {
         getSupportActionBar().setHomeButtonEnabled(true);      //Ativar o botão
         getSupportActionBar().setTitle("Relatorio de Furo");
 
+        linearLayoutRootRelatorioFuro = (LinearLayout) findViewById(R.id.ll_root_relatorio_furo);
+        snackbar = Snackbar.make(linearLayoutRootRelatorioFuro, "", Snackbar.LENGTH_LONG);
         total = (TextView) findViewById(R.id.total);
-        mDisplayDateDe = (TextView) findViewById(R.id.dataDe);
-        mDisplayDateAte = (TextView) findViewById(R.id.dataAte);
+
         btnGerarRelatorio = (Button) findViewById(R.id.gerar_relatorio);
         btnGerarRelatorioPDF = (Button) findViewById(R.id.gerar_relatorio_pdf);
         progressDialog = new ProgressDialog(this);
         progressDialog.setCancelable(false);
-        mDisplayDateDe.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                updateDateDe();
-            }
-        });
-        mDisplayDateAte.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                updateDateAte();
-            }
-        });
+        cardViewResumo = (CardView) findViewById(R.id.lista_transacoes_resumo);
+        tvResumeCardTotal = (TextView) findViewById(R.id.resumo_card_total);
+        tvResumeCardLucro = (TextView) findViewById(R.id.resumo_card_lucro);
+        cardViewFiltros = (CardView) findViewById(R.id.card_view_filtros);
+        tvLucro = (TextView) findViewById(R.id.tv_lucro);
+        cardViewResumo.setVisibility(View.GONE);
+        tvResumeCardLucro.setVisibility(View.GONE);
+        tvLucro.setVisibility(View.GONE);
 
 
         listaViewDeFuro = (ListView) findViewById(R.id.lista_de_furo);
@@ -194,6 +195,13 @@ public class RelatorioFuroActivity extends AppCompatActivity {
 
             }
         });
+        snackbar.setAction("OK", new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+        snackbar.setActionTextColor(Color.RED);
         funcionarioSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
@@ -211,42 +219,7 @@ public class RelatorioFuroActivity extends AppCompatActivity {
             }
         });
 
-        mDateSetListenerDe = new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                dateTimeDe.set(Calendar.YEAR, year);
-                dateTimeDe.set(Calendar.MONTH, monthOfYear);
-                dateTimeDe.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                updateTextLabelDe();
-            }
-        };
-        mHoraSetListenerDe = new TimePickerDialog.OnTimeSetListener() {
-            @Override
-            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                dateTimeDe.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                dateTimeDe.set(Calendar.MINUTE, minute);
-                updateTextLabelDe();
-            }
-        };
 
-        mDateSetListenerAte = new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                Date d = new Date();
-                dateTimeAte.set(Calendar.YEAR, year);
-                dateTimeAte.set(Calendar.MONTH, monthOfYear);
-                dateTimeAte.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                updateTextLabelAte();
-            }
-        };
-        mHoraSetListenerAte = new TimePickerDialog.OnTimeSetListener() {
-            @Override
-            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                dateTimeAte.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                dateTimeAte.set(Calendar.MINUTE, minute);
-                updateTextLabelAte();
-            }
-        };
         btnGerarRelatorio.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -260,7 +233,7 @@ public class RelatorioFuroActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> lista, View item, int position, long id) {
                 furoClicado = (Furo) listaViewDeFuro.getItemAtPosition(position);
-                if (furoClicado != null) {
+                if (position != 0) {
                     ShowCustomDialogwithList();
                 }
 
@@ -291,7 +264,7 @@ public class RelatorioFuroActivity extends AppCompatActivity {
                 }
                 progressDialog.setMessage("Gerando PDF");
                 progressDialog.show();
-                Call<ResponseBody> call = new RetrofitInializador().getRelatorioService().relatorioFuro(lojaId, funcionarioId, mDisplayDateDe.getText().toString(), mDisplayDateAte.getText().toString());
+                Call<ResponseBody> call = new RetrofitInializador().getRelatorioService().relatorioFuro(lojaId, funcionarioId, dataHoraView.getTextViewDataInicio().getText().toString(), dataHoraView.getTextViewDataFim().getText().toString());
                 call.enqueue(new Callback<ResponseBody>() {
                     @Override
                     public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -299,7 +272,8 @@ public class RelatorioFuroActivity extends AppCompatActivity {
                             Log.d("TAG", "server contacted and has file");
 
                             boolean writtenToDisk = writeResponseBodyToDisk(response.body());
-
+//                            snackbar.setText("PDF gerado com sucesso");
+//                            snackbar.show();
                             Toast.makeText(getApplicationContext(), "PDF gerado com sucesso", Toast.LENGTH_SHORT).show();
                             progressDialog.dismiss();
                             views();
@@ -308,6 +282,8 @@ public class RelatorioFuroActivity extends AppCompatActivity {
                         } else {
                             Log.d("TAG", "server contact failed");
                             progressDialog.dismiss();
+//                            snackbar.setText("Erro ao gerar o pdf");
+//                            snackbar.show();
                             Toast.makeText(getApplicationContext(), "Erro ao gerar o pdf", Toast.LENGTH_SHORT).show();
 
                         }
@@ -319,7 +295,9 @@ public class RelatorioFuroActivity extends AppCompatActivity {
                     public void onFailure(Call<ResponseBody> call, Throwable t) {
                         Log.e("onFailure chamado", t.getMessage());
                         progressDialog.dismiss();
-                        Toast.makeText(getApplicationContext(), "Verifique a conexao com a internet", Toast.LENGTH_SHORT).show();
+                        snackbar.setText("Verifique a conexao com a internet");
+                        snackbar.show();
+//                        Toast.makeText(getApplicationContext(), "Verifique a conexao com a internet", Toast.LENGTH_SHORT).show();
 
                     }
                 });
@@ -331,27 +309,33 @@ public class RelatorioFuroActivity extends AppCompatActivity {
     }
 
     public boolean isValid() {
-        if (mDisplayDateDe.getText().toString().equals("")) {
-            mDisplayDateDe.setError("Escolha uma data");
-            mDisplayDateDe.requestFocus();
-            Toast.makeText(RelatorioFuroActivity.this, "escolha uma data de inicio", Toast.LENGTH_SHORT).show();
+        if (dataHoraView.getTextViewDataInicio().getText().toString().equals("")) {
+            dataHoraView.getTextViewDataInicio().setError("Escolha uma data");
+            dataHoraView.getTextViewDataInicio().requestFocus();
+            snackbar.setText("escolha uma data de inicio");
+            snackbar.show();
+//            Toast.makeText(RelatorioFuroActivity.this, "escolha uma data de inicio", Toast.LENGTH_SHORT).show();
             return false;
         }
-        if (mDisplayDateAte.getText().toString().equals("")) {
-            mDisplayDateAte.setError("Escolha uma data");
-            mDisplayDateAte.requestFocus();
-            Toast.makeText(RelatorioFuroActivity.this, "escolha uma data de termino", Toast.LENGTH_SHORT).show();
+        if (dataHoraView.getTextViewDataFim().getText().toString().equals("")) {
+            dataHoraView.getTextViewDataFim().setError("Escolha uma data");
+            dataHoraView.getTextViewDataFim().requestFocus();
+            snackbar.setText("escolha uma data de termino");
+            snackbar.show();
+//            Toast.makeText(RelatorioFuroActivity.this, "escolha uma data de termino", Toast.LENGTH_SHORT).show();
             return false;
         }
 
         try {
-            de = formatter.parse(mDisplayDateDe.getText().toString());
-            ate = formatter.parse(mDisplayDateAte.getText().toString());
+            de = formatter.parse(dataHoraView.getTextViewDataInicio().getText().toString());
+            ate = formatter.parse(dataHoraView.getTextViewDataFim().getText().toString());
         } catch (ParseException e) {
             e.printStackTrace();
         }
         if (de.after(ate)) {
-            Toast.makeText(getApplicationContext(), "A data de origem deve ser menor do que a data final ", Toast.LENGTH_SHORT).show();
+            snackbar.setText("A data de origem deve ser menor do que a data final ");
+            snackbar.show();
+//            Toast.makeText(getApplicationContext(), "A data de origem deve ser menor do que a data final ", Toast.LENGTH_SHORT).show();
             return false;
         }
         return true;
@@ -422,6 +406,8 @@ public class RelatorioFuroActivity extends AppCompatActivity {
             startActivity(pdfIntent);
             progressDialog.dismiss();
         } catch (ActivityNotFoundException e) {
+//            snackbar.setText("Não existe aplicativo para visualizar o PDF");
+//            snackbar.show();
             Toast.makeText(RelatorioFuroActivity.this, "Não existe aplicativo para visualizar o PDF", Toast.LENGTH_SHORT).show();
             progressDialog.dismiss();
         }
@@ -496,8 +482,8 @@ public class RelatorioFuroActivity extends AppCompatActivity {
         relatorioFuros.clear();
 
         try {
-            de = formatter.parse(mDisplayDateDe.getText().toString());
-            ate = formatter.parse(mDisplayDateAte.getText().toString());
+            de = formatter.parse(dataHoraView.getTextViewDataInicio().getText().toString());
+            ate = formatter.parse(dataHoraView.getTextViewDataFim().getText().toString());
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -510,34 +496,17 @@ public class RelatorioFuroActivity extends AppCompatActivity {
             auxFuro += furo.getValor();
             relatorioFuros.add(furo);
         }
-        total.setText("O total dos furos é R$ " + auxFuro + " reais");
+        final NumberFormat formatoBrasileiro = DecimalFormat.getCurrencyInstance(new Locale("pt", "br"));
+        tvResumeCardTotal.setText(formatoBrasileiro.format(auxFuro).
+                replace("R$", "R$ ").
+                replace("-R$", "R$ -"));
+//        total.setText("O total dos furos é R$ " + auxFuro + " reais");
 
 
         listaViewDeFuro.setAdapter(adapterTable);
         adapterTable.notifyDataSetChanged();
     }
 
-    private void updateDateDe() {
-        new TimePickerDialog(this, mHoraSetListenerDe, dateTimeDe.get(Calendar.HOUR_OF_DAY), dateTimeDe.get(Calendar.MINUTE), true).show();
-        new DatePickerDialog(this, mDateSetListenerDe, dateTimeDe.get(Calendar.YEAR), dateTimeDe.get(Calendar.MONTH), dateTimeDe.get(Calendar.DAY_OF_MONTH)).show();
-
-
-    }
-
-    private void updateDateAte() {
-
-        new TimePickerDialog(this, mHoraSetListenerAte, dateTimeAte.get(Calendar.HOUR_OF_DAY), dateTimeAte.get(Calendar.MINUTE), true).show();
-        new DatePickerDialog(this, mDateSetListenerAte, dateTimeAte.get(Calendar.YEAR), dateTimeAte.get(Calendar.MONTH), dateTimeAte.get(Calendar.DAY_OF_MONTH)).show();
-
-    }
-
-    private void updateTextLabelDe() {
-        mDisplayDateDe.setText(formatter.format(dateTimeDe.getTime()));
-    }
-
-    private void updateTextLabelAte() {
-        mDisplayDateAte.setText(formatter.format(dateTimeAte.getTime()));
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -552,42 +521,16 @@ public class RelatorioFuroActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
+                if (furoDeletada) {
+                    bus.post(new AtualizaListaProdutoEvent());
+                }
                 finish();
                 break;
             case R.id.filtro:
-                if (mDisplayDateAte.getVisibility() == View.GONE) {
-                    mDisplayDateDe.setVisibility(View.VISIBLE);
+                if (cardViewFiltros.getVisibility() == View.GONE) {
+                    cardViewFiltros.setVisibility(View.VISIBLE);
                 } else {
-                    mDisplayDateDe.setVisibility(View.GONE);
-                }
-                if (mDisplayDateAte.getVisibility() == View.GONE) {
-                    mDisplayDateAte.setVisibility(View.VISIBLE);
-                } else {
-                    mDisplayDateAte.setVisibility(View.GONE);
-                }
-                if (btnGerarRelatorio.getVisibility() == View.GONE) {
-                    btnGerarRelatorio.setVisibility(View.VISIBLE);
-                } else {
-                    btnGerarRelatorio.setVisibility(View.GONE);
-
-                }
-                if (btnGerarRelatorioPDF.getVisibility() == View.GONE) {
-                    btnGerarRelatorioPDF.setVisibility(View.VISIBLE);
-                } else {
-                    btnGerarRelatorioPDF.setVisibility(View.GONE);
-
-                }
-                if (lojaSpinner.getVisibility() == View.GONE) {
-                    lojaSpinner.setVisibility(View.VISIBLE);
-                } else {
-                    lojaSpinner.setVisibility(View.GONE);
-
-                }
-                if (funcionarioSpinner.getVisibility() == View.GONE) {
-                    funcionarioSpinner.setVisibility(View.VISIBLE);
-                } else {
-                    funcionarioSpinner.setVisibility(View.GONE);
-
+                    cardViewFiltros.setVisibility(View.GONE);
                 }
                 break;
 
@@ -650,7 +593,10 @@ public class RelatorioFuroActivity extends AppCompatActivity {
 
                     }
                     if (relatorioFuros.remove(furo)) {
-                        Toast.makeText(RelatorioFuroActivity.this, "Furo deletada", Toast.LENGTH_SHORT).show();
+                        snackbar.setText("Furo deletada");
+                        furoDeletada = true;
+                        snackbar.show();
+//                        Toast.makeText(RelatorioFuroActivity.this, "Furo deletada", Toast.LENGTH_SHORT).show();
                         listaViewDeFuro.setAdapter(adapterTable);
                         adapterTable.notifyDataSetChanged();
                     }
@@ -662,5 +608,12 @@ public class RelatorioFuroActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void onBackPressed() {
+        if (furoDeletada) {
+            bus.post(new AtualizaListaProdutoEvent());
+        }
+        super.onBackPressed();
+    }
 
 }

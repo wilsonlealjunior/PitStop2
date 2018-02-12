@@ -1,6 +1,9 @@
 package pitstop.com.br.pitstop.activity;
 
+import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -15,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -56,31 +60,37 @@ import pitstop.com.br.pitstop.model.Usuario;
 import pitstop.com.br.pitstop.preferences.UsuarioPreferences;
 
 public class CadastroFuroActivity extends AppCompatActivity {
-    Spinner spinnerLoja;
-    Spinner spinnerFuncionario;
     TextView campoProduto;
     EditText campoquantidade;
-    //    Button botãoCadastrar;
-    List<String> labelsLoja = new ArrayList<>();
-    List<Loja> lojas = new ArrayList<>();
-    Button adicionarProduto;
-    //    List<Produto> carrinho = new ArrayList<>();
-//    List<Furo> furoCarinho = new ArrayList<>();
+    LinearLayout linearLayoutRootCadastroFuro;
+    Snackbar snackbar;
     List<Produto> produtos = new ArrayList<>();
     List<Produto> pesquisa = new ArrayList<>();
-    List<Usuario> usuarios = new ArrayList<>();
     Produto produto = new Produto();
-    Loja lojaEscolhida = new Loja();
-    Usuario usuarioEscolhido = new Usuario();
     private Toolbar toolbar;
     ProdutoDAO produtoDAO;
     LojaDAO lojaDAO;
     UsuarioDAO usuarioDAO;
     EntradaProdutoDAO entradaProdutoDAO = new EntradaProdutoDAO(this);
     Produto produtoPrincipal;
-
-
     EventBus bus = EventBus.getDefault();
+
+
+    Spinner spinnerLoja;
+    Spinner spinnerFuncionario;
+
+    //    Button botãoCadastrar;
+    List<String> labelsLoja = new ArrayList<>();
+    List<Loja> lojas = new ArrayList<>();
+    Button adicionarProduto;
+    //    List<Produto> carrinho = new ArrayList<>();
+//    List<Furo> furoCarinho = new ArrayList<>();
+
+    List<Usuario> usuarios = new ArrayList<>();
+
+    Loja lojaEscolhida = new Loja();
+    Usuario usuarioEscolhido = new Usuario();
+
 
 
     @Override
@@ -88,6 +98,8 @@ public class CadastroFuroActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cadastro_furo);
 
+        linearLayoutRootCadastroFuro = (LinearLayout) findViewById(R.id.ll_root_cadastro_furo);
+        snackbar = Snackbar.make(linearLayoutRootCadastroFuro, "", Snackbar.LENGTH_LONG);
         spinnerFuncionario = (Spinner) findViewById(R.id.spinner_funcionario);
         spinnerLoja = (Spinner) findViewById(R.id.spinner);
         campoProduto = (TextView) findViewById(R.id.produto);
@@ -114,13 +126,22 @@ public class CadastroFuroActivity extends AppCompatActivity {
         for (Loja loja : lojas) {
             labelsLoja.add(loja.getNome());
         }
-        lojaEscolhida = lojas.get(0);
-        produtos = produtoDAO.procuraPorLoja(lojaEscolhida);
-        if (produtos.size() == 0) {
-            Toast.makeText(getApplicationContext(), "Não existe Produtos cadastrados", Toast.LENGTH_LONG).show();
-            finish();
-            return;
-        }
+//        lojaEscolhida = lojas.get(0);
+//        produtos = produtoDAO.procuraPorLoja(lojaEscolhida);
+//        if (produtos.size() == 0) {
+//            Toast.makeText(getApplicationContext(), "Não existe Produtos cadastrados", Toast.LENGTH_LONG).show();
+//            finish();
+//            return;
+//        }
+
+
+        snackbar.setAction("OK", new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+        snackbar.setActionTextColor(Color.RED);
 
 
         ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, labelsLoja);
@@ -132,7 +153,7 @@ public class CadastroFuroActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 lojaEscolhida = lojas.get(i);
                 produtos = produtoDAO.procuraPorLoja(lojaEscolhida);
-                Collections.sort(produtos);
+//                Collections.sort(produtos);
                 campoProduto.setText("");
                 produto = null;
 
@@ -168,6 +189,11 @@ public class CadastroFuroActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    public static void hideKeyboard(Context context, View editText) {
+        InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
     }
 
     public void validandoQuantidadeDoProdutoNoEstoque() {
@@ -216,18 +242,14 @@ public class CadastroFuroActivity extends AppCompatActivity {
 //            produtoDAO.close();
 //
 //        }
+        hideKeyboard(this, getCurrentFocus());
 
-
-        if (campoProduto.getText().
-
-                toString().
-
-                isEmpty())
-
-        {
+        if (campoProduto.getText().toString().isEmpty()) {
             campoProduto.setError("Escolha um produto");
             campoProduto.requestFocus();
-            Toast.makeText(CadastroFuroActivity.this, "Escolha um Produto", Toast.LENGTH_SHORT).show();
+            snackbar.setText("Escolha um produto");
+            snackbar.show();
+//            Toast.makeText(CadastroFuroActivity.this, "Escolha um Produto", Toast.LENGTH_SHORT).show();
             return false;
         }
         if (campoquantidade.getText().
@@ -253,7 +275,9 @@ public class CadastroFuroActivity extends AppCompatActivity {
         if (quantidadeFuro > produto.getQuantidade())
 
         {
-            Toast.makeText(CadastroFuroActivity.this, "Quantidade informada maior do que o estoque do Produto", Toast.LENGTH_SHORT).show();
+            snackbar.setText("Quantidade informada maior do que o estoque do Produto");
+            snackbar.show();
+//            Toast.makeText(CadastroFuroActivity.this, "Quantidade informada maior do que o estoque do Produto", Toast.LENGTH_SHORT).show();
             return false;
         }
         return true;
@@ -339,8 +363,10 @@ public class CadastroFuroActivity extends AppCompatActivity {
                 //campoPreco.setText(String.valueOf(produto.getPreco()));
 
                 // Show Alert
-                Toast.makeText(getApplicationContext(), "Produto : " + produto.getNome() + " selecionado", Toast.LENGTH_LONG)
-                        .show();
+                snackbar.setText("Produto : " + produto.getNome() + " selecionado");
+                snackbar.show();
+//                Toast.makeText(getApplicationContext(), "Produto : " + produto.getNome() + " selecionado", Toast.LENGTH_LONG)
+//                        .show();
                 alertDialog.hide();
                 alertDialog.dismiss();
 
@@ -354,11 +380,13 @@ public class CadastroFuroActivity extends AppCompatActivity {
         pesquisa.clear();
 
         for (int i = 0; i < produtos.size(); i++) {
-            if (textlength <= produtos.get(i).getNome().length()) {
-                if (txtPesquisa.equalsIgnoreCase((String) produtos.get(i).getNome().subSequence(0, textlength))) {
-                    pesquisa.add(produtos.get(i));
-                }
-            }
+            if (produtos.get(i).getNome().toLowerCase().contains(txtPesquisa.toLowerCase()))
+                pesquisa.add(produtos.get(i));
+//            if (textlength <= produtos.get(i).getNome().length()) {
+//                if (txtPesquisa.equalsIgnoreCase((String) produtos.get(i).getNome().subSequence(0, textlength))) {
+//                    pesquisa.add(produtos.get(i));
+//                }
+//            }
         }
     }
 

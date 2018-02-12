@@ -1,7 +1,10 @@
 package pitstop.com.br.pitstop.activity;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.annotation.IdRes;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -53,6 +56,8 @@ public class CadastroLojaActivity extends AppCompatActivity {
     private RadioButton rbCopiarPositivo;
     private RadioButton rbCopiarNegativo;
     private EditText nomeLojaCopiarProdutos;
+    private CoordinatorLayout coordinatorLayoutRootCadastroLoja;
+    private Snackbar snackbar;
     private Loja lojaEscolhidaParaCopiarProdutos;
 
     LojaDAO lojaDAO;
@@ -67,6 +72,8 @@ public class CadastroLojaActivity extends AppCompatActivity {
         lojaDAO = new LojaDAO(this);
         produtoDAO = new ProdutoDAO(this);
 
+        coordinatorLayoutRootCadastroLoja = (CoordinatorLayout)findViewById(R.id.cl_root_cadastro_loja);
+        snackbar = Snackbar.make(coordinatorLayoutRootCadastroLoja, "", Snackbar.LENGTH_LONG);
         //localizacaoSincronizador = new LojaSincronizador(this);
         cadastroLojaHelper = new CadastroLojaHelper(this);
         //mostrarBarraInferior();
@@ -106,6 +113,14 @@ public class CadastroLojaActivity extends AppCompatActivity {
 
             }
         });
+
+        snackbar.setAction("OK", new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+        snackbar.setActionTextColor(Color.RED);
 
 
     }
@@ -237,11 +252,13 @@ public class CadastroLojaActivity extends AppCompatActivity {
         pesquisa.clear();
 
         for (int i = 0; i < lojas.size(); i++) {
-            if (textlength <= lojas.get(i).getNome().length()) {
-                if (txtPesquisa.equalsIgnoreCase((String) lojas.get(i).getNome().subSequence(0, textlength))) {
-                    pesquisa.add(lojas.get(i));
-                }
-            }
+            if (lojas.get(i).getNome().toLowerCase().contains(txtPesquisa.toLowerCase()))
+                pesquisa.add(lojas.get(i));
+//            if (textlength <= lojas.get(i).getNome().length()) {
+//                if (txtPesquisa.equalsIgnoreCase((String) lojas.get(i).getNome().subSequence(0, textlength))) {
+//                    pesquisa.add(lojas.get(i));
+//                }
+//            }
         }
     }
 
@@ -315,8 +332,10 @@ public class CadastroLojaActivity extends AppCompatActivity {
                 lojaEscolhidaParaCopiarProdutos = (Loja) listView.getItemAtPosition(position);
                 nomeLojaCopiarProdutos.setText(lojaEscolhidaParaCopiarProdutos.getNome());
                 // Show Alert
-                Toast.makeText(getApplicationContext(), "Loja : " + lojaEscolhidaParaCopiarProdutos.getNome() + " selecionado", Toast.LENGTH_LONG)
-                        .show();
+                snackbar.setText("Loja : " + lojaEscolhidaParaCopiarProdutos.getNome() + " selecionado");
+                snackbar.show();
+//                Toast.makeText(getApplicationContext(), "Loja : " + lojaEscolhidaParaCopiarProdutos.getNome() + " selecionado", Toast.LENGTH_LONG)
+//                        .show();
                 alertDialog.hide();
                 alertDialog.dismiss();
 

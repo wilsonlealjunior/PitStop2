@@ -19,8 +19,18 @@ public class Venda {
     String MomentoDaUltimaAtualizacao;
     int sincronizado;
     double total;
+    double totalCartao;
     double lucro;
     private int desativado=0;
+
+
+    public double getTotalCartao() {
+        return totalCartao;
+    }
+
+    public void setTotalCartao(double totalCartao) {
+        this.totalCartao = totalCartao;
+    }
 
     public void desativar(){
         desativado=1;

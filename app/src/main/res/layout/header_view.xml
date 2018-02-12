@@ -1,60 +1,90 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/sellers_profile_layout"
-    android:layout_width="fill_parent"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@android:color/white">
-    <!-- Header View -->
-    <ImageButton
-        android:id="@+id/logout"
+    android:orientation="vertical">
+
+    <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_margin="10dp"
-        android:src="@mipmap/logout"
-        android:background="@drawable/button_logout"
-        android:clickable="true"
-        />
+        android:background="#F5C116"
+        android:fitsSystemWindows="false">
+        <!-- Header View -->
+        <ImageView
 
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_toRightOf="@+id/logout"
-        android:orientation="vertical"
-        android:paddingBottom="15dp"
-        android:paddingRight="15dp"
-        android:paddingTop="15dp">
-
-        <TextView
-            android:id="@+id/username"
-            android:layout_width="fill_parent"
+            android:id="@+id/logo_pitstop"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:text="PitStop"
-            android:textColor="@android:color/black"
-            android:textSize="15sp" />
 
-        <TextView
-            android:id="@+id/email_address"
+            android:adjustViewBounds="true"
+            android:scaleType="fitStart"
+            android:src="@drawable/pitstop" />
+
+        <View
+            android:id="@+id/linha"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@id/logo_pitstop"
+            android:background="@android:color/background_light" />
+
+        <LinearLayout
+            android:layout_below="@id/linha"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:text="PitStop"
-            android:textColor="@android:color/black"
-            android:textSize="13sp" />
-        <TextView
-            android:id="@+id/loja"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:text="PitStop"
-            android:textColor="@android:color/black"
-            android:textSize="13sp" />
-    </LinearLayout>
+          android:layout_margin="8dp"
+            android:orientation="horizontal">
 
-    <View
-        android:layout_width="fill_parent"
-        android:layout_height="1dp"
-        android:layout_alignParentBottom="true"
-        android:background="@android:color/darker_gray" />
-</RelativeLayout>
+            <ImageButton
+                android:id="@+id/logout"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_gravity="center_vertical|center_horizontal"
+                android:layout_height="wrap_content"
+                android:background="@drawable/button_logout"
+                android:clickable="true"
+                android:src="@mipmap/logout"
+                android:paddingRight="8dp"/>
+
+            <LinearLayout
+                android:id="@+id/inf"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#F5C116"
+                android:orientation="vertical"
+
+             >
+
+                <TextView
+                    android:id="@+id/username"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:text="Funcionario: PitStop"
+                    android:textColor="@color/white"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/email_address"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:text="Cargo: PitStop"
+                    android:textColor="@color/white"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/loja"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:text="Loja: PitStop"
+                    android:textColor="@color/white"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </RelativeLayout>
+</LinearLayout>

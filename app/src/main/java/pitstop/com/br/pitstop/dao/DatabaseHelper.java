@@ -33,7 +33,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(sql);
 
         //tabela venda
-        sql = "CREATE TABLE Vendas (id CHAR(36) PRIMARY KEY,desativado INT DEFAULT 0, total REAL NOT NULL,prejuizo REAL NOT NULL, id_loja CHAR(36) ,nomeVendedor TEXT NOT NULL,formaDePagamento TEXT NOT NULL, dataDaVenda TEXT NOT NULL, sincronizado INT DEFAULT 0);";
+        sql = "CREATE TABLE Vendas (id CHAR(36) PRIMARY KEY,desativado INT DEFAULT 0, total REAL NOT NULL,totalCartao REAL NOT NULL,prejuizo REAL NOT NULL, id_loja CHAR(36) ,nomeVendedor TEXT NOT NULL,formaDePagamento TEXT NOT NULL, dataDaVenda TEXT NOT NULL, sincronizado INT DEFAULT 0);";
         db.execSQL(sql);
 
         //tabela Venda_EntradaProduto

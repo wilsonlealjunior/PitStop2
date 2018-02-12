@@ -1,9 +1,15 @@
 package pitstop.com.br.pitstop.activity;
 
+import android.content.ComponentName;
+import android.content.Intent;
+import android.graphics.Color;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.ContextMenu;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -24,6 +30,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.w3c.dom.Text;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,9 +40,11 @@ import java.util.List;
 import java.util.UUID;
 
 import de.greenrobot.event.EventBus;
+import pitstop.com.br.pitstop.Print;
 import pitstop.com.br.pitstop.R;
 import pitstop.com.br.pitstop.adapter.AdpterProdutoPersonalizado;
 import pitstop.com.br.pitstop.adapter.LstViewTabelaVendaAdapter;
+import pitstop.com.br.pitstop.adapter.NonScrollListView;
 import pitstop.com.br.pitstop.dao.EntradaProdutoDAO;
 import pitstop.com.br.pitstop.dao.ProdutoDAO;
 import pitstop.com.br.pitstop.dao.VendaDAO;
@@ -49,29 +59,43 @@ import pitstop.com.br.pitstop.preferences.UsuarioPreferences;
 
 
 public class CadastrarVendasActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
-    Spinner spinnerFormaDeVenda;
     private EditText campoQuantidae;
-    private TextView campoPreco;
-    private TextView campoTotal;
-    private TextView campoNome;
     private Toolbar toolbar;
-    Button adicionarProduto;
-    private ListView listaViewDeProdutosCarrinho;
-    LstViewTabelaVendaAdapter adapterTableCarrinho;
+    private TextView campoNome;
     Produto produto;
     Loja loja;
     List<Produto> produtos = new ArrayList<>();
-    List<Produto> carrinho = new ArrayList<>();
     List<Produto> pesquisa = new ArrayList<>();
     private EventBus bus = EventBus.getDefault();
-    double total = 0.0;
-    Venda venda;
-    String[] formaDePagamento = new String[]{"Forma de Pagamento", "dinheiro", "cartao"};
-    UsuarioPreferences usuarioPreferences;
     EntradaProdutoDAO entradaProdutoDAO;
     ProdutoDAO produtoDAO;
     VendaDAO vendaDAO;
     Produto produtoPrincipal = null;
+    Snackbar snackbar;
+    LinearLayout linearLayoutRootVendas;
+
+
+    Spinner spinnerFormaDeVenda;
+    private TextView campoPreco;
+    private TextView campoTotal;
+    private TextView tvTotalCartao;
+
+    Button adicionarProduto;
+    private NonScrollListView listaViewDeProdutosCarrinho;
+    LstViewTabelaVendaAdapter adapterTableCarrinho;
+
+
+    List<Produto> carrinho = new ArrayList<>();
+
+
+    double total = 0.0;
+    double totalCartao = 0.0;
+    Venda venda;
+    String[] formaDePagamento = new String[]{"dinheiro", "cartao", "dinheiro e cartao"};
+    UsuarioPreferences usuarioPreferences;
+
+
+    EditText campoTotalCartao;
 
 
     @Override
@@ -83,12 +107,14 @@ public class CadastrarVendasActivity extends AppCompatActivity implements Adapte
         loadView();
         setupView();
         if (!usuarioPreferences.temUsuario()) {
+
             Toast.makeText(CadastrarVendasActivity.this, "Não existe usuario logado", Toast.LENGTH_SHORT).show();
             finish();
             return;
 
         }
         if (!usuarioPreferences.temLoja()) {
+
             Toast.makeText(CadastrarVendasActivity.this, "Por favor deslogue e esolha uma loja", Toast.LENGTH_SHORT).show();
             finish();
             return;
@@ -101,14 +127,19 @@ public class CadastrarVendasActivity extends AppCompatActivity implements Adapte
     }
 
     public void loadView() {
+        linearLayoutRootVendas = (LinearLayout) findViewById(R.id.ll_root_cadastro_vendas);
+        snackbar = Snackbar.make(linearLayoutRootVendas, "", Snackbar.LENGTH_LONG);
+        campoTotalCartao = (EditText) findViewById(R.id.total_cartao);
         spinnerFormaDeVenda = (Spinner) findViewById(R.id.spinner);
         campoNome = (TextView) findViewById(R.id.nome);
         campoPreco = (TextView) findViewById(R.id.preco);
         campoTotal = (TextView) findViewById(R.id.total);
+        tvTotalCartao = (TextView) findViewById(R.id.tv_total_cartao);
         campoQuantidae = (EditText) findViewById(R.id.quantidade);
         adicionarProduto = (Button) findViewById(R.id.adcionar);
         toolbar = (Toolbar) findViewById(R.id.main_toolbar);
-        listaViewDeProdutosCarrinho = (ListView) findViewById(R.id.lista_de_produto);
+        listaViewDeProdutosCarrinho = (NonScrollListView) findViewById(R.id.lista_de_produto);
+
         adapterTableCarrinho = new LstViewTabelaVendaAdapter(this, R.layout.tabela_carinho_venda, R.id.produto, carrinho);
 
         usuarioPreferences = new UsuarioPreferences(this);
@@ -149,7 +180,6 @@ public class CadastrarVendasActivity extends AppCompatActivity implements Adapte
             produtoPrincipal.desincroniza();
             produtoDAO.altera(produtoPrincipal);
             produtoDAO.close();
-
         }
 
     }
@@ -160,7 +190,9 @@ public class CadastrarVendasActivity extends AppCompatActivity implements Adapte
         if (campoNome.getText().toString().isEmpty()) {
             campoNome.setError("Escolha um produto");
             campoNome.requestFocus();
-            Toast.makeText(CadastrarVendasActivity.this, "Escolha um Produto", Toast.LENGTH_SHORT).show();
+            snackbar.setText("Escolha um produto");
+            snackbar.show();
+//            Toast.makeText(CadastrarVendasActivity.this, "Escolha um Produto", Toast.LENGTH_SHORT).show();
             return false;
         }
         if (campoQuantidae.getText().length() == 0) {
@@ -176,9 +208,13 @@ public class CadastrarVendasActivity extends AppCompatActivity implements Adapte
             return false;
         }
         if (quantidadeComprada > produto.getQuantidade()) {
-            Toast.makeText(CadastrarVendasActivity.this, "Quantidade informada maior do que o estoque do Produto", Toast.LENGTH_SHORT).show();
+            snackbar.setText("Quantidade informada maior do que o estoque do Produto");
+            snackbar.show();
+//            Toast.makeText(CadastrarVendasActivity.this, "Quantidade informada maior do que o estoque do Produto", Toast.LENGTH_SHORT).show();
             return false;
         }
+
+
         return true;
     }
 
@@ -204,7 +240,38 @@ public class CadastrarVendasActivity extends AppCompatActivity implements Adapte
         loja = usuarioPreferences.getLoja();
         produtos = produtoDAO.procuraPorLoja(loja);
         produtoDAO.close();
-        Collections.sort(produtos);
+        campoTotalCartao.setVisibility(View.GONE);
+        tvTotalCartao.setVisibility(View.GONE);
+//        campoTotalCartao.setFocusable(false);
+//        Collections.sort(produtos);
+        campoTotalCartao.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if (!editable.toString().isEmpty()) {
+                    Toast.makeText(CadastrarVendasActivity.this, editable.toString(), Toast.LENGTH_SHORT);
+                    Double n = Double.parseDouble(editable.toString());
+                    campoTotal.setText("R$ " + (total - n));
+                    totalCartao = n;
+                } else {
+                    campoTotal.setText("R$ " + total);
+                    totalCartao = 0;
+
+                }
+
+
+            }
+        });
 
 
         //funcionalidades para os botões
@@ -226,9 +293,11 @@ public class CadastrarVendasActivity extends AppCompatActivity implements Adapte
                 prodCarinho.setPreco(produto.getPreco());
                 carrinho.add(prodCarinho);
                 total += prodCarinho.getQuantidade() * prodCarinho.getPreco();
-                Toast toast = Toast.makeText(CadastrarVendasActivity.this, "Produto " + produto.getNome() + " adicionado ao carrinho", Toast.LENGTH_SHORT);
-                toast.setGravity(Gravity.CENTER, 0, 0);
-                toast.show();
+                snackbar.setText("Produto " + produto.getNome() + " adicionado ao carrinho");
+                snackbar.show();
+//                Toast toast = Toast.makeText(CadastrarVendasActivity.this, "Produto " + produto.getNome() + " adicionado ao carrinho", Toast.LENGTH_SHORT);
+//                toast.setGravity(Gravity.CENTER, 0, 0);
+//                toast.show();
 
 
              /*   TUDO ISSO É SO PARA DAR BAIXA NA LISTVIEW DO CARRINHO, PARA NÃO VENDER ALEM DO QUE ESTÁ
@@ -260,11 +329,19 @@ public class CadastrarVendasActivity extends AppCompatActivity implements Adapte
                     }
                 }
                 adapterTableCarrinho.notifyDataSetChanged();
-                campoTotal.setText("Total R$ " + String.valueOf(total));
+                campoTotal.setText("R$ " + String.valueOf(total));
 
 
             }
         });
+        //configurando snackbar
+        snackbar.setAction("OK", new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+        snackbar.setActionTextColor(Color.RED);
 
 
         campoNome.setOnClickListener(new View.OnClickListener() {
@@ -318,7 +395,7 @@ public class CadastrarVendasActivity extends AppCompatActivity implements Adapte
 
 //                    produtoDaListaDeProdutos.setQuantidade(produtoDaListaDeProdutos.getQuantidade() + produtoVindoDaListView.getQuantidade());
                     total -= produtoVindoDaListView.getQuantidade() * produtoVindoDaListView.getPreco();
-                    campoTotal.setText("Total R$ " + String.valueOf(total));
+                    campoTotal.setText("R$ " + String.valueOf(total));
 
                     adapterTableCarrinho.notifyDataSetChanged();
 
@@ -326,7 +403,9 @@ public class CadastrarVendasActivity extends AppCompatActivity implements Adapte
 
 //                    }
                     if (carrinho.remove(produtoVindoDaListView)) {
-                        Toast.makeText(CadastrarVendasActivity.this, produtoVindoDaListView.getNome() + " removido do carrinho", Toast.LENGTH_SHORT).show();
+                        snackbar.setText(produtoVindoDaListView.getNome() + " removido do carrinho");
+                        snackbar.show();
+//                        Toast.makeText(CadastrarVendasActivity.this, produtoVindoDaListView.getNome() + " removido do carrinho", Toast.LENGTH_SHORT).show();
                         listaViewDeProdutosCarrinho.setAdapter(adapterTableCarrinho);
                         adapterTableCarrinho.notifyDataSetChanged();
 
@@ -361,14 +440,34 @@ public class CadastrarVendasActivity extends AppCompatActivity implements Adapte
                 item.setVisible(false);
                 if (carrinho.size() == 0) {
                     item.setVisible(true);
-                    Toast.makeText(CadastrarVendasActivity.this, "Não existe produtos no carrinho", Toast.LENGTH_SHORT).show();
+                    snackbar.setText("Não existe produtos no carrinho");
+                    snackbar.show();
+//                    Toast.makeText(CadastrarVendasActivity.this, "Não existe produtos no carrinho", Toast.LENGTH_SHORT).show();
                     break;
                 }
                 if (venda.getFormaDePagamento() == null) {
                     item.setVisible(true);
-                    Toast.makeText(CadastrarVendasActivity.this, "Escolha a forma de pagamento", Toast.LENGTH_SHORT).show();
+                    snackbar.setText("Escolha a forma de pagamento");
+                    snackbar.show();
+//                    Toast.makeText(CadastrarVendasActivity.this, "Escolha a forma de pagamento", Toast.LENGTH_SHORT).show();
                     break;
                 }
+                if (venda.getFormaDePagamento().equals("dinheiro e cartao")) {
+                    if (totalCartao > total) {
+                        item.setVisible(true);
+                        snackbar.setText("Venda no cartão não pode ser maior do que o valor total da venda");
+                        snackbar.show();
+                        campoTotalCartao.requestFocus();
+                        break;
+                    }
+                    if (totalCartao == 0) {
+                        item.setVisible(true);
+                        campoTotalCartao.setError("digite um valor diferente de zero");
+                        campoTotalCartao.requestFocus();
+                        break;
+                    }
+                }
+
 
                 AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(CadastrarVendasActivity.this, R.style.DialogTheme);
                 LayoutInflater inflater = CadastrarVendasActivity.this.getLayoutInflater();
@@ -410,7 +509,14 @@ public class CadastrarVendasActivity extends AppCompatActivity implements Adapte
 
                         venda.desincroniza();
                         venda.setTotal(total);
+                        if (venda.getFormaDePagamento().equals("dinheiro e cartao")) {
+                            venda.setTotalCartao(totalCartao);
+                            venda.setTotal(total - totalCartao);
+                        }
+
                         for (Produto p : carrinho) {
+
+
                             produto = produtoDAO.procuraPorId(p.getId());
                             produtoDAO.close();
                             //aqui pegaremos o produto principal no banco
@@ -446,7 +552,7 @@ public class CadastrarVendasActivity extends AppCompatActivity implements Adapte
                                     vendaEntradaProduto.setQuantidadeVendida(saida);
 
                                     //vendaEntradaProduto.sincroniza();
-                                    venda.setLucro(venda.getLucro() + (l.getProduto().getPreco() - l.getPrecoDeCompra()) * saida);
+                                    venda.setLucro(venda.getLucro() + (produto.getPreco() - l.getPrecoDeCompra()) * saida);
 
                                     venda.getVendaEntradaProdutos().add(vendaEntradaProduto);
 
@@ -503,7 +609,6 @@ public class CadastrarVendasActivity extends AppCompatActivity implements Adapte
 
                         vendaDAO.insere(venda);
                         vendaDAO.close();
-
                         bus.post(new AtualizaListaProdutoEvent());
                         bus.post(new AtualizaListaLojasEvent());
 
@@ -513,8 +618,21 @@ public class CadastrarVendasActivity extends AppCompatActivity implements Adapte
                         finish();
                     }
                 });
-
                 alertDialog.show();
+                String cumpom = "PITSTOP: " + usuarioPreferences.getLoja().getNome() + "\n";
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                cumpom += "Data: " + formatter.format(new Date()) + "\n";
+                cumpom += "Vendedor: " + usuarioPreferences.getUsuario().getNome() + "\n";
+                cumpom += "-----------------------\n";
+                for (Produto p : carrinho) {
+                    cumpom += p.getNome() + "\n";
+                    cumpom += p.getQuantidade() + " UND X " + p.getPreco() + " " + p.getQuantidade() * p.getPreco() + "\n";
+                }
+                cumpom += "-----------------------\n";
+                cumpom += "TOTAL R$     " + (total + totalCartao) + "\n\n";
+                Print imprimir = new Print(CadastrarVendasActivity.this, cumpom);
+                imprimir.imprime();
+
                 break;
 
 
@@ -605,8 +723,10 @@ public class CadastrarVendasActivity extends AppCompatActivity implements Adapte
                 campoPreco.setText("R$ " + String.valueOf(produto.getPreco()));
 
                 // Show Alert
-                Toast.makeText(getApplicationContext(), "Produto : " + produto.getNome() + " selecionado", Toast.LENGTH_LONG)
-                        .show();
+                snackbar.setText("Produto : " + produto.getNome() + " selecionado");
+                snackbar.show();
+//                Toast.makeText(getApplicationContext(), "Produto : " + produto.getNome() + " selecionado", Toast.LENGTH_LONG)
+//                        .show();
                 alertDialog.hide();
                 alertDialog.dismiss();
 
@@ -620,22 +740,31 @@ public class CadastrarVendasActivity extends AppCompatActivity implements Adapte
         pesquisa.clear();
 
         for (int i = 0; i < produtos.size(); i++) {
-            if (textlength <= produtos.get(i).getNome().length()) {
-                if (txtPesquisa.equalsIgnoreCase((String) produtos.get(i).getNome().subSequence(0, textlength))) {
-                    pesquisa.add(produtos.get(i));
-                }
-            }
+            if (produtos.get(i).getNome().toLowerCase().contains(txtPesquisa.toLowerCase()))
+                pesquisa.add(produtos.get(i));
+//            if (textlength <= produtos.get(i).getNome().length()) {
+//                if (txtPesquisa.equalsIgnoreCase((String) produtos.get(i).getNome().subSequence(0, textlength))) {
+//                    pesquisa.add(produtos.get(i));
+//                }
+//            }
         }
     }
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-        if (i == 0) {
-            venda.setFormaDePagamento(null);
-        } else {
-            venda.setFormaDePagamento(formaDePagamento[i]);
 
+        venda.setFormaDePagamento(formaDePagamento[i]);
+        if (i == 2) {
+            campoTotalCartao.setVisibility(View.VISIBLE);
+            tvTotalCartao.setVisibility(View.VISIBLE);
+//                campoTotalCartao.setFocusableInTouchMode(true);
+        } else {
+            campoTotalCartao.setVisibility(View.GONE);
+            tvTotalCartao.setVisibility(View.GONE);
+            totalCartao = 0.0;
+            campoTotalCartao.setText("0");
         }
+
 
     }
 

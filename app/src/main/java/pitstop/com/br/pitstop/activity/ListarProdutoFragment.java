@@ -1,15 +1,17 @@
 package pitstop.com.br.pitstop.activity;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,40 +20,29 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.Spinner;
+import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import de.greenrobot.event.EventBus;
 import de.greenrobot.event.Subscribe;
 import de.greenrobot.event.ThreadMode;
+import dmax.dialog.SpotsDialog;
 import pitstop.com.br.pitstop.R;
 import pitstop.com.br.pitstop.adapter.ProdutoRecicleViewAdapter;
 import pitstop.com.br.pitstop.dao.LojaDAO;
 import pitstop.com.br.pitstop.dao.ProdutoDAO;
-import pitstop.com.br.pitstop.event.AtualizaListaLojasEvent;
 import pitstop.com.br.pitstop.event.AtualizaListaProdutoEvent;
 import pitstop.com.br.pitstop.model.Loja;
 import pitstop.com.br.pitstop.model.Produto;
 import pitstop.com.br.pitstop.model.Usuario;
-import pitstop.com.br.pitstop.preferences.ObjetosSinkPreferences;
 import pitstop.com.br.pitstop.preferences.UsuarioPreferences;
 import pitstop.com.br.pitstop.sic.ObjetosSinkSincronizador;
-
-
-import android.app.Activity;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.support.v7.widget.SearchView;
-import android.widget.LinearLayout;
-import android.widget.Spinner;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
 
 
 public class ListarProdutoFragment extends Fragment implements SearchView.OnQueryTextListener {
@@ -100,9 +91,10 @@ public class ListarProdutoFragment extends Fragment implements SearchView.OnQuer
                 switch (menuItem.getItemId()) {
                     case R.id.sincronizar_dados:
                         objetosSinkSincronizador.buscaTodos();
-                        bus.post(new AtualizaListaProdutoEvent());
-                        bus.post(new AtualizaListaLojasEvent());
-
+//                        carregaLista();
+//                        bus.post(new AtualizaListaProdutoEvent());
+//                        bus.post(new AtualizaListaLojasEvent());
+//                        spinnerLoja.setSelection(0);
                         break;
                 }
                 return false;
@@ -117,6 +109,7 @@ public class ListarProdutoFragment extends Fragment implements SearchView.OnQuer
         searchView = (SearchView) searchItem.getActionView();
         searchView.setQueryHint("Pesquisar...");
         searchView.setOnQueryTextListener(this);
+
     }
 
     @Override
@@ -130,7 +123,7 @@ public class ListarProdutoFragment extends Fragment implements SearchView.OnQuer
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
+        bus.register(this);
         View rootView = inflater.inflate(R.layout.fragment_list_produto, container, false);
         recyclerView = (RecyclerView) rootView.findViewById(R.id.card_recycler_produo_view);
         recyclerView.setHasFixedSize(true);
@@ -167,8 +160,9 @@ public class ListarProdutoFragment extends Fragment implements SearchView.OnQuer
     @Override
     public void onResume() {
         super.onResume();
+//        spinnerLoja.setSelection(0);
 
-        carregaLista();
+//        carregaLista();
     }
 
     @Override
@@ -180,33 +174,56 @@ public class ListarProdutoFragment extends Fragment implements SearchView.OnQuer
         spinnerLoja = (Spinner) view.findViewById(R.id.spinner_loja);
         novoProduto = (Button) view.findViewById(R.id.novo_produto);
         usuarioPreferences = new UsuarioPreferences(context);
+
         Usuario usuario = usuarioPreferences.getUsuario();
         if (usuario.getRole().equals("Funcionario")) {
             novoProduto.setVisibility(View.GONE);
             cardViewSpinerLoja.setVisibility(View.GONE);
+
         }
+
 
         lojas = lojaDAO.listarLojas();
         labelsLojas.add("Todas");
         for (Loja loja : lojas) {
             labelsLojas.add(loja.getNome());
         }
+        Intent intent = getActivity().getIntent();
+        lojaVindaDaTelaListaLoja = (Loja) intent.getSerializableExtra("loja");
+        intent.removeExtra("loja");
         ArrayAdapter<String> spinnerAdapterDe = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, labelsLojas);
         spinnerAdapterDe.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerLoja.setAdapter(spinnerAdapterDe);
+
         spinnerLoja.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                if (i == 0) {
-                    produtos.clear();
-                    produtos.addAll(produtoDAO.listarProdutos());
+                if (lojaVindaDaTelaListaLoja == null) {
+                    if (i == 0) {
+                        produtos.clear();
+                        produtos.addAll(produtoDAO.listarProdutos());
+                        recyclerView.setAdapter(produtoRecicleViewAdapter);
+                    } else {
+                        produtos.clear();
+                        produtos.addAll(produtoDAO.procuraPorLoja(lojas.get(i - 1)));
+                        recyclerView.setAdapter(produtoRecicleViewAdapter);
+                    }
                 } else {
+                    int k = 1;
+                    for (Loja loja : lojas) {
+                        if (loja.getNome().toLowerCase().equals(lojaVindaDaTelaListaLoja.getNome().toLowerCase())) {
+                            spinnerLoja.setSelection(k);
+                            break;
+                        }
+                        k++;
+                    }
                     produtos.clear();
-                    produtos.addAll(produtoDAO.procuraPorLoja(lojas.get(i - 1)));
+                    produtos.addAll(produtoDAO.procuraPorLoja(lojaVindaDaTelaListaLoja));
+                    lojaVindaDaTelaListaLoja = null;
                 }
-                Collections.sort(produtos);
                 produtoDAO.close();
                 produtoRecicleViewAdapter.notifyDataSetChanged();
+                //recyclerView.getRecycledViewPool().clear();
 
 
             }
@@ -217,14 +234,7 @@ public class ListarProdutoFragment extends Fragment implements SearchView.OnQuer
             }
         });
 
-
-        EventBus eventBus = EventBus.getDefault();
-        eventBus.register(this);
-
-
-        Intent intent = getActivity().getIntent();
-        lojaVindaDaTelaListaLoja = (Loja) intent.getSerializableExtra("loja");
-        intent.removeExtra("loja");
+//
 
 
         novoProduto.setOnClickListener(new View.OnClickListener() {
@@ -240,31 +250,27 @@ public class ListarProdutoFragment extends Fragment implements SearchView.OnQuer
         });
 
 
-//        carregaLista();
-
-
     }
 
 
     public void pesquisar(String txtPesquisa) {
         int textlength = txtPesquisa.length();
         pesquisa.clear();
-//        pesquisa = produtoDAO.listaProdutosPorParteDoNome(txtPesquisa);
-//        adapterPesquisa  = new ProdutoRecicleViewAdapter(pesquisa, context); ;
 
         for (int i = 0; i < produtos.size(); i++) {
-//            String nomeProduto = produtos.get(i).getNome().trim();
-//            nomeProduto = produtos.get(i).getNome().replaceAll("\\s\\s+", " ");
-//            String[] nomes = nomeProduto.split(" ");
-//            if (textlength <= produtos.get(i).getNome().length()) {
-//                if (txtPesquisa.equalsIgnoreCase((String) nomes[1].subSequence(0, textlength)) || txtPesquisa.equalsIgnoreCase((String) nomes[2].subSequence(0, textlength)) || txtPesquisa.equalsIgnoreCase((String) produtos.get(i).getNome().subSequence(0, textlength))) {
+
             if (produtos.get(i).getNome().toLowerCase().contains(txtPesquisa.toLowerCase()))
                 pesquisa.add(produtos.get(i));
-//                }
-//            }
+
         }
     }
 
+    @Override
+    public void onDestroy() {
+        // Unregister
+        bus.unregister(this);
+        super.onDestroy();
+    }
 
     @Subscribe(threadMode = ThreadMode.MainThread)
     public void atualizaListaProdutoEvent(AtualizaListaProdutoEvent event) {
@@ -272,24 +278,8 @@ public class ListarProdutoFragment extends Fragment implements SearchView.OnQuer
     }
 
     private void carregaLista() {
-        produtos.clear();
-        Usuario user = usuarioPreferences.getUsuario();
-        if (usuarioPreferences.getUsuario().getRole().equals("Administrador")) {
-            if (lojaVindaDaTelaListaLoja == null) {
-                produtos.addAll(produtoDAO.listarProdutos());
-            } else {
-                produtos.addAll(produtoDAO.procuraPorLoja(lojaVindaDaTelaListaLoja));
-            }
-        } else {
-            produtos.addAll(produtoDAO.procuraPorLoja(usuarioPreferences.getLoja()));
-        }
-        Collections.sort(produtos);
-
-
-        produtoDAO.close();
-        produtoRecicleViewAdapter.notifyDataSetChanged();
-        swipe.setRefreshing(false);
-
+        CarregandoListaDeProduto carregandoListaDeProduto = new CarregandoListaDeProduto(context);
+        carregandoListaDeProduto.execute();
 
     }
 
@@ -313,6 +303,53 @@ public class ListarProdutoFragment extends Fragment implements SearchView.OnQuer
     public boolean onQueryTextChange(String newText) {
         pesquisar(newText.toString().trim());
         recyclerView.setAdapter(adapterPesquisa);
+        adapterPesquisa.notifyDataSetChanged();
+//        recyclerView.getRecycledViewPool().clear();
+
         return false;
+    }
+
+    public class CarregandoListaDeProduto extends AsyncTask<Void, Void, String> {
+        private Context context;
+        AlertDialog dialog;
+
+        public CarregandoListaDeProduto(Context context) {
+            this.context = context;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            dialog = new SpotsDialog(context, "Carregando Lista de Produtos", R.style.progressDialog);
+
+            dialog.setCancelable(false);
+            dialog.show();
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            produtos.clear();
+            Usuario user = usuarioPreferences.getUsuario();
+            if (usuarioPreferences.getUsuario().getRole().equals("Administrador")) {
+                produtos.addAll(produtoDAO.listarProdutos());
+            } else {
+                produtos.addAll(produtoDAO.procuraPorLoja(usuarioPreferences.getLoja()));
+            }
+            produtoDAO.close();
+
+            String resposta1 = "Lista de produtos carregado";
+            return resposta1;
+        }
+
+        @Override
+        protected void onPostExecute(String resposta1) {
+            dialog.dismiss();
+            Toast.makeText(context, resposta1, Toast.LENGTH_LONG).show();
+            swipe.setRefreshing(false);
+            spinnerLoja.setSelection(0);
+            recyclerView.setAdapter(produtoRecicleViewAdapter);
+            produtoRecicleViewAdapter.notifyDataSetChanged();
+//            recyclerView.getRecycledViewPool().clear();
+
+        }
     }
 }

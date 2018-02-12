@@ -42,6 +42,7 @@ public class LstViewTabelaRelatorioVendas extends ArrayAdapter<Venda> {
     static class ViewHolder {
         public TextView data;
         public TextView total;
+        public TextView totalCartao;
         public TextView lucro;
 
     }
@@ -57,6 +58,7 @@ public class LstViewTabelaRelatorioVendas extends ArrayAdapter<Venda> {
             viewHolder.data = (TextView) rowView.findViewById(R.id.data);
             viewHolder.total = (TextView) rowView.findViewById(R.id.total);
             viewHolder.lucro = (TextView) rowView.findViewById(R.id.lucro);
+            viewHolder.totalCartao = (TextView) rowView.findViewById(R.id.total_cartao);
             rowView.setTag(viewHolder);
 
         }
@@ -68,8 +70,8 @@ public class LstViewTabelaRelatorioVendas extends ArrayAdapter<Venda> {
 
             LstViewTabelaRelatorioVendas.ViewHolder holder = (LstViewTabelaRelatorioVendas.ViewHolder) rowView.getTag();
             UsuarioPreferences up = new UsuarioPreferences(context);
-            if(up.temUsuario()){
-                if(up.getUsuario().getRole().equals("Funcionario")){
+            if (up.temUsuario()) {
+                if (up.getUsuario().getRole().equals("Funcionario")) {
                     holder.lucro.setVisibility(View.GONE);
                 }
             }
@@ -83,8 +85,21 @@ public class LstViewTabelaRelatorioVendas extends ArrayAdapter<Venda> {
             }
 
             holder.data.setText(String.valueOf(format.format(d)));
-            holder.total.setText("R$"+String.valueOf(items.getTotal()));
-
+            //essa é uma parte que deve ser mudada, como o sistema
+            // a estava em producao e nao tinha a forma de pagamento
+            // "dinheiro e cartao" entao a variavel total representava
+            // a venda tanto no cartao como em dinheiro, porem foi acrescentado
+            // essa nova forma de venda e por isso uma nova variavel total foi adicionada
+            // (Total Cartao) que so é usada para essa nova forma de pagamento, o total continua representando o
+            // total da venda tanto no cartao como em dinheiro mas quando a venda é em cartao em dinheiro o total
+            // representa a venda em dinheior e o total cartao representa a venda em cartao
+            if (items.getFormaDePagamento().equals("cartao")) {
+                holder.total.setText("R$ " + String.valueOf("0"));
+                holder.totalCartao.setText("R$ " + String.valueOf(items.getTotal()));
+            } else {
+                holder.total.setText("R$ " + String.valueOf(items.getTotal()));
+                holder.totalCartao.setText("R$ " + String.valueOf(items.getTotalCartao()));
+            }
         }
         return rowView;
     }

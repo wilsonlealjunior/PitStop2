@@ -8,6 +8,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.GravityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -80,7 +81,7 @@ public class NavigationViewActivity extends AppCompatActivity {
         objetosSinkSincronizador.buscaTodos();
 
         if (lojaVindaDaTelaDeListarProduto != null) {
-            navigationView.setCheckedItem(R.id.produto);
+//            navigationView.setCheckedItem(R.id.produto);
             MenuItem item = navigationView.getMenu().findItem(R.id.produto);
             Fragment fragment = new ListarProdutoFragment();
             setFragment(fragment, item);
@@ -90,7 +91,7 @@ public class NavigationViewActivity extends AppCompatActivity {
             //At start set home fragment
             if (savedInstanceState == null) {
 
-                navigationView.setCheckedItem(R.id.loja);
+//                navigationView.setCheckedItem(R.id.loja);
                 MenuItem item = navigationView.getMenu().findItem(R.id.loja);
                 Fragment fragment = new ListarLojaFragment();
                 setFragment(fragment, item);
@@ -103,42 +104,21 @@ public class NavigationViewActivity extends AppCompatActivity {
             public void onClick(View view) {
                 progressDialog.setMessage("Deslogando usuario");
                 progressDialog.show();
-                logout("usuarioLogado-" + usuario.getNome());
+//                logout("usuarioLogado-" + usuario.getNome());
                 UsuarioPreferences usuarioPreferences = new UsuarioPreferences(getApplicationContext());
                 usuarioPreferences.deletar();
-
-
-            }
-        });
-
-
-    }
-
-    public void logout(final String usuarioLogado) {
-        Call<Usuario> call = new RetrofitInializador().getLoginLogoutService().logout();
-        call.enqueue(new Callback<Usuario>() {
-            @Override
-            public void onResponse(Call<Usuario> call, Response<Usuario> response) {
-                if (response.body() == null) {
-                    progressDialog.dismiss();
-                    Intent intentVaiProLogin = new Intent(getApplicationContext(), LoginActivity.class);
-                    startActivity(intentVaiProLogin);
-                    finish();
-                }
-
-
-            }
-
-            @Override
-            public void onFailure(Call<Usuario> call, Throwable t) {
-                Log.e("onFailure chamado", t.getMessage());
-                Toast.makeText(getApplicationContext(), "Verifique a conexao com a internet", Toast.LENGTH_SHORT).show();
                 progressDialog.dismiss();
+                Intent intentVaiProLogin = new Intent(getApplicationContext(), LoginActivity.class);
+                startActivity(intentVaiProLogin);
+                finish();
+
+
             }
         });
 
 
     }
+
 
     /*  Init all views  */
     private void initViews() {
@@ -155,10 +135,16 @@ public class NavigationViewActivity extends AppCompatActivity {
                 R.string.drawer_close // nav drawer close - description for
                 // accessibility
         ) {
+            @Override
             public void onDrawerClosed(View view) {
+                getMenuInflater();
+                super.onDrawerClosed(view);
             }
 
+            @Override
             public void onDrawerOpened(View drawerView) {
+                invalidateOptionsMenu();
+                super.onDrawerOpened(drawerView);
 
             }
         };
@@ -205,14 +191,14 @@ public class NavigationViewActivity extends AppCompatActivity {
         botaoLogout = (ImageButton) headerView.findViewById(R.id.logout);
         TextView textOne = (TextView) headerView.findViewById(R.id.username);
         TextView loja = (TextView) headerView.findViewById(R.id.loja);
-        textOne.setText(usuario.getNome());
         if (usuarioPreferences.temLoja()) {
-            loja.setText(usuarioPreferences.getLoja().getNome());
+            loja.setText("Loja: " + usuarioPreferences.getLoja().getNome());
         } else {
             loja.setText("primeiro acesso");
         }
+        textOne.setText("Funcionário: " + usuario.getNome());
         TextView textTwo = (TextView) headerView.findViewById(R.id.email_address);
-        textTwo.setText(usuario.getRole());
+        textTwo.setText("Cargo: " + usuario.getRole());
     }
 
     @Override
@@ -249,6 +235,13 @@ public class NavigationViewActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    private void destacarItemSelecionado(MenuItem menuItem) {
+        for (int i = 0; i < navigationView.getMenu().size(); i++) {
+            navigationView.getMenu().getItem(i).setChecked(false);
+        }
+
+        menuItem.setChecked(true);
+    }
 
     /*  Method for Navigation View item selection  */
     private void onMenuItemSelected() {
@@ -256,18 +249,21 @@ public class NavigationViewActivity extends AppCompatActivity {
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem item) {
+                final Menu menu = navigationView.getMenu();
+
 
                 //Check and un-check menu item if they are checkable behaviour
-                if (item.isCheckable()) {
-                    if (item.isChecked()) item.setChecked(false);
-                    else item.setChecked(true);
-                }
+//                if (item.isCheckable()) {
+//                    if (item.isChecked()) item.setChecked(false);
+//                    else item.setChecked(true);
+//                }
 
-                //Closing drawer on item click
-                mDrawerLayout.closeDrawers();
+                destacarItemSelecionado(item);
+
                 Fragment fragment = null;
                 switch (item.getItemId()) {
                     case R.id.loja:
+
                         objetosSinkSincronizador.buscaTodos();
                         fragment = new ListarLojaFragment();
 
@@ -279,7 +275,9 @@ public class NavigationViewActivity extends AppCompatActivity {
 
                     case R.id.produto:
                         //Replace fragment
+
                         objetosSinkSincronizador.buscaTodos();
+
                         fragment = new ListarProdutoFragment();
 
                         //Replace fragment
@@ -302,6 +300,7 @@ public class NavigationViewActivity extends AppCompatActivity {
                         objetosSinkSincronizador.buscaTodos();
                         Intent intentVaiProFormulario = new Intent(getApplicationContext(), CadastroEntradaProdutoActivity.class);
                         startActivity(intentVaiProFormulario);
+//                        overridePendingTransition(R.anim.fadein, R.anim.fadeout);
                         //Replace fragment
 
 
@@ -397,11 +396,13 @@ public class NavigationViewActivity extends AppCompatActivity {
 //                        break;
 
                 }
-
-                return false;
+                //Closing drawer on item click
+                mDrawerLayout.closeDrawers();
+                return true;
             }
         });
     }
+
 
     /*  Set Fragment, setting toolbar title and passing item title via bundle to fragments*/
     public void setFragment(Fragment fragment, MenuItem item) {
@@ -414,6 +415,8 @@ public class NavigationViewActivity extends AppCompatActivity {
             // set the toolbar title
             getSupportActionBar().setTitle(item.getTitle().toString());
         }
+
+
     }
 
 

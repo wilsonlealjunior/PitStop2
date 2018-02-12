@@ -1,14 +1,15 @@
 package pitstop.com.br.pitstop.activity;
 
-import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
-import android.app.TimePickerDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.StrictMode;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -17,10 +18,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.DatePicker;
+import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
 import java.io.File;
@@ -31,7 +30,6 @@ import java.io.OutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -53,20 +51,16 @@ public class RelatorioMovimentacaoProdutoActivity extends AppCompatActivity {
 
 
     SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-    Calendar dateTimeDe = Calendar.getInstance();
-    Calendar dateTimeAte = Calendar.getInstance();
 
-    private TextView mDisplayDateDe;
-    private DatePickerDialog.OnDateSetListener mDateSetListenerDe;
-    private TimePickerDialog.OnTimeSetListener mHoraSetListenerDe;
-
-    private TextView mDisplayDateAte;
-    private DatePickerDialog.OnDateSetListener mDateSetListenerAte;
-    private TimePickerDialog.OnTimeSetListener mHoraSetListenerAte;
     private Toolbar toolbar;
     private Button btnGerarRelatorio;
     Button btn_gerar_relatorio_pdf;
     ProgressDialog progressDialog;
+    private Snackbar snackbar;
+    private LinearLayout linearLayoutRootRelatorioMovimentacao;
+    ViewGroup viewRoot;
+    DataHoraView dataHoraView;
+    CardView cardViewFiltros;
 
 
     LstViewTabelaMovimentacaoAdapter adapterTable;
@@ -82,7 +76,8 @@ public class RelatorioMovimentacaoProdutoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_relatorio_movimentacao_produto);
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
         StrictMode.setVmPolicy(builder.build());
-
+        viewRoot = (ViewGroup) findViewById(android.R.id.content);
+        dataHoraView = new DataHoraView(viewRoot, this);
 
         toolbar = (Toolbar) findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
@@ -90,26 +85,14 @@ public class RelatorioMovimentacaoProdutoActivity extends AppCompatActivity {
         getSupportActionBar().setHomeButtonEnabled(true);      //Ativar o botão
         getSupportActionBar().setTitle("Relatorio de Movimentações");
 
-
-        mDisplayDateDe = (TextView) findViewById(R.id.dataDe);
-        mDisplayDateAte = (TextView) findViewById(R.id.dataAte);
+        linearLayoutRootRelatorioMovimentacao = (LinearLayout) findViewById(R.id.ll_root_relatorio_movimentacao);
+        snackbar = Snackbar.make(linearLayoutRootRelatorioMovimentacao, "", Snackbar.LENGTH_LONG);
+        cardViewFiltros = (CardView) findViewById(R.id.card_view_filtros);
         btnGerarRelatorio = (Button) findViewById(R.id.gerar_relatorio);
         btn_gerar_relatorio_pdf = (Button) findViewById(R.id.gerar_relatorio_pdf);
         progressDialog = new ProgressDialog(this);
         progressDialog.setCancelable(false);
 
-        mDisplayDateDe.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                updateDateDe();
-            }
-        });
-        mDisplayDateAte.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                updateDateAte();
-            }
-        });
 
         listaViewDeMovimentacaoProduto = (ListView) findViewById(R.id.lista_de_movimentacaoProduto);
         ViewGroup headerView = (ViewGroup) getLayoutInflater().inflate(R.layout.header_movimentacao_produto, listaViewDeMovimentacaoProduto, false);
@@ -118,57 +101,26 @@ public class RelatorioMovimentacaoProdutoActivity extends AppCompatActivity {
         adapterTable = new LstViewTabelaMovimentacaoAdapter(this, R.layout.tabela_movimentacao_produto, R.id.quantidade, movimentacoesProdutos);
 
 
+        snackbar.setAction("OK", new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+        snackbar.setActionTextColor(Color.RED);
 
 
-        mDateSetListenerDe = new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                dateTimeDe.set(Calendar.YEAR, year);
-                dateTimeDe.set(Calendar.MONTH, monthOfYear);
-                dateTimeDe.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                updateTextLabelDe();
-            }
-        };
-        mHoraSetListenerDe = new TimePickerDialog.OnTimeSetListener() {
-            @Override
-            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                dateTimeDe.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                dateTimeDe.set(Calendar.MINUTE, minute);
-                updateTextLabelDe();
-            }
-        };
-
-
-        mDateSetListenerAte = new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                Date d = new Date();
-                dateTimeAte.set(Calendar.YEAR, year);
-                dateTimeAte.set(Calendar.MONTH, monthOfYear);
-                dateTimeAte.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                updateTextLabelAte();
-            }
-        };
-        mHoraSetListenerAte = new TimePickerDialog.OnTimeSetListener() {
-            @Override
-            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                dateTimeAte.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                dateTimeAte.set(Calendar.MINUTE, minute);
-                updateTextLabelAte();
-            }
-        };
-        //updateTextLabel();
         btn_gerar_relatorio_pdf.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                if(!isValid()){
+                if (!isValid()) {
                     return;
                 }
 
                 progressDialog.setMessage("Gerando PDF");
                 progressDialog.show();
-                Call<ResponseBody> call = new RetrofitInializador().getRelatorioService().relatorioMovimentacaoProduto(mDisplayDateDe.getText().toString(),mDisplayDateAte.getText().toString());
+                Call<ResponseBody> call = new RetrofitInializador().getRelatorioService().relatorioMovimentacaoProduto(dataHoraView.getTextViewDataInicio().getText().toString(), dataHoraView.getTextViewDataFim().getText().toString());
                 call.enqueue(new Callback<ResponseBody>() {
                     @Override
                     public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -176,7 +128,8 @@ public class RelatorioMovimentacaoProdutoActivity extends AppCompatActivity {
                             Log.d("TAG", "server contacted and has file");
 
                             boolean writtenToDisk = writeResponseBodyToDisk(response.body());
-
+//                            snackbar.setText("PDF gerado com sucesso");
+//                            snackbar.show();
                             Toast.makeText(getApplicationContext(), "PDF gerado com sucesso", Toast.LENGTH_SHORT).show();
                             progressDialog.dismiss();
                             views();
@@ -185,6 +138,8 @@ public class RelatorioMovimentacaoProdutoActivity extends AppCompatActivity {
                         } else {
                             Log.d("TAG", "server contact failed");
                             progressDialog.dismiss();
+//                            snackbar.setText("Erro ao gerar o pdf");
+//                            snackbar.show();
                             Toast.makeText(getApplicationContext(), "Erro ao gerar o pdf", Toast.LENGTH_SHORT).show();
 
                         }
@@ -196,17 +151,16 @@ public class RelatorioMovimentacaoProdutoActivity extends AppCompatActivity {
                     public void onFailure(Call<ResponseBody> call, Throwable t) {
                         Log.e("onFailure chamado", t.getMessage());
                         progressDialog.dismiss();
-                        Toast.makeText(getApplicationContext(), "Verifique a conexao com a internet", Toast.LENGTH_SHORT).show();
+                        snackbar.setText("Verifique a conexao com a internet");
+                        snackbar.show();
+//                        Toast.makeText(getApplicationContext(), "Verifique a conexao com a internet", Toast.LENGTH_SHORT).show();
 
                     }
                 });
 
 
-
-
             }
         });
-
 
 
         btnGerarRelatorio.setOnClickListener(new View.OnClickListener() {
@@ -217,8 +171,8 @@ public class RelatorioMovimentacaoProdutoActivity extends AppCompatActivity {
             }
         });
     }
-    public void views()
-    {
+
+    public void views() {
         progressDialog.setMessage("Preparando para exibir PDF");
         progressDialog.show();
         File pdfFile = new File(getExternalFilesDir(null) + File.separator + "relatorioMovimentacao.pdf");  // -> filename = maven.pdf
@@ -227,10 +181,12 @@ public class RelatorioMovimentacaoProdutoActivity extends AppCompatActivity {
         pdfIntent.setDataAndType(path, "application/pdf");
         pdfIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
-        try{
+        try {
             startActivity(pdfIntent);
             progressDialog.dismiss();
-        }catch(ActivityNotFoundException e){
+        } catch (ActivityNotFoundException e) {
+//            snackbar.setText("Não existe aplicativo para visualizar o PDF");
+//            snackbar.show();
             Toast.makeText(RelatorioMovimentacaoProdutoActivity.this, "Não existe aplicativo para visualizar o PDF", Toast.LENGTH_SHORT).show();
             progressDialog.dismiss();
         }
@@ -287,42 +243,48 @@ public class RelatorioMovimentacaoProdutoActivity extends AppCompatActivity {
         }
     }
 
-    public boolean isValid(){
-        if (mDisplayDateDe.getText().toString().equals("")) {
-            mDisplayDateDe.setError("Escolha uma data");
-            mDisplayDateDe.requestFocus();
-            Toast.makeText(RelatorioMovimentacaoProdutoActivity.this, "escolha uma data de inicio", Toast.LENGTH_SHORT).show();
+    public boolean isValid() {
+        if (dataHoraView.getTextViewDataInicio().getText().toString().equals("")) {
+            dataHoraView.getTextViewDataInicio().setError("Escolha uma data");
+            dataHoraView.getTextViewDataInicio().requestFocus();
+            snackbar.setText("escolha uma data de inicio");
+            snackbar.show();
+//            Toast.makeText(RelatorioMovimentacaoProdutoActivity.this, "escolha uma data de inicio", Toast.LENGTH_SHORT).show();
             return false;
         }
-        if (mDisplayDateAte.getText().toString().equals("")) {
-            mDisplayDateAte.setError("Escolha uma data");
-            mDisplayDateAte.requestFocus();
-            Toast.makeText(RelatorioMovimentacaoProdutoActivity.this, "escolha uma data de termino", Toast.LENGTH_SHORT).show();
+        if (dataHoraView.getTextViewDataFim().getText().toString().equals("")) {
+            dataHoraView.getTextViewDataFim().setError("Escolha uma data");
+            dataHoraView.getTextViewDataFim().requestFocus();
+            snackbar.setText("escolha uma data de Termino");
+            snackbar.show();
+//            Toast.makeText(RelatorioMovimentacaoProdutoActivity.this, "escolha uma data de termino", Toast.LENGTH_SHORT).show();
             return false;
         }
 
         try {
-            de = formatter.parse(mDisplayDateDe.getText().toString());
-            ate = formatter.parse(mDisplayDateAte.getText().toString());
+            de = formatter.parse(dataHoraView.getTextViewDataInicio().getText().toString());
+            ate = formatter.parse(dataHoraView.getTextViewDataFim().getText().toString());
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        if(de.after(ate)){
-            Toast.makeText(getApplicationContext(), "A data de origem deve ser menor do que a data final ", Toast.LENGTH_SHORT).show();
+        if (de.after(ate)) {
+            snackbar.setText("A data de origem deve ser menor do que a data final ");
+            snackbar.show();
+//            Toast.makeText(getApplicationContext(), "A data de origem deve ser menor do que a data final ", Toast.LENGTH_SHORT).show();
             return false;
         }
         return true;
     }
 
 
-    private void gerarRelatorio(){
+    private void gerarRelatorio() {
 
-      if(!isValid()){
-          return;
-      }
+        if (!isValid()) {
+            return;
+        }
         try {
-            de = formatter.parse(mDisplayDateDe.getText().toString());
-            ate = formatter.parse(mDisplayDateAte.getText().toString());
+            de = formatter.parse(dataHoraView.getTextViewDataInicio().getText().toString());
+            ate = formatter.parse(dataHoraView.getTextViewDataFim().getText().toString());
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -333,7 +295,7 @@ public class RelatorioMovimentacaoProdutoActivity extends AppCompatActivity {
 
 
         movimentacoesProdutos.clear();
-        movimentacoesProdutos = movimentacaoProdutoDAO.relatorio(stringDe,stringAte);
+        movimentacoesProdutos = movimentacaoProdutoDAO.relatorio(stringDe, stringAte);
         movimentacaoProdutoDAO.close();
         adapterTable = new LstViewTabelaMovimentacaoAdapter(this, R.layout.tabela_movimentacao_produto, R.id.quantidade, movimentacoesProdutos);
 
@@ -344,27 +306,6 @@ public class RelatorioMovimentacaoProdutoActivity extends AppCompatActivity {
 
     }
 
-    private void updateDateDe() {
-        new TimePickerDialog(this, mHoraSetListenerDe, dateTimeDe.get(Calendar.HOUR_OF_DAY), dateTimeDe.get(Calendar.MINUTE), true).show();
-        new DatePickerDialog(this, mDateSetListenerDe, dateTimeDe.get(Calendar.YEAR), dateTimeDe.get(Calendar.MONTH), dateTimeDe.get(Calendar.DAY_OF_MONTH)).show();
-
-
-    }
-
-    private void updateDateAte() {
-
-        new TimePickerDialog(this, mHoraSetListenerAte, dateTimeAte.get(Calendar.HOUR_OF_DAY), dateTimeAte.get(Calendar.MINUTE), true).show();
-        new DatePickerDialog(this, mDateSetListenerAte, dateTimeAte.get(Calendar.YEAR), dateTimeAte.get(Calendar.MONTH), dateTimeAte.get(Calendar.DAY_OF_MONTH)).show();
-
-    }
-
-    private void updateTextLabelDe() {
-        mDisplayDateDe.setText(formatter.format(dateTimeDe.getTime()));
-    }
-
-    private void updateTextLabelAte() {
-        mDisplayDateAte.setText(formatter.format(dateTimeAte.getTime()));
-    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -373,6 +314,7 @@ public class RelatorioMovimentacaoProdutoActivity extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
 
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -380,36 +322,16 @@ public class RelatorioMovimentacaoProdutoActivity extends AppCompatActivity {
                 finish();
                 break;
             case R.id.filtro:
-                if(mDisplayDateAte.getVisibility()==View.GONE){
-                    mDisplayDateDe.setVisibility(View.VISIBLE);
-                }
-                else{
-                    mDisplayDateDe.setVisibility(View.GONE);
-                }
-                if(mDisplayDateAte.getVisibility()==View.GONE) {
-                    mDisplayDateAte.setVisibility(View.VISIBLE);
-                }
-                else{
-                    mDisplayDateAte.setVisibility(View.GONE);
-                }
-                if(btnGerarRelatorio.getVisibility()==View.GONE){
-                    btnGerarRelatorio.setVisibility(View.VISIBLE);
-                }
-                else{
-                    btnGerarRelatorio.setVisibility(View.GONE);
-
-                }
-                if(btn_gerar_relatorio_pdf.getVisibility()==View.GONE){
-                    btn_gerar_relatorio_pdf.setVisibility(View.VISIBLE);
-                }
-                else{
-                    btn_gerar_relatorio_pdf.setVisibility(View.GONE);
-
+                if (cardViewFiltros.getVisibility() == View.GONE) {
+                    cardViewFiltros.setVisibility(View.VISIBLE);
+                } else {
+                    cardViewFiltros.setVisibility(View.GONE);
                 }
                 break;
 
         }
         return super.onOptionsItemSelected(item);
     }
+
 
 }

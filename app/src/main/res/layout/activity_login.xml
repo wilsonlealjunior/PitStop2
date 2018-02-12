@@ -39,15 +39,27 @@
                 android:textColor="@color/black"
                 android:textSize="50dp" />
         </LinearLayout>
-
-
-        <android.support.v7.widget.AppCompatSpinner
-            android:id="@+id/spiner_loja"
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:background="@drawable/bg_spinner"
-            android:padding="10dp" />
+            android:text="Loja"
+            android:layout_margin="8dp"
+            android:background="@drawable/round"
+            android:padding="10dp"
+            android:textSize="16dp"
+            android:id="@+id/loja"
+           >
+
+        </TextView>
+
+
+        <!--<android.support.v7.widget.AppCompatSpinner-->
+            <!--android:id="@+id/spiner_loja"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginBottom="10dp"-->
+            <!--android:background="@drawable/bg_spinner"-->
+            <!--android:padding="10dp" />-->
 
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"

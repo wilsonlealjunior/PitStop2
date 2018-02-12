@@ -1,5 +1,7 @@
 package pitstop.com.br.pitstop.activity;
 
+import android.graphics.Color;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -35,6 +37,7 @@ import de.greenrobot.event.EventBus;
 import pitstop.com.br.pitstop.R;
 import pitstop.com.br.pitstop.adapter.AdpterProdutoPersonalizado;
 import pitstop.com.br.pitstop.adapter.LstViewTabelaMovimentacaoAdapter;
+import pitstop.com.br.pitstop.adapter.NonScrollListView;
 import pitstop.com.br.pitstop.dao.LojaDAO;
 import pitstop.com.br.pitstop.dao.EntradaProdutoDAO;
 import pitstop.com.br.pitstop.dao.MovimentacaoProdutoDAO;
@@ -47,17 +50,27 @@ import pitstop.com.br.pitstop.model.MovimentacaoProduto;
 import pitstop.com.br.pitstop.model.Produto;
 
 public class CadastroMovimentacaoProdutoActivity extends AppCompatActivity {
-    Spinner spinnerDe;
-    Spinner spinnerPara;
     TextView campoProduto;
-    boolean prosseguir = false;
     EditText campoQuantidade;
-    EditText precoDeCompra;
-    Button adicionarProduto;
-    List<String> labelsLojas = new ArrayList<>();
-    List<Loja> lojas = new ArrayList<>();
+    Snackbar snackbar;
+    LinearLayout linearLayoutRootCadastroMovimentacao;
     List<Produto> pesquisa = new ArrayList<>();
     List<Produto> produtos = new ArrayList<>();
+    private Toolbar toolbar;
+    ProdutoDAO produtoDAO;
+
+    Spinner spinnerDe;
+    Spinner spinnerPara;
+
+    boolean prosseguir = false;
+
+    EditText precoDeCompra;
+
+    Button adicionarProduto;
+
+    List<String> labelsLojas = new ArrayList<>();
+    List<Loja> lojas = new ArrayList<>();
+
     List<Produto> todoProdutos = new ArrayList<>();
 
     List<MovimentacaoProduto> carinho = new ArrayList<>();
@@ -65,9 +78,8 @@ public class CadastroMovimentacaoProdutoActivity extends AppCompatActivity {
     Produto produtoPara = new Produto();
     Loja lojaDe = new Loja();
     Loja lojaPara = new Loja();
-    private Toolbar toolbar;
-    ProdutoDAO produtoDAO;
-    private ListView listaViewDeProdutos;
+
+    private NonScrollListView listaViewDeProdutos;
     LstViewTabelaMovimentacaoAdapter adapterTable;
     LojaDAO lojaDAO;
     Produto produtoPrincipal;
@@ -86,8 +98,9 @@ public class CadastroMovimentacaoProdutoActivity extends AppCompatActivity {
         spinnerPara = (Spinner) findViewById(R.id.spinnerPara);
         campoProduto = (TextView) findViewById(R.id.produto);
         campoQuantidade = (EditText) findViewById(R.id.quantidade);
-        adicionarProduto = (Button) findViewById(R.id.adicionar_proditp);
-
+        adicionarProduto = (Button) findViewById(R.id.adicionar_produto);
+        linearLayoutRootCadastroMovimentacao = (LinearLayout) findViewById(R.id.ll_root_cadastro_movimentacao);
+        snackbar = Snackbar.make(linearLayoutRootCadastroMovimentacao, "", Snackbar.LENGTH_LONG);
 
         lojaDAO = new LojaDAO(this);
         lojas = lojaDAO.listarLojas();
@@ -116,7 +129,7 @@ public class CadastroMovimentacaoProdutoActivity extends AppCompatActivity {
         //getSupportActionBar().setTitle("Seu titulo aqui");     //Titulo para ser exibido na sua Action Bar em frente à seta
         toolbar.setTitle("Movimentação de Produto");
 
-        listaViewDeProdutos = (ListView) findViewById(R.id.lista_de_produto);
+        listaViewDeProdutos = (NonScrollListView) findViewById(R.id.lista_de_produto);
         ViewGroup headerView = (ViewGroup) getLayoutInflater().inflate(R.layout.header_movimentacao_produto, listaViewDeProdutos, false);
         listaViewDeProdutos.addHeaderView(headerView);
         registerForContextMenu(listaViewDeProdutos);
@@ -142,7 +155,7 @@ public class CadastroMovimentacaoProdutoActivity extends AppCompatActivity {
                     }
                 }
 //                produtos = produtoDAO.procuraPorLoja(lojaDe);
-                Collections.sort(produtos);
+//                Collections.sort(produtos);
                 campoProduto.setText("");
                 produtoDe = null;
 
@@ -208,9 +221,11 @@ public class CadastroMovimentacaoProdutoActivity extends AppCompatActivity {
 
                 carinho.add(movProd);
 
-                Toast toast = Toast.makeText(CadastroMovimentacaoProdutoActivity.this, "Produto " + produtoPrincipal.getNome() + " adicionado ao carrinho", Toast.LENGTH_SHORT);
-                toast.setGravity(Gravity.CENTER, 0, 0);
-                toast.show();
+                snackbar.setText("Produto " + produtoPrincipal.getNome() + " adicionado ao carrinho");
+                snackbar.show();
+//                Toast toast = Toast.makeText(CadastroMovimentacaoProdutoActivity.this, "Produto " + produtoPrincipal.getNome() + " adicionado ao carrinho", Toast.LENGTH_SHORT);
+//                toast.setGravity(Gravity.CENTER, 0, 0);
+//                toast.show();
 
                 produtoPrincipal.setQuantidade(produtoPrincipal.getQuantidade() - quantidademovimentada);
                 for (String produtoVinculoId : produtoPrincipal.getIdProdutoVinculado()) {
@@ -236,6 +251,14 @@ public class CadastroMovimentacaoProdutoActivity extends AppCompatActivity {
             }
         });
 
+        snackbar.setAction("OK", new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+        snackbar.setActionTextColor(Color.RED);
+
 
     }
 
@@ -243,23 +266,27 @@ public class CadastroMovimentacaoProdutoActivity extends AppCompatActivity {
         if (campoProduto.getText().toString().isEmpty()) {
             campoProduto.setError("escolha um produto");
             campoProduto.requestFocus();
-            Toast.makeText(CadastroMovimentacaoProdutoActivity.this, "Escolha um Produto", Toast.LENGTH_SHORT).show();
+            snackbar.setText("Escolha um Produto");
+            snackbar.show();
+//            Toast.makeText(CadastroMovimentacaoProdutoActivity.this, "Escolha um Produto", Toast.LENGTH_SHORT).show();
             return false;
         }
         if (campoQuantidade.getText().toString().isEmpty()) {
             campoQuantidade.setError("Informe uma quantidade");
             campoQuantidade.requestFocus();
-            Toast.makeText(CadastroMovimentacaoProdutoActivity.this, "Digite a quantidade", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(CadastroMovimentacaoProdutoActivity.this, "Digite a quantidade", Toast.LENGTH_SHORT).show();
             return false;
         }
         if (campoQuantidade.getText().length() == 0) {
             campoQuantidade.setError("informe uma quantidade");
             campoQuantidade.requestFocus();
-            Toast.makeText(CadastroMovimentacaoProdutoActivity.this, "Digite a quantidade", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(CadastroMovimentacaoProdutoActivity.this, "Digite a quantidade", Toast.LENGTH_SHORT).show();
             return false;
         }
         if (lojaDe.getId().equals(lojaPara.getId())) {
-            Toast.makeText(CadastroMovimentacaoProdutoActivity.this, "Origem e destino não podem ser o mesmo", Toast.LENGTH_SHORT).show();
+            snackbar.setText("Origem e destino não podem ser o mesmo");
+            snackbar.show();
+//            Toast.makeText(CadastroMovimentacaoProdutoActivity.this, "Origem e destino não podem ser o mesmo", Toast.LENGTH_SHORT).show();
             return false;
         }
 
@@ -356,8 +383,10 @@ public class CadastroMovimentacaoProdutoActivity extends AppCompatActivity {
                 //campoPreco.setText(String.valueOf(produto.getPreco()));
 
                 // Show Alert
-                Toast.makeText(getApplicationContext(), "Produto : " + produtoDe.getNome() + " selecionado", Toast.LENGTH_LONG)
-                        .show();
+                snackbar.setText( "Produto : " + produtoDe.getNome() + " selecionado");
+                snackbar.show();
+//                Toast.makeText(getApplicationContext(), "Produto : " + produtoDe.getNome() + " selecionado", Toast.LENGTH_LONG)
+//                        .show();
                 alertDialog.hide();
                 alertDialog.dismiss();
 
@@ -371,11 +400,13 @@ public class CadastroMovimentacaoProdutoActivity extends AppCompatActivity {
         pesquisa.clear();
 
         for (int i = 0; i < produtos.size(); i++) {
-            if (textlength <= produtos.get(i).getNome().length()) {
-                if (txtPesquisa.equalsIgnoreCase((String) produtos.get(i).getNome().subSequence(0, textlength))) {
-                    pesquisa.add(produtos.get(i));
-                }
-            }
+            if (produtos.get(i).getNome().toLowerCase().contains(txtPesquisa.toLowerCase()))
+                pesquisa.add(produtos.get(i));
+//            if (textlength <= produtos.get(i).getNome().length()) {
+//                if (txtPesquisa.equalsIgnoreCase((String) produtos.get(i).getNome().subSequence(0, textlength))) {
+//                    pesquisa.add(produtos.get(i));
+//                }
+//            }
         }
     }
 
@@ -424,7 +455,9 @@ public class CadastroMovimentacaoProdutoActivity extends AppCompatActivity {
                     campoProduto.setText("");
                     campoQuantidade.setText("0");
                     if (carinho.remove(movimentacaoProduto)) {
-                        Toast.makeText(CadastroMovimentacaoProdutoActivity.this, " removido do carrinho", Toast.LENGTH_SHORT).show();
+                        snackbar.setText(" removido do carrinho");
+                        snackbar.show();
+//                        Toast.makeText(CadastroMovimentacaoProdutoActivity.this, " removido do carrinho", Toast.LENGTH_SHORT).show();
                         listaViewDeProdutos.setAdapter(adapterTable);
                         adapterTable.notifyDataSetChanged();
                     }
@@ -456,7 +489,9 @@ public class CadastroMovimentacaoProdutoActivity extends AppCompatActivity {
                 item.setVisible(false);
                 if (carinho.size() == 0) {
                     item.setVisible(true);
-                    Toast.makeText(CadastroMovimentacaoProdutoActivity.this, "Não existe produtos no carrinho", Toast.LENGTH_SHORT).show();
+                    snackbar.setText("Não existe produtos no carrinho");
+                    snackbar.show();
+//                    Toast.makeText(CadastroMovimentacaoProdutoActivity.this, "Não existe produtos no carrinho", Toast.LENGTH_SHORT).show();
                     break;
                 }
 

@@ -94,7 +94,7 @@ public class ProdutoDAO {
     }
 
     public List<Produto> listarProdutos() {
-        String sql = "SELECT * FROM Produtos;";
+        String sql = "SELECT * FROM Produtos order by nome;";
         SQLiteDatabase db = databaseHelper.getReadableDatabase();
         Cursor c = db.rawQuery(sql, null);
 
@@ -128,6 +128,14 @@ public class ProdutoDAO {
         return produtos;
     }
 
+    public boolean existeProdutosCadastrados(){
+        SQLiteDatabase db = databaseHelper.getReadableDatabase();
+        String existe = "SELECT count(id) FROM Produtos LIMIT 1";
+        Cursor cursor = db.rawQuery(existe, null);
+        int quantidade = cursor.getCount();
+        return quantidade > 0;
+    }
+
     //nomes e precos iguais
     public List<Produto> listarProdutosdpadrao() {
         String sql = "SELECT nome, MAX(preco) as preco FROM Produtos group by nome;";
@@ -150,7 +158,7 @@ public class ProdutoDAO {
     public void sincroniza(List<Produto> produtos) {
         for (Produto produto :
                 produtos) {
-            Log.i("log3", String.valueOf(produto.getQuantidade()));
+//            Log.i("log3", String.valueOf(produto.getQuantidade()));
             produto.sincroniza();
 
             if (existe(produto)) {
@@ -270,7 +278,7 @@ public class ProdutoDAO {
 
     public List<Produto> procuraPorLoja(Loja loja) {
         SQLiteDatabase db = databaseHelper.getReadableDatabase();
-        String existe = "SELECT * FROM Produtos WHERE loja_id=?";
+        String existe = "SELECT * FROM Produtos WHERE loja_id=? order by nome";
         Cursor c = db.rawQuery(existe, new String[]{loja.getId()});
         List<Produto> produtos = new ArrayList<Produto>();
         while (c.moveToNext()) {

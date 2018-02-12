@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="pitstop.com.br.pitstop">
 
+    <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -31,20 +32,48 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.CadastroLojaActivity" />
-        <activity android:name=".activity.NavigationViewActivity" />
-        <activity android:name=".activity.CadastroEntradaProdutoActivity" />
-        <activity android:name=".activity.CadastrarVendasActivity" />
-        <activity android:name=".activity.CadastroMovimentacaoProdutoActivity" />
-        <activity android:name=".activity.RelatorioVendasActivity" />
-        <activity android:name=".activity.RelatorioEntradaProdutoActivity" />
-        <activity android:name=".activity.RelatorioMovimentacaoProdutoActivity" />
-        <activity android:name=".activity.CadastroAvariaActivity" />
-        <activity android:name=".activity.NavigationViewFuncionarioActivity" />
-        <activity android:name=".activity.RelatorioAvariaActivity" />
-        <activity android:name=".activity.CadastroFuroActivity" />
-        <activity android:name=".activity.RelatorioFuroActivity"></activity>
-        <activity android:name=".activity.RelatorioGeralActivity"></activity>
+        <activity
+            android:name=".activity.CadastroLojaActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
+        <activity
+            android:name=".activity.NavigationViewActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
+        <activity
+            android:name=".activity.CadastroEntradaProdutoActivity"
+            />
+        <activity
+            android:name=".activity.CadastrarVendasActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
+        <activity
+            android:name=".activity.CadastroMovimentacaoProdutoActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
+        <activity
+            android:name=".activity.RelatorioVendasActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
+        <activity
+            android:name=".activity.RelatorioEntradaProdutoActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
+        <activity
+            android:name=".activity.RelatorioMovimentacaoProdutoActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
+        <activity
+            android:name=".activity.CadastroAvariaActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
+        <activity
+            android:name=".activity.NavigationViewFuncionarioActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
+        <activity
+            android:name=".activity.RelatorioAvariaActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
+        <activity
+            android:name=".activity.CadastroFuroActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
+        <activity
+            android:name=".activity.RelatorioFuroActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"></activity>
+        <activity
+            android:name=".activity.RelatorioGeralActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"></activity>
     </application>
 
 </manifest>

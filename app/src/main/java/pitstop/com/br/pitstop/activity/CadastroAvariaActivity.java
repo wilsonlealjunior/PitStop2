@@ -1,5 +1,8 @@
 package pitstop.com.br.pitstop.activity;
 
+import android.content.Context;
+import android.graphics.Color;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,6 +14,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -46,24 +50,26 @@ import pitstop.com.br.pitstop.model.Produto;
 import pitstop.com.br.pitstop.preferences.UsuarioPreferences;
 
 public class CadastroAvariaActivity extends AppCompatActivity {
-    Spinner spinnerLoja;
     TextView campoProduto;
     EditText campoQuantidade;
+    Snackbar snackbar;
+    LinearLayout linearLayoutRootCadastroAvaria;
     private Toolbar toolbar;
-
-
-    List<String> labelsLoja = new ArrayList<>();
-    List<Loja> lojas = new ArrayList<>();
     List<Produto> produtos = new ArrayList<>();
     List<Produto> pesquisa = new ArrayList<>();
     Produto produto = new Produto();
-    Loja loja = new Loja();
     ProdutoDAO produtoDAO;
     LojaDAO lojaDAO;
     EntradaProdutoDAO entradaProdutoDAO;
+    Loja loja = new Loja();
     Produto produtoPrincipal;
-
     EventBus bus = EventBus.getDefault();
+
+
+
+    Spinner spinnerLoja;
+    List<String> labelsLoja = new ArrayList<>();
+    List<Loja> lojas = new ArrayList<>();
     UsuarioPreferences usuarioPreferences;
 
 
@@ -79,19 +85,19 @@ public class CadastroAvariaActivity extends AppCompatActivity {
         for (Loja loja : lojas) {
             labelsLoja.add(loja.getNome());
         }
-        if (lojas.size() == 0) {
-            Toast.makeText(getApplicationContext(), "Não existe usuarios cadastradas", Toast.LENGTH_LONG).show();
-            finish();
-            return;
-        }
-        loja = lojas.get(0);
-        produtos = produtoDAO.procuraPorLoja(loja);
-        produtoDAO.close();
-        if (produtos.size() == 0) {
-            Toast.makeText(getApplicationContext(), "Não existe Produtos cadastrados", Toast.LENGTH_LONG).show();
-            finish();
-            return;
-        }
+//        if (lojas.size() == 0) {
+//            Toast.makeText(getApplicationContext(), "Não existe usuarios cadastradas", Toast.LENGTH_LONG).show();
+//            finish();
+//            return;
+//        }
+//        loja = lojas.get(0);
+//        boolean existeProdutoCadastrados = produtoDAO.procuraPorLoja(loja);
+//        produtoDAO.close();
+//        if (produtos.size() == 0) {
+//            Toast.makeText(getApplicationContext(), "Não existe Produtos cadastrados", Toast.LENGTH_LONG).show();
+//            finish();
+//            return;
+//        }
 
 
         setupView();
@@ -118,7 +124,7 @@ public class CadastroAvariaActivity extends AppCompatActivity {
                 //toda vez que é selecionado uma loja a lista de produtos é recarregada, então no campo produto é setado como vazio
                 loja = lojas.get(i);
                 produtos = produtoDAO.procuraPorLoja(loja);
-                Collections.sort(produtos);
+//                Collections.sort(produtos);
                 produtoDAO.close();
                 campoProduto.setText("");
                 produto = null;
@@ -131,6 +137,15 @@ public class CadastroAvariaActivity extends AppCompatActivity {
             }
         });
 
+        //configurando snackbar
+        snackbar.setAction("OK", new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+        snackbar.setActionTextColor(Color.RED);
+
         campoProduto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -142,6 +157,8 @@ public class CadastroAvariaActivity extends AppCompatActivity {
     }
 
     public void loadView() {
+        linearLayoutRootCadastroAvaria = (LinearLayout) findViewById(R.id.ll_root_cadastr_avaria);
+        snackbar = Snackbar.make(linearLayoutRootCadastroAvaria, "", Snackbar.LENGTH_LONG);
         toolbar = (Toolbar) findViewById(R.id.main_toolbar);
         spinnerLoja = (Spinner) findViewById(R.id.spinner);
         campoProduto = (TextView) findViewById(R.id.produto);
@@ -234,8 +251,10 @@ public class CadastroAvariaActivity extends AppCompatActivity {
                 //campoPreco.setText(String.valueOf(produto.getPreco()));
 
                 // Show Alert
-                Toast.makeText(getApplicationContext(), "Produto : " + produto.getNome() + " selecionado", Toast.LENGTH_LONG)
-                        .show();
+                snackbar.setText("Produto : " + produto.getNome() + " selecionado");
+                snackbar.show();
+//                Toast.makeText(getApplicationContext(), "Produto : " + produto.getNome() + " selecionado", Toast.LENGTH_LONG)
+//                        .show();
                 alertDialog.hide();
                 alertDialog.dismiss();
 
@@ -244,16 +263,23 @@ public class CadastroAvariaActivity extends AppCompatActivity {
         });
     }
 
+    public static void hideKeyboard(Context context, View editText) {
+        InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
+    }
+
     public void pesquisar(String txtPesquisa) {
         int textlength = txtPesquisa.length();
         pesquisa.clear();
 
         for (int i = 0; i < produtos.size(); i++) {
-            if (textlength <= produtos.get(i).getNome().length()) {
-                if (txtPesquisa.equalsIgnoreCase((String) produtos.get(i).getNome().subSequence(0, textlength))) {
-                    pesquisa.add(produtos.get(i));
-                }
-            }
+            if (produtos.get(i).getNome().toLowerCase().contains(txtPesquisa.toLowerCase()))
+                pesquisa.add(produtos.get(i));
+//            if (textlength <= produtos.get(i).getNome().length()) {
+//                if (txtPesquisa.equalsIgnoreCase((String) produtos.get(i).getNome().subSequence(0, textlength))) {
+//                    pesquisa.add(produtos.get(i));
+//                }
+//            }
         }
     }
 
@@ -266,6 +292,7 @@ public class CadastroAvariaActivity extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
 
     }
+
     public void validandoQuantidadeDoProdutoNoEstoque() {
         if (produto.vinculado()) {
             produtoPrincipal = produtoDAO.procuraPorId(produto.getIdProdutoPrincipal());
@@ -297,7 +324,9 @@ public class CadastroAvariaActivity extends AppCompatActivity {
         }
 
     }
+
     public boolean isValid() {
+        hideKeyboard(this, getCurrentFocus());
 
 //        produto.setEntradaProdutos(entradaProdutoDAO.procuraTodosDeUmProduto(produto));
 //        entradaProdutoDAO.close();
@@ -313,7 +342,9 @@ public class CadastroAvariaActivity extends AppCompatActivity {
         if (campoProduto.getText().toString().isEmpty()) {
             campoProduto.setError("Escolha um produto");
             campoProduto.requestFocus();
-            Toast.makeText(CadastroAvariaActivity.this, "Escolha um Produto", Toast.LENGTH_SHORT).show();
+            snackbar.setText("Escolha um Produto");
+            snackbar.show();
+//            Toast.makeText(CadastroAvariaActivity.this, "Escolha um Produto", Toast.LENGTH_SHORT).show();
             return false;
         }
         if (campoQuantidade.getText().length() == 0) {
@@ -329,7 +360,9 @@ public class CadastroAvariaActivity extends AppCompatActivity {
             return false;
         }
         if (quantidadeComprada > produto.getQuantidade()) {
-            Toast.makeText(CadastroAvariaActivity.this, "Quantidade informada maior do que o estoque do Produto", Toast.LENGTH_SHORT).show();
+            snackbar.setText("Quantidade informada maior do que o estoque do Produto");
+            snackbar.show();
+//            Toast.makeText(CadastroAvariaActivity.this, "Quantidade informada maior do que o estoque do Produto", Toast.LENGTH_SHORT).show();
             return false;
         }
 

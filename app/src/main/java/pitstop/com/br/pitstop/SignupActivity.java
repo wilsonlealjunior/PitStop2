@@ -22,6 +22,7 @@ import java.security.NoSuchAlgorithmException;
 import pitstop.com.br.pitstop.dao.UsuarioDAO;
 import pitstop.com.br.pitstop.model.Produto;
 import pitstop.com.br.pitstop.model.Usuario;
+import pitstop.com.br.pitstop.preferences.ObjetosSinkPreferences;
 import pitstop.com.br.pitstop.retrofit.RetrofitInializador;
 import pitstop.com.br.pitstop.sic.ObjetosSinkSincronizador;
 import retrofit2.Call;
@@ -37,6 +38,7 @@ public class SignupActivity extends AppCompatActivity {
     String perfilEscolhido;
     private Toolbar toolbar;
     boolean edicao = false;
+    ObjetosSinkPreferences objetosSinkPreferences;
     ObjetosSinkSincronizador objetosSinkSincronizador;
     Usuario usuarioEditar;
 
@@ -59,6 +61,7 @@ public class SignupActivity extends AppCompatActivity {
         inputEmail = (EditText) findViewById(R.id.usuario);
         inputPassword = (EditText) findViewById(R.id.password);
         inputPassword2 = (EditText) findViewById(R.id.password2);
+        objetosSinkPreferences = new ObjetosSinkPreferences(this);
 
         Intent intent = getIntent();
         usuarioEditar = (Usuario) intent.getSerializableExtra("usuario");
@@ -149,17 +152,18 @@ public class SignupActivity extends AppCompatActivity {
                             Toast.makeText(getApplicationContext(), "Erro ao cadastrar usuario, verifique o nome", Toast.LENGTH_LONG).show();
 
                         } else {
+                            Usuario usuario = response.body();
                             if (edicao == false) {
                                 Toast.makeText(getApplicationContext(), "Usuario Cadastrado com sucesso", Toast.LENGTH_LONG).show();
+                                UsuarioDAO usuarioDAO = new UsuarioDAO(getApplicationContext());
+                                usuarioDAO.insere(usuario);
                             } else {
                                 Toast.makeText(getApplicationContext(), "Usuario alterado com sucesso", Toast.LENGTH_LONG).show();
-
+                                UsuarioDAO usuarioDAO = new UsuarioDAO(getApplicationContext());
+                                usuarioDAO.altera(usuario);
                             }
                             Intent intentVaiProNavigation = new Intent(getApplicationContext(), LoginActivity.class);
-                            Usuario usuario = response.body();
                             intentVaiProNavigation.putExtra("usuario", usuario);
-                            UsuarioDAO usuarioDAO = new UsuarioDAO(getApplicationContext());
-                            usuarioDAO.insere(usuario);
                             startActivity(intentVaiProNavigation);
 
                         }

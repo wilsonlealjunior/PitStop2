@@ -173,7 +173,7 @@ public class EntradaProdutoDAO {
     }
 
     public List<EntradaProduto> relatorio(String lojaEscolhida, String de, String ate) {
-        String sql = "SELECT ep.desativado,ep.id,ep.data,ep.precoDeCompra,ep.quantidade,ep.quantidadeVendidaMovimentada,ep.sincronizado,ep.produto_id  FROM EntradaProduto ep inner join Produtos p on ep.produto_id=p.id inner join Lojas l on p.loja_id=l.id where ep.data between '" + de + "' and '" + ate + "' and l.id like '" + lojaEscolhida + "' order by ep.data desc ;";
+        String sql = "SELECT ep.desativado,ep.id,ep.data,ep.precoDeCompra,ep.quantidade,ep.quantidadeVendidaMovimentada,ep.sincronizado,ep.produto_id  FROM EntradaProduto ep inner join Produtos p on ep.produto_id=p.id inner join Lojas l on p.loja_id=l.id where ep.desativado=0 and ep.data between '" + de + "' and '" + ate + "' and l.id like '" + lojaEscolhida + "' order by ep.data desc ;";
         Log.e("sql", sql);
         SQLiteDatabase db = databaseHelper.getReadableDatabase();
         Cursor c = db.rawQuery(sql, null);
@@ -205,7 +205,7 @@ public class EntradaProdutoDAO {
 
     public List<EntradaProduto> procuraTodosDeUmProduto(Produto produto) {
         SQLiteDatabase db = databaseHelper.getReadableDatabase();
-        String existe = "SELECT * FROM EntradaProduto WHERE produto_id=? and (quantidade-quantidadeVendidaMovimentada)!=0 order by data asc";
+        String existe = "SELECT * FROM EntradaProduto WHERE desativado=0 and produto_id=? and (quantidade-quantidadeVendidaMovimentada)!=0  order by data asc";
         Cursor c = db.rawQuery(existe, new String[]{produto.getId()});
         List<EntradaProduto> entradaProdutos = new ArrayList<EntradaProduto>();
         while (c.moveToNext()) {

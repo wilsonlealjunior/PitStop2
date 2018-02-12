@@ -1,7 +1,9 @@
 package pitstop.com.br.pitstop.activity;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.annotation.IdRes;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -22,6 +24,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.ScrollView;
 import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -59,6 +62,7 @@ public class CadastroProdutoActivity extends AppCompatActivity {
     private EditText etNomeDoProdutoVinculado;
     private Spinner spinnerLoja;
     private UsuarioPreferences usuarioPreferences;
+    private ScrollView scrollRootViewCadastroProduto;
 
     Produto produto;
     Loja lojaEscolhida;
@@ -66,6 +70,7 @@ public class CadastroProdutoActivity extends AppCompatActivity {
     EventBus bus = EventBus.getDefault();
     LojaDAO lojaDAO;
     ProdutoDAO produtoDAO;
+    private Snackbar snackbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -152,11 +157,20 @@ public class CadastroProdutoActivity extends AppCompatActivity {
             }
         });
 
+        snackbar.setAction("OK", new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+        snackbar.setActionTextColor(Color.RED);
 
     }
 
 
     public void LoadView() {
+        scrollRootViewCadastroProduto = (ScrollView)findViewById(R.id.sv_root_cadastro_produto);
+        snackbar = Snackbar.make(scrollRootViewCadastroProduto, "", Snackbar.LENGTH_LONG);
         cardViewVinculacao = (CardView) findViewById(R.id.cardView_vinculacao);
         spinnerLoja = (Spinner) findViewById(R.id.spiner_loja);
         lojaDAO = new LojaDAO(this);
@@ -208,6 +222,8 @@ public class CadastroProdutoActivity extends AppCompatActivity {
                     produtoDAO.altera(produto);
                     produtoDAO.close();
                     Toast.makeText(CadastroProdutoActivity.this, "Produto " + produto.getNome() + " Editado!", Toast.LENGTH_SHORT).show();
+                    bus.post(new AtualizaListaProdutoEvent());
+                    bus.post(new AtualizaListaLojasEvent());
                     finish();
                     break;
                 }
@@ -357,8 +373,10 @@ public class CadastroProdutoActivity extends AppCompatActivity {
                 produtoPrincipal = (Produto) listView.getItemAtPosition(position);
                 etNomeDoProdutoVinculado.setText(produtoPrincipal.getNome());
                 // Show Alert
-                Toast.makeText(getApplicationContext(), "Produto : " + produtoPrincipal.getNome() + " selecionado", Toast.LENGTH_LONG)
-                        .show();
+                snackbar.setText("Produto : " + produtoPrincipal.getNome() + " selecionado");
+                snackbar.show();
+//                Toast.makeText(getApplicationContext(), "Produto : " + produtoPrincipal.getNome() + " selecionado", Toast.LENGTH_LONG)
+//                        .show();
                 alertDialog.hide();
                 alertDialog.dismiss();
 
@@ -372,11 +390,13 @@ public class CadastroProdutoActivity extends AppCompatActivity {
         pesquisa.clear();
 
         for (int i = 0; i < produtos.size(); i++) {
-            if (textlength <= produtos.get(i).getNome().length()) {
-                if (txtPesquisa.equalsIgnoreCase((String) produtos.get(i).getNome().subSequence(0, textlength))) {
-                    pesquisa.add(produtos.get(i));
-                }
-            }
+            if (produtos.get(i).getNome().toLowerCase().contains(txtPesquisa.toLowerCase()))
+                pesquisa.add(produtos.get(i));
+//            if (textlength <= produtos.get(i).getNome().length()) {
+//                if (txtPesquisa.equalsIgnoreCase((String) produtos.get(i).getNome().subSequence(0, textlength))) {
+//                    pesquisa.add(produtos.get(i));
+//                }
+//            }
         }
     }
 

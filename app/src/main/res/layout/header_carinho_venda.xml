@@ -12,7 +12,7 @@
         >
         <TextView
             android:layout_column="0"
-            android:padding="10sp"
+            android:padding="8sp"
             android:gravity="left"
             android:layout_span="2"
             android:text="Produto"
@@ -22,7 +22,7 @@
         </TextView>
         <TextView
             android:layout_column="1"
-            android:padding="10sp"
+            android:padding="8sp"
             android:gravity="left"
             android:text="Und(R$)"
             android:textStyle="bold"
@@ -32,7 +32,7 @@
         </TextView>
         <TextView
             android:layout_column="2"
-            android:padding="10sp"
+            android:padding="8sp"
             android:gravity="left"
             android:text="Qtd"
             android:textStyle="bold"
@@ -42,7 +42,7 @@
         </TextView>
         <TextView
             android:layout_column="3"
-            android:padding="10sp"
+            android:padding="8sp"
             android:gravity="left"
             android:text="Total"
             android:textStyle="bold"

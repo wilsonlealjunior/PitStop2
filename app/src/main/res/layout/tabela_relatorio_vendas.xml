@@ -26,8 +26,16 @@
             >
         </TextView>
         <TextView
-            android:id="@+id/lucro"
+            android:id="@+id/total_cartao"
             android:layout_column="2"
+            android:padding="10sp"
+            android:gravity="left"
+            android:layout_span="2"
+            >
+        </TextView>
+        <TextView
+            android:id="@+id/lucro"
+            android:layout_column="3"
             android:padding="10sp"
             android:gravity="left"
             android:layout_span="2"

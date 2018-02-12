@@ -92,7 +92,7 @@ public class MovimentacaoProdutoDAO {
     }
 
     public List<MovimentacaoProduto> relatorio(String de, String ate) {
-        String sql = "SELECT * FROM movimentacao_produto where data between '"+de+"' and '"+ate+"' order by data desc;";
+        String sql = "SELECT * FROM movimentacao_produto where desativado=0 and data between '"+de+"' and '"+ate+"' order by data desc;";
         SQLiteDatabase db = databaseHelper.getReadableDatabase();
         Cursor c = db.rawQuery(sql, null);
 

@@ -112,7 +112,7 @@ public class AvariaDAO {
     }
 
     public List<Avaria> relatorio(String lojaEscolhidaId, String de, String ate) {
-        String sql = "SELECT * FROM Avaria where id_loja like '" + lojaEscolhidaId + "' and data between '" + de + "' and '" + ate + "' order by data desc;";
+        String sql = "SELECT * FROM Avaria where desativado=0 and id_loja like '" + lojaEscolhidaId + "' and data between '" + de + "' and '" + ate + "' order by data desc;";
         SQLiteDatabase db = databaseHelper.getReadableDatabase();
         Cursor c = db.rawQuery(sql, null);
 
@@ -141,7 +141,7 @@ public class AvariaDAO {
 
 
     public List<Avaria> buscaPorLoja(String Idloja) {
-        String sql = "SELECT * FROM Avaria WHERE id_loja=?";
+        String sql = "SELECT * FROM Avaria WHERE id_loja=? ";
         SQLiteDatabase db = databaseHelper.getReadableDatabase();
         Cursor c = db.rawQuery(sql, new String[]{Idloja});
         List<Avaria> avarias = new ArrayList<Avaria>();

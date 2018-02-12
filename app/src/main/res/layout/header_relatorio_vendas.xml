@@ -24,7 +24,17 @@
             android:layout_column="1"
             android:padding="10sp"
             android:gravity="left"
-            android:text="Total"
+            android:text="Dinheiro"
+            android:textStyle="bold"
+            android:layout_span="2"
+            android:background="#c0c0c0"
+            >
+        </TextView>
+        <TextView
+            android:layout_column="2"
+            android:padding="10sp"
+            android:gravity="left"
+            android:text="Cartão"
             android:textStyle="bold"
             android:layout_span="2"
             android:background="#c0c0c0"
@@ -32,7 +42,7 @@
         </TextView>
         <TextView
             android:id="@+id/lucro"
-            android:layout_column="2"
+            android:layout_column="3"
             android:padding="10sp"
             android:gravity="left"
             android:text="Lucro"

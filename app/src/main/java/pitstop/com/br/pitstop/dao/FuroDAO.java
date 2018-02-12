@@ -145,7 +145,7 @@ public class FuroDAO {
     }
 
     public List<Furo> relatorio(String de, String ate,String Idloja, String funcionarioId) {
-        String sql = "SELECT * FROM Furo WHERE data between '"+de+"' and '"+ate+"' and id_loja like '"+Idloja+"' and id_usuario like '"+funcionarioId+"' order by data desc";
+        String sql = "SELECT * FROM Furo WHERE desativado=0 and data between '"+de+"' and '"+ate+"' and id_loja like '"+Idloja+"' and id_usuario like '"+funcionarioId+"' order by data desc";
         SQLiteDatabase db = databaseHelper.getReadableDatabase();
         Cursor c = db.rawQuery(sql, new String[]{});
 

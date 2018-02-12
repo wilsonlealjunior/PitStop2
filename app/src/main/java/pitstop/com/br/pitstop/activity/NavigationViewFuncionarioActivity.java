@@ -89,50 +89,27 @@ public class NavigationViewFuncionarioActivity extends AppCompatActivity {
             public void onClick(View view) {
                 progressDialog.setMessage("Deslogando usuario");
                 progressDialog.show();
-                logout("usuarioLogado-" + usuario.getNome());
+//                logout("usuarioLogado-" + usuario.getNome());
                 UsuarioPreferences usuarioPreferences = new UsuarioPreferences(getApplicationContext());
                 usuarioPreferences.deletar();
-
-
-
-            }
-        });
-
-
-    }
-
-    public void logout(final String usuarioLogado) {
-        Call<Usuario> call = new RetrofitInializador().getLoginLogoutService().logout();
-        call.enqueue(new Callback<Usuario>() {
-            @Override
-            public void onResponse(Call<Usuario> call, Response<Usuario> response) {
-                if (response.body() == null) {
-                    progressDialog.dismiss();
-                    Intent intentVaiProLogin = new Intent(getApplicationContext(), LoginActivity.class);
-                    startActivity(intentVaiProLogin);
-                    finish();
-
-                }
-
-
-            }
-
-            @Override
-            public void onFailure(Call<Usuario> call, Throwable t) {
-                Log.e("onFailure chamado", t.getMessage());
-                Toast.makeText(getApplicationContext(), "Verifique a conexao com a internet", Toast.LENGTH_SHORT).show();
                 progressDialog.dismiss();
+                Intent intentVaiProLogin = new Intent(getApplicationContext(), LoginActivity.class);
+                startActivity(intentVaiProLogin);
+                finish();
+
+
             }
         });
 
 
     }
+
 
     @Override
     public void onResume() {
         super.onResume();  // Always call the superclass method first
 //        objetosSinkSincronizador.buscaTodos();
-        Log.e("TESTE","chama o resume");
+        Log.e("TESTE", "chama o resume");
 
 
     }
@@ -190,15 +167,14 @@ public class NavigationViewFuncionarioActivity extends AppCompatActivity {
         botaoLogout = (ImageButton) headerView.findViewById(R.id.logout);
         TextView textOne = (TextView) headerView.findViewById(R.id.username);
         TextView loja = (TextView) headerView.findViewById(R.id.loja);
-        if(usuarioPreferences.temLoja()){
-            loja.setText("Loja :"+usuarioPreferences.getLoja().getNome());
-        }
-        else{
+        if (usuarioPreferences.temLoja()) {
+            loja.setText("Loja: " + usuarioPreferences.getLoja().getNome());
+        } else {
             loja.setText("primeiro acesso");
         }
-        textOne.setText("Funcionário: "+usuario.getNome());
+        textOne.setText("Funcionário: " + usuario.getNome());
         TextView textTwo = (TextView) headerView.findViewById(R.id.email_address);
-        textTwo.setText("Cargo: "+usuario.getRole());
+        textTwo.setText("Cargo: " + usuario.getRole());
     }
 
     @Override

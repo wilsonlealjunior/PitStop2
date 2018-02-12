@@ -50,10 +50,10 @@ public class AdpterProdutoPersonalizado extends BaseAdapter {
         //pegando as referências das Views
         TextView nome = (TextView)
                 view.findViewById(R.id.nome);
-        TextView preco = (TextView)
-                view.findViewById(R.id.preco);
-        TextView quantidade = (TextView)
-                view.findViewById(R.id.quantidade);
+//        TextView preco = (TextView)
+//                view.findViewById(R.id.preco);
+//        TextView quantidade = (TextView)
+//                view.findViewById(R.id.quantidade);
 
 
         //populando as Views

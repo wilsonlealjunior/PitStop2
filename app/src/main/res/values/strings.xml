@@ -6,7 +6,7 @@
     <string name="preco">Preço</string>
     <string name="loja">Loja</string>
     <string name="endereco">Endereço</string>
-    <string name="funcionario">Funcionario</string>
+    <string name="funcionario">Funcionário</string>
     <string name="entrada">Entrada de Produto</string>
 
 
@@ -56,14 +56,14 @@
     <string name="nav_item_cadastrar_vendas">Cadastrar Vendas</string>
     <string name="nav_item_relatorio_vendas_pdf">Relatorio de vendas pdf</string>
     <string name="nav_item_cadastrar_usuario">Cadastrar Usuário</string>
-    <string name="nav_item_cadastrar_avaria">Cadastrar Avaria</string>
-    <string name="nav_item_movimentacao_Produto">Movimentacao de Produto</string>
+    <string name="nav_item_avaria">Avaria</string>
+    <string name="nav_item_movimentacao_Produto">Movimentação de Produto</string>
     <string name="nav_item_relatorio_venda">Relatório de Vendas</string>
     <string name="nav_item_relatorio_Entrada_Produto">Rel. de Ent. de Produtos</string>
     <string name="nav_item_relatorio_avaria">Relatório de Avaria</string>
     <string name="nav_item_relatorio_movimentacao_Produto">Rel. de Mov. de Produtos.</string>
     <string name="nav_item_relatorio_furo">Relatório de Furo</string>
-    <string name="nav_item_cadastrar_furo">Cadastrar Furo</string>
+    <string name="nav_item_furo">Furo</string>
     <string name="nav_item_relatorio_geral">Relatório Geral</string>
 
     <string name="nav_item_friends">Friends</string>
@@ -82,6 +82,26 @@
     <string name="rate">Rate App</string>
     <string name="settings">Settings</string>
     <string name="help">Help</string>
+    <string name="lucro">Lucro</string>
+    <string name="resumo">Resumo</string>
+    <string name="forma_de_pagamento">Forma de Pagamento</string>
+    <string name="Data_de">De</string>
+    <string name="data_inicial">Data inicial</string>
+    <string name="Data_ate">Até</string>
+    <string name="filtro_do_relatorio">Filtro</string>
+    <string name="gerar_relatorio">Gerar Relatório</string>
+    <string name="gerar_pdf">Gerar PDF</string>
+    <string name="relatorio">Relatório</string>
+    <string name="carrinho">Carrinho</string>
+    <string name="loja_de_origem">Loja de origem</string>
+    <string name="loja_de_destinho">Loja de destinho</string>
+    <string name="informacoes_de_cadastro">Informações de Cadastro</string>
+    <string name="digite_o_nome_do_produto">Digite o nome do produto</string>
+    <string name="preco_de_compra">Preço de compra</string>
+    <string name="adicionar">Adicionar</string>
+    <string name="preco_da_unidade_do_produto">Preço da unidade do produto</string>
+    <string name="total">Total</string>
+    <string name="total_no_cartao">Total no cartão</string>
 
 
 </resources>

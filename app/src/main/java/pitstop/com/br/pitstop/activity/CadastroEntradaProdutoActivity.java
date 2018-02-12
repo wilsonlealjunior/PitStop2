@@ -2,6 +2,9 @@ package pitstop.com.br.pitstop.activity;
 
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.graphics.Color;
+import android.os.PersistableBundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -29,6 +32,7 @@ import android.widget.Toast;
 
 import org.w3c.dom.Text;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -37,6 +41,7 @@ import de.greenrobot.event.EventBus;
 import pitstop.com.br.pitstop.R;
 import pitstop.com.br.pitstop.adapter.AdpterProdutoPersonalizado;
 import pitstop.com.br.pitstop.adapter.LstViewTabelaRelatorioEntradaProduto;
+import pitstop.com.br.pitstop.adapter.NonScrollListView;
 import pitstop.com.br.pitstop.dao.LojaDAO;
 import pitstop.com.br.pitstop.dao.EntradaProdutoDAO;
 import pitstop.com.br.pitstop.dao.ProdutoDAO;
@@ -46,6 +51,7 @@ import pitstop.com.br.pitstop.helper.CadastroEntradaProdutoHelper;
 import pitstop.com.br.pitstop.model.EntradaProduto;
 import pitstop.com.br.pitstop.model.Loja;
 import pitstop.com.br.pitstop.model.Produto;
+
 
 public class CadastroEntradaProdutoActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     CadastroEntradaProdutoHelper cadastroEntradaProdutoHelper;
@@ -65,42 +71,63 @@ public class CadastroEntradaProdutoActivity extends AppCompatActivity implements
     private Toolbar toolbar;
     ProdutoDAO produtoDAO;
     LojaDAO lojaDAO;
-    private ListView listaViewDeEntradaDeProdutos;
+    private NonScrollListView listaViewDeEntradaDeProdutos;
     LstViewTabelaRelatorioEntradaProduto adapterTable;
     EventBus bus = EventBus.getDefault();
     EntradaProdutoDAO entradaProdutoDAO;
-
+    LinearLayout linearLayoutRootEntradaDeProduto;
+    Snackbar snackbar;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cadastro_entrada_produto);
-
         loadView();
 
 
         //validando a pagina
         //inicilizando atributos
-        produtos = produtoDAO.listarProdutos();
+        boolean existeProdutosCadastrados = produtoDAO.existeProdutosCadastrados();
         produtoDAO.close();
         lojas = lojaDAO.listarLojas();
         lojaDAO.close();
         if (lojas.size() == 0) {
             Toast.makeText(getApplicationContext(), "Não existe usuarios cadastradas", Toast.LENGTH_LONG).show();
+//            finish();
+//            snackbar.setText("Não lojas cadastradas");
+//            snackbar.show();
             finish();
             return;
 
         }
-        if (produtos.size() == 0) {
-            Toast.makeText(getApplicationContext(), "Não existe Produtos cadastrados", Toast.LENGTH_LONG).show();
-            finish();
-            return;
-        }
+//        if (!existeProdutosCadastrados) {
+//            Toast.makeText(getApplicationContext(), "Não existe Produtos cadastrados", Toast.LENGTH_LONG).show();
+////            snackbar.setText("Não existe Produtos cadastrados");
+////            snackbar.show();
+//            finish();
+//            return;
+//        }
         setupView();
 
 
     }
+
+//    @Override
+//    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+//        super.onSaveInstanceState(outState, outPersistentState);
+
+//        outState.putSerializable("carinho", (Serializable) carinho.stream()); // Saving the Variable theWord
+//        outState.putStringArrayList("fiveDefns", fiveDefns); // Saving the ArrayList fiveDefns
+//    }
+//
+//    @Override
+//    public void onRestoreInstanceState(Bundle savedInstanceState, PersistableBundle persistentState) {
+//        super.onRestoreInstanceState(savedInstanceState, persistentState);
+//
+//        theWord = savedInstanceState.getString("theWord"); // Restoring theWord
+//        fiveDefns = savedInstanceState.getStringArrayList("fiveDefns"); //Restoring fiveDefns
+//    }
 
     public void setupView() {
         //configurando o toolbar
@@ -147,12 +174,24 @@ public class CadastroEntradaProdutoActivity extends AppCompatActivity implements
                 entradaProdutoCar.setProduto(produto);
                 carinho.add(entradaProdutoCar);
                 adapterTable.notifyDataSetChanged();
-                Toast toast = Toast.makeText(CadastroEntradaProdutoActivity.this, "Produto " + produto.getNome() + " adicionado ao carrinho", Toast.LENGTH_SHORT);
-                toast.setGravity(Gravity.CENTER, 0, 0);
-                toast.show();
+                snackbar.setText("Produto " + produto.getNome() + " adicionado ao carrinho");
+                snackbar.show();
+//                Toast toast = Toast.makeText(CadastroEntradaProdutoActivity.this, "Produto " + produto.getNome() + " adicionado ao carrinho", Toast.LENGTH_SHORT);
+//                toast.setGravity(Gravity.CENTER, 0, 0);
+//                toast.show();
 
             }
         });
+
+        //configurando snackbar
+        snackbar.setAction("OK", new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+        snackbar.setActionTextColor(Color.RED);
+
 
         campoProduto.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -165,7 +204,9 @@ public class CadastroEntradaProdutoActivity extends AppCompatActivity implements
     }
 
     public void loadView() {
-        listaViewDeEntradaDeProdutos = (ListView) findViewById(R.id.lista_de_produto);
+        linearLayoutRootEntradaDeProduto = (LinearLayout) findViewById(R.id.ll_root_cadastro_entrada_produto);
+        snackbar = Snackbar.make(linearLayoutRootEntradaDeProduto, "", Snackbar.LENGTH_LONG);
+        listaViewDeEntradaDeProdutos = (NonScrollListView) findViewById(R.id.lista_de_produto);
         spinnerLoja = (Spinner) findViewById(R.id.spinner);
         campoProduto = (TextView) findViewById(R.id.produto);
         campoquantidade = (EditText) findViewById(R.id.quantidade);
@@ -177,7 +218,6 @@ public class CadastroEntradaProdutoActivity extends AppCompatActivity implements
         entradaProdutoDAO = new EntradaProdutoDAO(this);
         produtoDAO = new ProdutoDAO(this);
         lojaDAO = new LojaDAO(this);
-
 
     }
 
@@ -223,7 +263,10 @@ public class CadastroEntradaProdutoActivity extends AppCompatActivity implements
         if (campoProduto.getText().toString().isEmpty()) {
             campoProduto.setError("Escolha um produto");
             campoProduto.requestFocus();
-            Toast.makeText(CadastroEntradaProdutoActivity.this, "Escolha um Produto", Toast.LENGTH_SHORT).show();
+            snackbar.setText("Escolha um produto");
+            snackbar.show();
+
+//            Toast.makeText(CadastroEntradaProdutoActivity.this, "Escolha um Produto", Toast.LENGTH_SHORT).show();
             return false;
         }
         if (campoquantidade.getText().length() == 0) {
@@ -252,7 +295,9 @@ public class CadastroEntradaProdutoActivity extends AppCompatActivity implements
                 if (info.position != 0) {
                     EntradaProduto entradaProduto = (EntradaProduto) listaViewDeEntradaDeProdutos.getItemAtPosition(info.position);
                     if (carinho.remove(entradaProduto)) {
-                        Toast.makeText(CadastroEntradaProdutoActivity.this, entradaProduto.getProduto().getNome() + " removido do carrinho", Toast.LENGTH_SHORT).show();
+                        snackbar.setText(entradaProduto.getProduto().getNome() + " removido do carrinho");
+                        snackbar.show();
+//                        Toast.makeText(CadastroEntradaProdutoActivity.this, entradaProduto.getProduto().getNome() + " removido do carrinho", Toast.LENGTH_SHORT).show();
                         listaViewDeEntradaDeProdutos.setAdapter(adapterTable);
                         adapterTable.notifyDataSetChanged();
                     }
@@ -343,8 +388,10 @@ public class CadastroEntradaProdutoActivity extends AppCompatActivity implements
                 //campoPreco.setText(String.valueOf(produto.getPreco()));
 
                 // Show Alert
-                Toast.makeText(getApplicationContext(), "Produto : " + produto.getNome() + " selecionado", Toast.LENGTH_LONG)
-                        .show();
+//                Toast.makeText(getApplicationContext(), "Produto : " + produto.getNome() + " selecionado", Toast.LENGTH_LONG)
+//                        .show();
+                snackbar.setText("Produto : " + produto.getNome() + " selecionado");
+                snackbar.show();
                 alertDialog.hide();
                 alertDialog.dismiss();
 
@@ -358,11 +405,13 @@ public class CadastroEntradaProdutoActivity extends AppCompatActivity implements
         pesquisa.clear();
 
         for (int i = 0; i < produtos.size(); i++) {
-            if (textlength <= produtos.get(i).getNome().length()) {
-                if (txtPesquisa.equalsIgnoreCase((String) produtos.get(i).getNome().subSequence(0, textlength))) {
-                    pesquisa.add(produtos.get(i));
-                }
-            }
+            if (produtos.get(i).getNome().toLowerCase().contains(txtPesquisa.toLowerCase()))
+                pesquisa.add(produtos.get(i));
+//            if (textlength <= produtos.get(i).getNome().length()) {
+//                if (txtPesquisa.equalsIgnoreCase((String) produtos.get(i).getNome().subSequence(0, textlength))) {
+//                    pesquisa.add(produtos.get(i));
+//                }
+//            }
         }
     }
 
@@ -385,7 +434,9 @@ public class CadastroEntradaProdutoActivity extends AppCompatActivity implements
             case R.id.menu_cadastro_ok:
 
                 if (carinho.size() == 0) {
-                    Toast.makeText(CadastroEntradaProdutoActivity.this, "Não existe produtos no carrinho", Toast.LENGTH_SHORT).show();
+                    snackbar.setText("Não existe produtos no carrinho");
+                    snackbar.show();
+//                    Toast.makeText(CadastroEntradaProdutoActivity.this, "Não existe produtos no carrinho", Toast.LENGTH_SHORT).show();
                     break;
                 }
                 item.setVisible(false);
@@ -450,22 +501,22 @@ public class CadastroEntradaProdutoActivity extends AppCompatActivity implements
                                 produtoDAO.close();
                             }
 
-                            bus.post(new AtualizaListaProdutoEvent());
-                            bus.post(new AtualizaListaLojasEvent());
-
 
                         }
+
+                        bus.post(new AtualizaListaProdutoEvent());
+                        bus.post(new AtualizaListaLojasEvent());
 
 
                         alertDialog.hide();
                         alertDialog.dismiss();
-
                         finish();
 
                     }
                 });
 
                 alertDialog.show();
+
                 break;
 
 
@@ -485,7 +536,7 @@ public class CadastroEntradaProdutoActivity extends AppCompatActivity implements
     public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
         loja = lojas.get(position);
         produtos = produtoDAO.procuraPorLoja(loja);
-        Collections.sort(produtos);
+//        Collections.sort(produtos);
         campoProduto.setText("");
         campoquantidade.setText("");
         precoDeCompra.setText("");

@@ -1,29 +1,26 @@
 package pitstop.com.br.pitstop.activity;
 
-import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
-import android.app.TimePickerDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.StrictMode;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.DatePicker;
-import android.widget.ListView;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
 import java.io.File;
@@ -34,16 +31,12 @@ import java.io.OutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 import okhttp3.ResponseBody;
 import pitstop.com.br.pitstop.R;
-import pitstop.com.br.pitstop.adapter.LstViewTabelaRelatorioAvaria;
-import pitstop.com.br.pitstop.dao.AvariaDAO;
 import pitstop.com.br.pitstop.dao.LojaDAO;
-import pitstop.com.br.pitstop.model.Avaria;
 import pitstop.com.br.pitstop.model.Loja;
 import pitstop.com.br.pitstop.model.Usuario;
 import pitstop.com.br.pitstop.preferences.UsuarioPreferences;
@@ -59,21 +52,15 @@ public class RelatorioGeralActivity extends AppCompatActivity {
 
     UsuarioPreferences usuarioPreferencia = new UsuarioPreferences(this);
     SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-    Calendar dateTimeDe = Calendar.getInstance();
-    Calendar dateTimeAte = Calendar.getInstance();
 
-    private TextView mDisplayDateDe;
-    private DatePickerDialog.OnDateSetListener mDateSetListenerDe;
-    private TimePickerDialog.OnTimeSetListener mHoraSetListenerDe;
-
-    private TextView mDisplayDateAte;
-    private DatePickerDialog.OnDateSetListener mDateSetListenerAte;
-    private TimePickerDialog.OnTimeSetListener mHoraSetListenerAte;
     private Toolbar toolbar;
     private Button btnGerarRelatorio;
+    private Snackbar snackbar;
+    private LinearLayout linearLayoutRootRelatorioGeral;
 
-
+    DataHoraView dataHoraView;
     private TextView total;
+    TextView textViewLoja;
 
     List<String> labelsLojas = new ArrayList<>();
     List<Loja> lojas;
@@ -82,6 +69,9 @@ public class RelatorioGeralActivity extends AppCompatActivity {
     LojaDAO lojaDAO = new LojaDAO(this);
     Button btnGerarRelatorioPDF;
     ProgressDialog progressDialog;
+    CardView cardViewFiltros;
+    ViewGroup viewRoot;
+
 
 
     @Override
@@ -90,6 +80,8 @@ public class RelatorioGeralActivity extends AppCompatActivity {
         setContentView(R.layout.activity_relatorio_geral);
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
         StrictMode.setVmPolicy(builder.build());
+        viewRoot = (ViewGroup) findViewById(android.R.id.content);
+        dataHoraView = new DataHoraView(viewRoot, this);
 
         lojas = lojaDAO.listarLojas();
         if (lojas.size() == 0) {
@@ -97,7 +89,7 @@ public class RelatorioGeralActivity extends AppCompatActivity {
             finish();
             return;
         }
-        labelsLojas.add("Escolha a Loja");
+        labelsLojas.add("Todas");
         for (Loja l : lojas) {
             labelsLojas.add(l.getNome());
         }
@@ -105,7 +97,7 @@ public class RelatorioGeralActivity extends AppCompatActivity {
         spinnerAdapterLoja.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         lojaSpinner = (Spinner) findViewById(R.id.spinner_loja);
         lojaSpinner.setAdapter(spinnerAdapterLoja);
-
+        textViewLoja = (TextView) findViewById(R.id.tv_loja);
 
         toolbar = (Toolbar) findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
@@ -113,26 +105,16 @@ public class RelatorioGeralActivity extends AppCompatActivity {
         getSupportActionBar().setHomeButtonEnabled(true);      //Ativar o botão
         getSupportActionBar().setTitle("Relatorio Geral");
 
-
+        linearLayoutRootRelatorioGeral = (LinearLayout) findViewById(R.id.ll_root_relatorio_geral);
+        snackbar = Snackbar.make(linearLayoutRootRelatorioGeral, "", Snackbar.LENGTH_LONG);
         total = (TextView) findViewById(R.id.total);
-        mDisplayDateDe = (TextView) findViewById(R.id.dataDe);
-        mDisplayDateAte = (TextView) findViewById(R.id.dataAte);
+
+
         btnGerarRelatorio = (Button) findViewById(R.id.gerar_relatorio);
         btnGerarRelatorioPDF = (Button) findViewById(R.id.gerar_relatorio_pdf);
         progressDialog = new ProgressDialog(this);
         progressDialog.setCancelable(false);
-        mDisplayDateDe.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                updateDateDe();
-            }
-        });
-        mDisplayDateAte.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                updateDateAte();
-            }
-        });
+
 
 
         lojaSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -152,51 +134,20 @@ public class RelatorioGeralActivity extends AppCompatActivity {
 
             }
         });
+        snackbar.setAction("OK", new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+        snackbar.setActionTextColor(Color.RED);
         if (usuarioPreferencia.temUsuario()) {
             if (usuarioPreferencia.getUsuario().getRole().equals("Funcionario")) {
                 lojaSpinner.setVisibility(View.GONE);
                 lojaEscolhida = usuarioPreferencia.getLoja();
+                textViewLoja.setVisibility(View.GONE);
             }
         }
-
-        mDateSetListenerDe = new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                dateTimeDe.set(Calendar.YEAR, year);
-                dateTimeDe.set(Calendar.MONTH, monthOfYear);
-                dateTimeDe.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                updateTextLabelDe();
-            }
-        };
-        mHoraSetListenerDe = new TimePickerDialog.OnTimeSetListener() {
-            @Override
-            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                dateTimeDe.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                dateTimeDe.set(Calendar.MINUTE, minute);
-                updateTextLabelDe();
-            }
-        };
-
-
-        mDateSetListenerAte = new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                Date d = new Date();
-                dateTimeAte.set(Calendar.YEAR, year);
-                dateTimeAte.set(Calendar.MONTH, monthOfYear);
-                dateTimeAte.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                updateTextLabelAte();
-            }
-        };
-        mHoraSetListenerAte = new TimePickerDialog.OnTimeSetListener() {
-            @Override
-            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                dateTimeAte.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                dateTimeAte.set(Calendar.MINUTE, minute);
-                updateTextLabelAte();
-            }
-        };
-        //updateTextLabel();
 
 
         btnGerarRelatorioPDF.setOnClickListener(new View.OnClickListener() {
@@ -220,9 +171,9 @@ public class RelatorioGeralActivity extends AppCompatActivity {
                 if (usuarioPreferencia.temUsuario()) {
                     Usuario u = usuarioPreferencia.getUsuario();
                     if (usuarioPreferencia.getUsuario().getRole().equals("Funcionario")) {
-                        call = new RetrofitInializador().getRelatorioService().relatorioGeralFuncionario(usuarioPreferencia.getLoja().getId(), usuarioPreferencia.getUsuario().getNome(), mDisplayDateDe.getText().toString(), mDisplayDateAte.getText().toString());
+                        call = new RetrofitInializador().getRelatorioService().relatorioGeralFuncionario(usuarioPreferencia.getLoja().getId(), usuarioPreferencia.getUsuario().getNome(), dataHoraView.getTextViewDataInicio().getText().toString(), dataHoraView.getTextViewDataFim().getText().toString());
                     } else {
-                        call = new RetrofitInializador().getRelatorioService().relatorioGeral(lojaId, mDisplayDateDe.getText().toString(), mDisplayDateAte.getText().toString());
+                        call = new RetrofitInializador().getRelatorioService().relatorioGeral(lojaId, dataHoraView.getTextViewDataInicio().getText().toString(), dataHoraView.getTextViewDataFim().getText().toString());
 
                     }
                 }
@@ -234,6 +185,8 @@ public class RelatorioGeralActivity extends AppCompatActivity {
 
                             boolean writtenToDisk = writeResponseBodyToDisk(response.body());
 
+//                            snackbar.setText("PDF gerado com sucesso");
+//                            snackbar.show();
                             Toast.makeText(getApplicationContext(), "PDF gerado com sucesso", Toast.LENGTH_SHORT).show();
                             progressDialog.dismiss();
                             views();
@@ -242,6 +195,8 @@ public class RelatorioGeralActivity extends AppCompatActivity {
                         } else {
                             Log.d("TAG", "server contact failed");
                             progressDialog.dismiss();
+//                            snackbar.setText("Erro ao gerar o pdf");
+//                            snackbar.show();
                             Toast.makeText(getApplicationContext(), "Erro ao gerar o pdf", Toast.LENGTH_SHORT).show();
 
                         }
@@ -253,7 +208,9 @@ public class RelatorioGeralActivity extends AppCompatActivity {
                     public void onFailure(Call<ResponseBody> call, Throwable t) {
                         Log.e("onFailure chamado", t.getMessage());
                         progressDialog.dismiss();
-                        Toast.makeText(getApplicationContext(), "Verifique a conexao com a internet", Toast.LENGTH_SHORT).show();
+                        snackbar.setText("Verifique a conexao com a internet");
+                        snackbar.show();
+//                        Toast.makeText(getApplicationContext(), "Verifique a conexao com a internet", Toast.LENGTH_SHORT).show();
 
                     }
                 });
@@ -261,50 +218,38 @@ public class RelatorioGeralActivity extends AppCompatActivity {
 
             }
         });
-        if (usuarioPreferencia.temUsuario()) {
-            if (usuarioPreferencia.getUsuario().getRole().equals("Funcionario")) {
-                lojaSpinner.setVisibility(View.GONE);
-                Date ate = new Date();
-                long longate = ate.getTime();
-                long longDe = longate - VINTE_E_SEIS_HORAS_EM_MILISEGUNDO;
-                Date de = new Date(longDe);
-                mDisplayDateDe.setText(formatter.format(de));
-                mDisplayDateAte.setText(formatter.format(ate));
-                mDisplayDateDe.setFocusable(false);
-                mDisplayDateAte.setFocusable(false);
-                mDisplayDateDe.setClickable(false);
-                mDisplayDateAte.setClickable(false);
-
-
-            }
-
-        }
 
 
     }
 
     public boolean isValid() {
-        if (mDisplayDateDe.getText().toString().equals("")) {
-            mDisplayDateDe.setError("Escolha uma data");
-            mDisplayDateDe.requestFocus();
-            Toast.makeText(RelatorioGeralActivity.this, "escolha uma data de inicio", Toast.LENGTH_SHORT).show();
+        if (dataHoraView.getTextViewDataInicio().getText().toString().equals("")) {
+            dataHoraView.getTextViewDataInicio().setError("Escolha uma data");
+            dataHoraView.getTextViewDataInicio().requestFocus();
+            snackbar.setText("escolha uma data de inicio");
+            snackbar.show();
+//            Toast.makeText(RelatorioGeralActivity.this, "escolha uma data de inicio", Toast.LENGTH_SHORT).show();
             return false;
         }
-        if (mDisplayDateAte.getText().toString().equals("")) {
-            mDisplayDateAte.setError("Escolha uma data");
-            mDisplayDateAte.requestFocus();
-            Toast.makeText(RelatorioGeralActivity.this, "escolha uma data de termino", Toast.LENGTH_SHORT).show();
+        if (dataHoraView.getTextViewDataFim().getText().toString().equals("")) {
+            dataHoraView.getTextViewDataFim().setError("Escolha uma data");
+            dataHoraView.getTextViewDataFim().requestFocus();
+            snackbar.setText("escolha uma data de termino");
+            snackbar.show();
+//            Toast.makeText(RelatorioGeralActivity.this, "escolha uma data de termino", Toast.LENGTH_SHORT).show();
             return false;
         }
 
         try {
-            de = formatter.parse(mDisplayDateDe.getText().toString());
-            ate = formatter.parse(mDisplayDateAte.getText().toString());
+            de = formatter.parse(dataHoraView.getTextViewDataInicio().getText().toString());
+            ate = formatter.parse(dataHoraView.getTextViewDataFim().getText().toString());
         } catch (ParseException e) {
             e.printStackTrace();
         }
         if (de.after(ate)) {
-            Toast.makeText(getApplicationContext(), "A data de origem deve ser menor do que a data final ", Toast.LENGTH_SHORT).show();
+            snackbar.setText("A data de origem deve ser menor do que a data final ");
+            snackbar.show();
+//            Toast.makeText(getApplicationContext(), "A data de origem deve ser menor do que a data final ", Toast.LENGTH_SHORT).show();
             return false;
         }
         return true;
@@ -374,33 +319,13 @@ public class RelatorioGeralActivity extends AppCompatActivity {
             startActivity(pdfIntent);
             progressDialog.dismiss();
         } catch (ActivityNotFoundException e) {
+//            snackbar.setText("\"Não existe aplicativo para visualizar o PDF\"");
+//            snackbar.show();
             Toast.makeText(RelatorioGeralActivity.this, "Não existe aplicativo para visualizar o PDF", Toast.LENGTH_SHORT).show();
             progressDialog.dismiss();
         }
     }
 
-
-    private void updateDateDe() {
-        new TimePickerDialog(this, mHoraSetListenerDe, dateTimeDe.get(Calendar.HOUR_OF_DAY), dateTimeDe.get(Calendar.MINUTE), true).show();
-        new DatePickerDialog(this, mDateSetListenerDe, dateTimeDe.get(Calendar.YEAR), dateTimeDe.get(Calendar.MONTH), dateTimeDe.get(Calendar.DAY_OF_MONTH)).show();
-
-
-    }
-
-    private void updateDateAte() {
-
-        new TimePickerDialog(this, mHoraSetListenerAte, dateTimeAte.get(Calendar.HOUR_OF_DAY), dateTimeAte.get(Calendar.MINUTE), true).show();
-        new DatePickerDialog(this, mDateSetListenerAte, dateTimeAte.get(Calendar.YEAR), dateTimeAte.get(Calendar.MONTH), dateTimeAte.get(Calendar.DAY_OF_MONTH)).show();
-
-    }
-
-    private void updateTextLabelDe() {
-        mDisplayDateDe.setText(formatter.format(dateTimeDe.getTime()));
-    }
-
-    private void updateTextLabelAte() {
-        mDisplayDateAte.setText(formatter.format(dateTimeAte.getTime()));
-    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -409,15 +334,15 @@ public class RelatorioGeralActivity extends AppCompatActivity {
                 finish();
                 break;
             case R.id.filtro:
-                if (mDisplayDateAte.getVisibility() == View.GONE) {
-                    mDisplayDateDe.setVisibility(View.VISIBLE);
+                if (dataHoraView.getTextViewDataInicio().getVisibility() == View.GONE) {
+                    dataHoraView.getTextViewDataInicio().setVisibility(View.VISIBLE);
                 } else {
-                    mDisplayDateDe.setVisibility(View.GONE);
+                    dataHoraView.getTextViewDataInicio().setVisibility(View.GONE);
                 }
-                if (mDisplayDateAte.getVisibility() == View.GONE) {
-                    mDisplayDateAte.setVisibility(View.VISIBLE);
+                if (dataHoraView.getTextViewDataFim().getVisibility() == View.GONE) {
+                    dataHoraView.getTextViewDataFim().setVisibility(View.VISIBLE);
                 } else {
-                    mDisplayDateAte.setVisibility(View.GONE);
+                    dataHoraView.getTextViewDataFim().setVisibility(View.GONE);
                 }
                 if (btnGerarRelatorio.getVisibility() == View.GONE) {
                     btnGerarRelatorio.setVisibility(View.VISIBLE);
@@ -442,5 +367,6 @@ public class RelatorioGeralActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
 }
 

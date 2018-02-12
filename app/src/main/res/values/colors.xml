@@ -20,5 +20,6 @@
     <color name="btn_logut_bg">#ff6861</color>
     <color name="estoque_baixo">#ff0b00</color>
     <color name="sincronizado">#34af23</color>
+    <color name="holo_blue_dark">#ff0099cc</color>
 
 </resources>
