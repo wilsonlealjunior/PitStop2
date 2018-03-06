@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+
+        <!-- <pitstop.com.br.pitstop.adapter.NonScrollListView
+             android:id="@+id/top_produtos"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content" />-->
+
+        <include
+            android:id="@+id/resumo"
+            layout="@layout/filtro_resumo_card" />
+
+        <include
+            android:id="@+id/grafico_barra_total_venda_loja"
+            layout="@layout/grafico_de_barra_total_vendas_loja_view" />
+
+
+        <include
+            android:id="@+id/grafico_barra_total_venda_usuario"
+            layout="@layout/grafico_de_barra_total_vendas_usuario_view" />
+
+        <include
+            android:id="@+id/grafico_de_linha_venda_por_dia_loja_view"
+            layout="@layout/grafico_de_linha_venda_por_dia_loja_view" />
+
+    </LinearLayout>
+
+</ScrollView>
