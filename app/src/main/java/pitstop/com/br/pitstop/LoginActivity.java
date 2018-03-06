@@ -40,7 +40,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class LoginActivity extends AppCompatActivity {
-//    Spinner spinerLojas;
+    //Administrador descomenta aqui
+    Spinner spinerLojas;
 
 
     private EditText inputUsuario, inputPassword;
@@ -51,7 +52,8 @@ public class LoginActivity extends AppCompatActivity {
     List<Loja> lojas;
     List<String> labelsLojas = new ArrayList<>();
     LojaDAO lojaDAO = new LojaDAO(this);
-    //    ArrayAdapter<String> spinnerAdapterLojas;
+    //Administrador descomenta aqui
+        ArrayAdapter<String> spinnerAdapterLojas;
     UsuarioPreferences usuarioPreferences;
 
     String nomeusuario;
@@ -71,8 +73,8 @@ public class LoginActivity extends AppCompatActivity {
 //        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 //        setSupportActionBar(toolbar);
         progressDialog = new ProgressDialog(this);
-
-//        spinerLojas = (Spinner) findViewById(R.id.spiner_loja);
+        //Administrador descomenta aqui
+        spinerLojas = (Spinner) findViewById(R.id.spiner_loja);
         objetosSinkSincronizador = new ObjetosSinkSincronizador(this);
         inputUsuario = (EditText) findViewById(R.id.usuario);
         inputPassword = (EditText) findViewById(R.id.password);
@@ -81,7 +83,8 @@ public class LoginActivity extends AppCompatActivity {
         tvLoja = (TextView) findViewById(R.id.loja);
         usuarioPreferences = new UsuarioPreferences(getApplicationContext());
         //Aeroporto
-        lojaEscolhida = lojaDAO.procuraPorId("1703eebf-34ac-4dbf-b7ee-c0c7dc13bf4e");
+        //Administrador comenta aqui
+//        lojaEscolhida = lojaDAO.procuraPorId("38176321-bc0d-462f-8b47-56e118ac14d1");
         if (lojaEscolhida != null) {
 
             tvLoja.setText(lojaEscolhida.getNome());
@@ -114,28 +117,29 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         lojas = lojaDAO.listarLojas();
-
+        lojaDAO.close();
         labelsLojas.clear();
         for (Loja loja : lojas) {
             labelsLojas.add(loja.getNome());
 
         }
-//        spinnerAdapterLojas = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, labelsLojas);
+        //Administrador descomenta aqui
+        spinnerAdapterLojas = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, labelsLojas);
 
-//        spinnerAdapterLojas.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-//        spinerLojas.setAdapter(spinnerAdapterLojas);
-//        spinerLojas.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-//            @Override
-//            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-//                lojaEscolhida = lojas.get(i);
-//
-//            }
-//
-//            @Override
-//            public void onNothingSelected(AdapterView<?> adapterView) {
-//
-//            }
-//        });
+        spinnerAdapterLojas.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinerLojas.setAdapter(spinnerAdapterLojas);
+        spinerLojas.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                lojaEscolhida = lojas.get(i);
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
 
 
         btnLogin.setOnClickListener(new View.OnClickListener() {

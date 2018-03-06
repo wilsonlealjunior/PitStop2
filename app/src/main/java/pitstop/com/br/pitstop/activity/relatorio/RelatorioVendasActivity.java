@@ -1,4 +1,4 @@
-package pitstop.com.br.pitstop.activity;
+package pitstop.com.br.pitstop.activity.relatorio;
 
 
 import java.text.NumberFormat;
@@ -9,6 +9,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.StrictMode;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
@@ -52,6 +53,8 @@ import java.util.List;
 import okhttp3.ResponseBody;
 
 import pitstop.com.br.pitstop.R;
+import pitstop.com.br.pitstop.Util;
+import pitstop.com.br.pitstop.activity.DataHoraView;
 import pitstop.com.br.pitstop.adapter.LstViewTabelaDescricaoVendaAdapter;
 import pitstop.com.br.pitstop.adapter.LstViewTabelaRelatorioVendas;
 import pitstop.com.br.pitstop.dao.EntradaProdutoDAO;
@@ -60,11 +63,11 @@ import pitstop.com.br.pitstop.dao.ProdutoDAO;
 import pitstop.com.br.pitstop.dao.UsuarioDAO;
 import pitstop.com.br.pitstop.dao.VendaDAO;
 import pitstop.com.br.pitstop.model.EntradaProduto;
+import pitstop.com.br.pitstop.model.ItemVenda;
 import pitstop.com.br.pitstop.model.Loja;
 import pitstop.com.br.pitstop.model.Produto;
 import pitstop.com.br.pitstop.model.Usuario;
 import pitstop.com.br.pitstop.model.Venda;
-import pitstop.com.br.pitstop.model.VendaEntradaProduto;
 import pitstop.com.br.pitstop.preferences.UsuarioPreferences;
 import pitstop.com.br.pitstop.retrofit.RetrofitInializador;
 
@@ -88,6 +91,8 @@ public class RelatorioVendasActivity extends AppCompatActivity {
     private Snackbar snackbar;
     private LinearLayout linearLayoutRootRelatorioVendas;
     List<Venda> relatorioVendas = new ArrayList<>();
+    double auxTotal = 0.0;
+    double auxLucro = 0.0;
 
 
     LstViewTabelaRelatorioVendas adapterTable;
@@ -120,6 +125,8 @@ public class RelatorioVendasActivity extends AppCompatActivity {
     Button btnGerarRelatorioPDF;
     private Button btnGerarRelatorio;
     CardView cardViewFiltros;
+    LinearLayout llProgressBar;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,8 +139,9 @@ public class RelatorioVendasActivity extends AppCompatActivity {
 
 
         lojas = lojaDAO.listarLojas();
+        lojaDAO.close();
         if (lojas.size() == 0) {
-            Toast.makeText(RelatorioVendasActivity.this, "Não existe usuarios cadastradas", Toast.LENGTH_SHORT).show();
+            Toast.makeText(RelatorioVendasActivity.this, "Não existe lojas cadastradas", Toast.LENGTH_SHORT).show();
             finish();
             return;
 
@@ -143,6 +151,7 @@ public class RelatorioVendasActivity extends AppCompatActivity {
             labelslojas.add(l.getNome());
         }
         usuarios = usuarioDAO.listarUsuarios();
+        usuarioDAO.close();
         labelsUsuarios.add("Todos");
         for (Usuario u : usuarios) {
             labelsUsuarios.add(u.getNome());
@@ -180,7 +189,9 @@ public class RelatorioVendasActivity extends AppCompatActivity {
         tvResumeCardLucro = (TextView) findViewById(R.id.resumo_card_lucro);
         cardViewResumo = (CardView) findViewById(R.id.lista_transacoes_resumo);
         cardViewFiltros = (CardView) findViewById(R.id.card_view_filtros);
-        textViewLoja = (TextView)findViewById(R.id.tv_loja);
+        textViewLoja = (TextView) findViewById(R.id.tv_loja);
+        llProgressBar = (LinearLayout) findViewById(R.id.progressBar);
+        llProgressBar.setVisibility(View.GONE);
         textViewFuncionario = (TextView) findViewById(R.id.tv_funcionario);
         progressDialog = new ProgressDialog(this);
         progressDialog.setCancelable(false);
@@ -291,9 +302,9 @@ public class RelatorioVendasActivity extends AppCompatActivity {
                         Idloja = lojaEscolhida.getId();
                         usuarioEscolhido = up.getUsuario();
                         funcionario = usuarioEscolhido.getNome();
-                        call = new RetrofitInializador().getRelatorioService().relatorioVendasFuncionario(formaDePagamentoEscolhido, Idloja, funcionario, dataHoraView.getTextViewDataInicio().getText().toString(), dataHoraView.getTextViewDataFim().getText().toString());
+                        call = new RetrofitInializador().getRelatorioService().relatorioVendasFuncionario(formaDePagamentoEscolhido, Idloja, funcionario, dataHoraView.getEditTextDataInicio().getText().toString(), dataHoraView.getEditTextDataFim().getText().toString());
                     } else {
-                        call = new RetrofitInializador().getRelatorioService().relatorioVendas(formaDePagamentoEscolhido, Idloja, funcionario, dataHoraView.getTextViewDataInicio().getText().toString(), dataHoraView.getTextViewDataFim().getText().toString());
+                        call = new RetrofitInializador().getRelatorioService().relatorioVendas(formaDePagamentoEscolhido, Idloja, funcionario, dataHoraView.getEditTextDataInicio().getText().toString(), dataHoraView.getEditTextDataFim().getText().toString());
 
                     }
                 }
@@ -342,7 +353,9 @@ public class RelatorioVendasActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
+
                 gerarRelatorio();
+
 
             }
         });
@@ -400,17 +413,17 @@ public class RelatorioVendasActivity extends AppCompatActivity {
 
     public boolean isValid() {
 
-        if (dataHoraView.getTextViewDataInicio().getText().toString().equals("")) {
-            dataHoraView.getTextViewDataInicio().setError("Escolha uma data");
-            dataHoraView.getTextViewDataInicio().requestFocus();
+        if (dataHoraView.getEditTextDataInicio().getText().toString().equals("")) {
+            dataHoraView.getEditTextDataInicio().setError("Escolha uma data");
+            dataHoraView.getEditTextDataInicio().requestFocus();
             snackbar.setText("escolha uma data de inicio");
             snackbar.show();
 //            Toast.makeText(RelatorioVendasActivity.this, "escolha uma data de inicio", Toast.LENGTH_SHORT).show();
             return false;
         }
-        if (dataHoraView.getTextViewDataFim().getText().toString().equals("")) {
-            dataHoraView.getTextViewDataFim().setError("Escolha uma data");
-            dataHoraView.getTextViewDataFim().requestFocus();
+        if (dataHoraView.getEditTextDataFim().getText().toString().equals("")) {
+            dataHoraView.getEditTextDataFim().setError("Escolha uma data");
+            dataHoraView.getEditTextDataFim().requestFocus();
             snackbar.setText("escolha uma data de termino");
             snackbar.show();
 //            Toast.makeText(RelatorioVendasActivity.this, "escolha uma data de termino", Toast.LENGTH_SHORT).show();
@@ -418,8 +431,8 @@ public class RelatorioVendasActivity extends AppCompatActivity {
         }
 
         try {
-            de = formatter.parse(dataHoraView.getTextViewDataInicio().getText().toString());
-            ate = formatter.parse(dataHoraView.getTextViewDataFim().getText().toString());
+            de = formatter.parse(dataHoraView.getEditTextDataInicio().getText().toString());
+            ate = formatter.parse(dataHoraView.getEditTextDataFim().getText().toString());
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -458,7 +471,7 @@ public class RelatorioVendasActivity extends AppCompatActivity {
 
         // Defined Array values to show in ListView
 
-        LstViewTabelaDescricaoVendaAdapter adapterp = new LstViewTabelaDescricaoVendaAdapter(this, R.layout.tabela_descricao_venda, R.id.quantidade, vendaClicada.getVendaEntradaProdutos());
+        LstViewTabelaDescricaoVendaAdapter adapterp = new LstViewTabelaDescricaoVendaAdapter(this, R.layout.tabela_descricao_venda, R.id.quantidade, vendaClicada.getItemVendas());
         listView.setAdapter(adapterp);
 
 
@@ -490,19 +503,18 @@ public class RelatorioVendasActivity extends AppCompatActivity {
         if (!isValid()) {
             return;
         }
-        cardViewResumo.setVisibility(View.VISIBLE);
 
-        try {
-            de = formatter.parse(dataHoraView.getTextViewDataInicio().getText().toString());
-            ate = formatter.parse(dataHoraView.getTextViewDataFim().getText().toString());
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String stringDe = formatter.format(de);
-        String stringAte = formatter.format(ate);
+//        try {
+//            de = formatter.parse(dataHoraView.getEditTextDataInicio().getText().toString());
+//            ate = formatter.parse(dataHoraView.getEditTextDataFim().getText().toString());
+//        } catch (ParseException e) {
+//            e.printStackTrace();
+//        }
+//        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//        final String stringDe = formatter.format(de);
+//        final String stringAte = formatter.format(ate);
         relatorioVendas.clear();
-        List<Venda> vendas = new ArrayList<>();
+
         if (up.temUsuario()) {
             if (up.getUsuario().getRole().equals("Funcionario")) {
                 lojaEscolhida = up.getLoja();
@@ -510,55 +522,77 @@ public class RelatorioVendasActivity extends AppCompatActivity {
 
             }
         }
-        vendas = vendaDAO.relatorio(stringDe, stringAte, formaDePagamentoEscolhido, lojaEscolhida, usuarioEscolhido);
-        vendaDAO.close();
-        double auxTotal = 0.0;
-        double auxLucro = 0.0;
-        for (Venda venda : vendas) {
+        CarregadorDeRelatorio carregadorDeRelatorio = new CarregadorDeRelatorio();
+        carregadorDeRelatorio.execute();
 
-            if (venda.getFormaDePagamento().equals("dinheiro e cartao")) {
-                if (formaDePagamentoEscolhido == null) {
-                    auxTotal = auxTotal + venda.getTotal() + venda.getTotalCartao();
-                    auxLucro = auxLucro + venda.getLucro();
-                } else if (formaDePagamento.equals("dinheiro")) {
-                    auxTotal = auxTotal + venda.getTotal();
-                    auxLucro = auxLucro + venda.getLucro();
-                } else {
-                    auxTotal = auxTotal + venda.getTotalCartao();
-                    auxLucro = auxLucro + venda.getLucro();
-                }
-            } else {
-                auxTotal = auxTotal + venda.getTotal();
-                auxLucro = auxLucro + venda.getLucro();
-            }
-            relatorioVendas.add(venda);
+//        new AsyncTask<Void, Void, String>() {
+//            @Override
+//            protected void onPreExecute() {
+//                llProgressBar.setVisibility(View.VISIBLE);
+//            }
+//
+//            @Override
+//            protected String doInBackground(Void... params) {
+//                List<Venda> vendas = new ArrayList<>();
+//                vendas = vendaDAO.relatorio(stringDe, stringAte, formaDePagamentoEscolhido, lojaEscolhida, usuarioEscolhido);
+//                vendaDAO.close();
+//                auxTotal=0.0;
+//                auxLucro=0.0;
+//                for (Venda venda : vendas) {
+//                    if (venda.getFormaDePagamento().equals("dinheiro e cartao")) {
+//                        if (formaDePagamentoEscolhido == null) {
+//                            auxTotal = auxTotal + venda.getTotalDinheiro() + venda.getTotalCartao();
+//                            auxLucro = auxLucro + venda.getLucro();
+//                        } else if (formaDePagamento.equals("dinheiro")) {
+//                            auxTotal = auxTotal + venda.getTotalDinheiro();
+//                            auxLucro = auxLucro + venda.getLucro();
+//                        } else {
+//                            auxTotal = auxTotal + venda.getTotalCartao();
+//                            auxLucro = auxLucro + venda.getLucro();
+//                        }
+//                    } else {
+//                        auxTotal = auxTotal + venda.getTotalDinheiro();
+//                        auxLucro = auxLucro + venda.getLucro();
+//                    }
+//                    relatorioVendas.add(venda);
+//
+//                }
+//
+//                return "";
+//            }
+//
+//            @Override
+//            protected void onPostExecute(String t) {
+//                cardViewResumo.setVisibility(View.VISIBLE);
+//                llProgressBar.setVisibility(View.GONE);
+//                if (up.temUsuario()) {
+//                    if (up.getUsuario().getRole().equals("Funcionario")) {
+//                        final NumberFormat formatoBrasileiro = DecimalFormat.getCurrencyInstance(new Locale("pt", "br"));
+//                        tvResumeCardTotal.setText(formatoBrasileiro.format(auxTotal).
+//                                replace("R$", "R$ ").
+//                                replace("-R$", "R$ -"));
+//
+//                    } else {
+////                total.setText("O total das vendas é R$ " + auxTotal + " reais\n" + "O lucro é R$ " + auxLucro + " reais");
+//                        BigDecimal totalBigDecimaal = new BigDecimal(auxTotal);
+//                        final NumberFormat formatoBrasileiro = DecimalFormat.getCurrencyInstance(new Locale("pt", "br"));
+//                        tvResumeCardTotal.setText(formatoBrasileiro.format(totalBigDecimaal).
+//                                replace("R$", "R$ ").
+//                                replace("-R$", "R$ -"));
+//                        BigDecimal lucroBigDecimal = new BigDecimal(auxLucro);
+//                        tvResumeCardLucro.setText(formatoBrasileiro.format(lucroBigDecimal).
+//                                replace("R$", "R$ ").
+//                                replace("-R$", "R$ -"));
+//                    }
+//                }
+//
+//
+//                listaViewDeVendas.setAdapter(adapterTable);
+//                adapterTable.notifyDataSetChanged();
+//            }
+//        }.execute();
 
-        }
 
-        if (up.temUsuario()) {
-            if (up.getUsuario().getRole().equals("Funcionario")) {
-                final NumberFormat formatoBrasileiro = DecimalFormat.getCurrencyInstance(new Locale("pt", "br"));
-                tvResumeCardTotal.setText(formatoBrasileiro.format(auxTotal).
-                        replace("R$", "R$ ").
-                        replace("-R$", "R$ -"));
-
-            } else {
-//                total.setText("O total das vendas é R$ " + auxTotal + " reais\n" + "O lucro é R$ " + auxLucro + " reais");
-                BigDecimal totalBigDecimaal = new BigDecimal(auxTotal);
-                final NumberFormat formatoBrasileiro = DecimalFormat.getCurrencyInstance(new Locale("pt", "br"));
-                tvResumeCardTotal.setText(formatoBrasileiro.format(totalBigDecimaal).
-                        replace("R$", "R$ ").
-                        replace("-R$", "R$ -"));
-                BigDecimal lucroBigDecimal = new BigDecimal(auxLucro);
-                tvResumeCardLucro.setText(formatoBrasileiro.format(lucroBigDecimal).
-                        replace("R$", "R$ ").
-                        replace("-R$", "R$ -"));
-            }
-        }
-
-
-        listaViewDeVendas.setAdapter(adapterTable);
-        adapterTable.notifyDataSetChanged();
     }
 
 
@@ -631,9 +665,10 @@ public class RelatorioVendasActivity extends AppCompatActivity {
                 break;
             case R.id.filtro:
                 if (cardViewFiltros.getVisibility() == View.GONE) {
-                    cardViewFiltros.setVisibility(View.VISIBLE);
+                    Util.expand(cardViewFiltros, null);
                 } else {
-                    cardViewFiltros.setVisibility(View.GONE);
+                    Util.collapse(cardViewFiltros, null);
+//                    cardViewFiltros.setVisibility(View.GONE);
                 }
 
                 break;
@@ -712,10 +747,10 @@ public class RelatorioVendasActivity extends AppCompatActivity {
                                 v.desincroniza();
                                 EntradaProdutoDAO entradaProdutoDAO = new EntradaProdutoDAO(getApplicationContext());
                                 ProdutoDAO produtoDAO = new ProdutoDAO(getApplicationContext());
-                                if ((v.getVendaEntradaProdutos() != null) && (!v.getVendaEntradaProdutos().isEmpty())) {
-                                    for (VendaEntradaProduto vendaEntradaProduto : v.getVendaEntradaProdutos()) {
-                                        int quantidade = vendaEntradaProduto.getQuantidadeVendida();
-                                        EntradaProduto entradaProduto = entradaProdutoDAO.procuraPorId(vendaEntradaProduto.getIdEntradaProduto());
+                                if ((v.getItemVendas() != null) && (!v.getItemVendas().isEmpty())) {
+                                    for (ItemVenda itemVenda : v.getItemVendas()) {
+                                        int quantidade = itemVenda.getQuantidadeVendida();
+                                        EntradaProduto entradaProduto = entradaProdutoDAO.procuraPorId(itemVenda.getIdEntradaProduto());
                                         entradaProdutoDAO.close();
                                         entradaProduto.setQuantidadeVendidaMovimentada(entradaProduto.getQuantidadeVendidaMovimentada() - quantidade);
                                         Produto produto = entradaProduto.getProduto();
@@ -767,6 +802,81 @@ public class RelatorioVendasActivity extends AppCompatActivity {
                 return false;
             }
         });
+    }
+
+    private class CarregadorDeRelatorio extends AsyncTask<Void, Void, String> {
+
+        @Override
+        protected void onPreExecute() {
+            llProgressBar.setVisibility(View.VISIBLE);
+
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            List<Venda> vendas = new ArrayList<>();
+            de = Util.converteDoFormatoBrasileitoParaDate(dataHoraView.getEditTextDataInicio().getText().toString());
+            ate = Util.converteDoFormatoBrasileitoParaDate(dataHoraView.getEditTextDataFim().getText().toString());
+            String stringDe = Util.dataNoformatoDoSQLite(de);
+            String stringAte = Util.dataNoformatoDoSQLite(ate);
+            vendas = vendaDAO.relatorio(stringDe, stringAte, formaDePagamentoEscolhido, lojaEscolhida, usuarioEscolhido);
+            vendaDAO.close();
+            auxTotal = 0.0;
+            auxLucro = 0.0;
+            for (Venda venda : vendas) {
+                if (formaDePagamentoEscolhido != null) {
+                    if (formaDePagamentoEscolhido.equals("dinheiro")) {
+                        auxTotal = auxTotal + venda.getTotalDinheiro();
+                        auxLucro = auxLucro + venda.getLucro();
+                    } else if (formaDePagamentoEscolhido.equals("cartao")) {
+                        auxTotal = auxTotal + venda.getTotalCartao();
+                        auxLucro = auxLucro + venda.getLucro();
+                    }
+                } else {
+                    auxTotal = auxTotal + venda.getTotalDinheiro() + venda.getTotalCartao();
+                    auxLucro = auxLucro + venda.getLucro();
+                }
+                relatorioVendas.add(venda);
+
+            }
+
+            return "";
+        }
+
+        @Override
+        protected void onPostExecute(String t) {
+
+            if (up.temUsuario()) {
+                if (up.getUsuario().getRole().equals("Funcionario")) {
+                    final NumberFormat formatoBrasileiro = DecimalFormat.getCurrencyInstance(new Locale("pt", "br"));
+                    tvResumeCardTotal.setText(formatoBrasileiro.format(auxTotal).
+                            replace("R$", "R$ ").
+                            replace("-R$", "R$ -"));
+
+                } else {
+//                total.setText("O total das vendas é R$ " + auxTotal + " reais\n" + "O lucro é R$ " + auxLucro + " reais");
+                    BigDecimal totalBigDecimaal = new BigDecimal(auxTotal);
+                    final NumberFormat formatoBrasileiro = DecimalFormat.getCurrencyInstance(new Locale("pt", "br"));
+                    tvResumeCardTotal.setText(formatoBrasileiro.format(totalBigDecimaal).
+                            replace("R$", "R$ ").
+                            replace("-R$", "R$ -"));
+                    BigDecimal lucroBigDecimal = new BigDecimal(auxLucro);
+                    tvResumeCardLucro.setText(formatoBrasileiro.format(lucroBigDecimal).
+                            replace("R$", "R$ ").
+                            replace("-R$", "R$ -"));
+                }
+            }
+
+
+            listaViewDeVendas.setAdapter(adapterTable);
+            adapterTable.notifyDataSetChanged();
+            cardViewResumo.setVisibility(View.VISIBLE);
+            llProgressBar.setVisibility(View.GONE);
+
+
+        }
+
+
     }
 
 

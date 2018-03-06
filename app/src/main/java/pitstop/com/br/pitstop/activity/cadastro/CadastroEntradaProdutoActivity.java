@@ -1,20 +1,10 @@
-package pitstop.com.br.pitstop.activity;
+package pitstop.com.br.pitstop.activity.cadastro;
 
-import android.app.ProgressDialog;
-import android.content.DialogInterface;
-import android.graphics.Color;
-import android.os.PersistableBundle;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,27 +14,16 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.w3c.dom.Text;
-
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import de.greenrobot.event.EventBus;
 import pitstop.com.br.pitstop.R;
-import pitstop.com.br.pitstop.adapter.AdpterProdutoPersonalizado;
 import pitstop.com.br.pitstop.adapter.LstViewTabelaRelatorioEntradaProduto;
 import pitstop.com.br.pitstop.adapter.NonScrollListView;
-import pitstop.com.br.pitstop.dao.LojaDAO;
-import pitstop.com.br.pitstop.dao.EntradaProdutoDAO;
-import pitstop.com.br.pitstop.dao.ProdutoDAO;
 import pitstop.com.br.pitstop.event.AtualizaListaLojasEvent;
 import pitstop.com.br.pitstop.event.AtualizaListaProdutoEvent;
 import pitstop.com.br.pitstop.helper.CadastroEntradaProdutoHelper;
@@ -53,30 +32,16 @@ import pitstop.com.br.pitstop.model.Loja;
 import pitstop.com.br.pitstop.model.Produto;
 
 
-public class CadastroEntradaProdutoActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
+public class CadastroEntradaProdutoActivity extends BaseCadastroDeTransacaoDeProdutoActivity implements AdapterView.OnItemSelectedListener {
     CadastroEntradaProdutoHelper cadastroEntradaProdutoHelper;
     Spinner spinnerLoja;
-    TextView campoProduto;
-    EditText campoquantidade;
     EditText precoDeCompra;
     Button adicionarProduto;
     List<EntradaProduto> carinho = new ArrayList<>();
     List<String> labelsLoja = new ArrayList<>();
     List<Loja> lojas = new ArrayList<>();
-    List<Produto> pesquisa = new ArrayList<>();
-    List<Produto> produtos = new ArrayList<>();
-    Produto produto = new Produto();
-    Produto produtoPrincipal = new Produto();
-    Loja loja = new Loja();
-    private Toolbar toolbar;
-    ProdutoDAO produtoDAO;
-    LojaDAO lojaDAO;
     private NonScrollListView listaViewDeEntradaDeProdutos;
     LstViewTabelaRelatorioEntradaProduto adapterTable;
-    EventBus bus = EventBus.getDefault();
-    EntradaProdutoDAO entradaProdutoDAO;
-    LinearLayout linearLayoutRootEntradaDeProduto;
-    Snackbar snackbar;
 
 
     @Override
@@ -93,7 +58,7 @@ public class CadastroEntradaProdutoActivity extends AppCompatActivity implements
         lojas = lojaDAO.listarLojas();
         lojaDAO.close();
         if (lojas.size() == 0) {
-            Toast.makeText(getApplicationContext(), "Não existe usuarios cadastradas", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "Não existe Lojas cadastradas", Toast.LENGTH_LONG).show();
 //            finish();
 //            snackbar.setText("Não lojas cadastradas");
 //            snackbar.show();
@@ -113,21 +78,6 @@ public class CadastroEntradaProdutoActivity extends AppCompatActivity implements
 
     }
 
-//    @Override
-//    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
-//        super.onSaveInstanceState(outState, outPersistentState);
-
-//        outState.putSerializable("carinho", (Serializable) carinho.stream()); // Saving the Variable theWord
-//        outState.putStringArrayList("fiveDefns", fiveDefns); // Saving the ArrayList fiveDefns
-//    }
-//
-//    @Override
-//    public void onRestoreInstanceState(Bundle savedInstanceState, PersistableBundle persistentState) {
-//        super.onRestoreInstanceState(savedInstanceState, persistentState);
-//
-//        theWord = savedInstanceState.getString("theWord"); // Restoring theWord
-//        fiveDefns = savedInstanceState.getStringArrayList("fiveDefns"); //Restoring fiveDefns
-//    }
 
     public void setupView() {
         //configurando o toolbar
@@ -182,76 +132,22 @@ public class CadastroEntradaProdutoActivity extends AppCompatActivity implements
 
             }
         });
+        super.setupView();
 
-        //configurando snackbar
-        snackbar.setAction("OK", new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-            }
-        });
-        snackbar.setActionTextColor(Color.RED);
-
-
-        campoProduto.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ShowCustomDialogwithList();
-
-            }
-        });
 
     }
 
     public void loadView() {
-        linearLayoutRootEntradaDeProduto = (LinearLayout) findViewById(R.id.ll_root_cadastro_entrada_produto);
-        snackbar = Snackbar.make(linearLayoutRootEntradaDeProduto, "", Snackbar.LENGTH_LONG);
+        ;
         listaViewDeEntradaDeProdutos = (NonScrollListView) findViewById(R.id.lista_de_produto);
         spinnerLoja = (Spinner) findViewById(R.id.spinner);
-        campoProduto = (TextView) findViewById(R.id.produto);
-        campoquantidade = (EditText) findViewById(R.id.quantidade);
         precoDeCompra = (EditText) findViewById(R.id.preco_de_compra);
         adicionarProduto = (Button) findViewById(R.id.adicionar);
-        toolbar = (Toolbar) findViewById(R.id.main_toolbar);
-
         cadastroEntradaProdutoHelper = new CadastroEntradaProdutoHelper(this);
-        entradaProdutoDAO = new EntradaProdutoDAO(this);
-        produtoDAO = new ProdutoDAO(this);
-        lojaDAO = new LojaDAO(this);
 
+        super.loadView();
     }
 
-    public void validandoQuantidadeDoProdutoNoEstoque() {
-        if (produto.vinculado()) {
-            produtoPrincipal = produtoDAO.procuraPorId(produto.getIdProdutoPrincipal());
-            produtoPrincipal.setEntradaProdutos(entradaProdutoDAO.procuraTodosDeUmProduto(produtoPrincipal));
-            entradaProdutoDAO.close();
-        } else {
-            produto.setEntradaProdutos(entradaProdutoDAO.procuraTodosDeUmProduto(produto));
-            entradaProdutoDAO.close();
-            produtoPrincipal = produto;
-
-        }
-
-        int quantAntesCalcular = produtoPrincipal.getQuantidade();
-        produtoPrincipal.calcularQuantidade();
-        int quantDepoisCalcular = produtoPrincipal.getQuantidade();
-        if (quantAntesCalcular != quantDepoisCalcular) {
-            for (String produtoVinculoId : produtoPrincipal.getIdProdutoVinculado()) {
-                Produto produtoVinculo = produtoDAO.procuraPorId(produtoVinculoId);
-                produtoDAO.close();
-                produtoVinculo.entrada(produtoPrincipal.getQuantidade());
-                produtoVinculo.desincroniza();
-                produtoDAO.altera(produtoVinculo);
-                produtoDAO.close();
-            }
-            produto.desincroniza();
-            produtoDAO.altera(produtoPrincipal);
-            produtoDAO.close();
-
-        }
-
-    }
 
     public boolean isValid() {
 //        validandoQuantidadeDoProdutoNoEstoque();
@@ -269,16 +165,16 @@ public class CadastroEntradaProdutoActivity extends AppCompatActivity implements
 //            Toast.makeText(CadastroEntradaProdutoActivity.this, "Escolha um Produto", Toast.LENGTH_SHORT).show();
             return false;
         }
-        if (campoquantidade.getText().length() == 0) {
-            campoquantidade.setError("Digite uma quantidade");
-            campoquantidade.requestFocus();
+        if (campoQuantidade.getText().length() == 0) {
+            campoQuantidade.setError("Digite uma quantidade");
+            campoQuantidade.requestFocus();
             return false;
 //                    Toast.makeText(CadastrarVendasActivity.this, "Digite a Quantidade", Toast.LENGTH_SHORT).show();
         }
-        int quantidadeEntrada = Integer.valueOf(campoquantidade.getText().toString());
+        int quantidadeEntrada = Integer.valueOf(campoQuantidade.getText().toString());
         if (quantidadeEntrada == 0) {
-            campoquantidade.setError("Digite uma quantidade maior que zero");
-            campoquantidade.requestFocus();
+            campoQuantidade.setError("Digite uma quantidade maior que zero");
+            campoQuantidade.requestFocus();
             return false;
         }
         return true;
@@ -310,129 +206,10 @@ public class CadastroEntradaProdutoActivity extends AppCompatActivity implements
     }
 
 
-    private void ShowCustomDialogwithList() {
-
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(CadastroEntradaProdutoActivity.this, R.style.DialogTheme);
-        LayoutInflater inflater = CadastroEntradaProdutoActivity.this.getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.alert_dialog_personalizado_lstview, null);
-        dialogBuilder.setView(dialogView);
-
-        final ListView listView = (ListView) dialogView.findViewById(R.id.listview);
-        SearchView pesquisaDialog = (SearchView) dialogView.findViewById(R.id.pesquisa);
-        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, labelsLoja);
-
-        final AdpterProdutoPersonalizado adapterPesquisa = new AdpterProdutoPersonalizado(pesquisa, this);
-        pesquisaDialog.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String searchQuery) {
-                pesquisar(searchQuery.toString().trim());
-
-
-                listView.setAdapter(adapterPesquisa);
-
-//                textPesquisa.invalidate();
-                return true;
-            }
-        });
-
-
-        // Defined Array values to show in ListView
-
-        AdpterProdutoPersonalizado adapterp = new AdpterProdutoPersonalizado(produtos, this);
-
-        listView.setAdapter(adapterp);
-
-
-        final AlertDialog alertDialog = dialogBuilder.create();
-        Window window = alertDialog.getWindow();
-        window.setLayout(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        window.setGravity(Gravity.CENTER); // set alert dialog in center
-        alertDialog.setCancelable(false);
-        // window.setGravity(Gravity.BOTTOM|Gravity.CENTER_HORIZONTAL); // set alert dialog in Bottom
-
-
-        // Cancel Button
-        Button cancel_btn = (Button) dialogView.findViewById(R.id.buttoncancellist);
-
-        cancel_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                alertDialog.hide();
-                alertDialog.dismiss();
-            }
-        });
-
-
-        alertDialog.show();
-
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view,
-                                    int position, long id) {
-
-                // ListView Clicked item index
-                int itemPosition = position;
-
-                // ListView Clicked item value
-                produto = (Produto) listView.getItemAtPosition(position);
-                campoProduto.setText(produto.getNome());
-                //campoPreco.setText(String.valueOf(produto.getPreco()));
-
-                // Show Alert
-//                Toast.makeText(getApplicationContext(), "Produto : " + produto.getNome() + " selecionado", Toast.LENGTH_LONG)
-//                        .show();
-                snackbar.setText("Produto : " + produto.getNome() + " selecionado");
-                snackbar.show();
-                alertDialog.hide();
-                alertDialog.dismiss();
-
-            }
-
-        });
-    }
-
-    public void pesquisar(String txtPesquisa) {
-        int textlength = txtPesquisa.length();
-        pesquisa.clear();
-
-        for (int i = 0; i < produtos.size(); i++) {
-            if (produtos.get(i).getNome().toLowerCase().contains(txtPesquisa.toLowerCase()))
-                pesquisa.add(produtos.get(i));
-//            if (textlength <= produtos.get(i).getNome().length()) {
-//                if (txtPesquisa.equalsIgnoreCase((String) produtos.get(i).getNome().subSequence(0, textlength))) {
-//                    pesquisa.add(produtos.get(i));
-//                }
-//            }
-        }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_cadastro, menu);
-
-
-        return super.onCreateOptionsMenu(menu);
-
-    }
-
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                break;
             case R.id.menu_cadastro_ok:
-
                 if (carinho.size() == 0) {
                     snackbar.setText("Não existe produtos no carrinho");
                     snackbar.show();
@@ -536,9 +313,10 @@ public class CadastroEntradaProdutoActivity extends AppCompatActivity implements
     public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
         loja = lojas.get(position);
         produtos = produtoDAO.procuraPorLoja(loja);
+        produtoDAO.close();
 //        Collections.sort(produtos);
         campoProduto.setText("");
-        campoquantidade.setText("");
+        campoQuantidade.setText("");
         precoDeCompra.setText("");
         produto = null;
 

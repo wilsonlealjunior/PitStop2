@@ -3,63 +3,63 @@
 <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:stretchColumns="*"
-    >
+    android:stretchColumns="*">
+
     <TableRow
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="#c0c0c0">
 
-        >
         <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_column="0"
-            android:padding="10sp"
-            android:gravity="center"
+            android:layout_margin="8dp"
             android:layout_span="2"
-            android:text="de"
-            android:textStyle="bold"
-            android:background="#c0c0c0"
-            >
-        </TextView>
+            android:gravity="start"
+            android:text="@string/loja_de_origem"
+            android:textStyle="bold" />
+
         <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_column="1"
-            android:padding="10sp"
-            android:gravity="center"
+            android:layout_margin="8dp"
             android:layout_span="2"
-            android:text="para"
-            android:textStyle="bold"
-            android:background="#c0c0c0"
-            >
-        </TextView>
+            android:gravity="start"
+            android:text="@string/loja_de_destinho"
+            android:textStyle="bold" />
+
         <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_column="2"
-            android:padding="10sp"
-            android:gravity="center"
+            android:layout_margin="8dp"
             android:layout_span="2"
-            android:text="nome"
-            android:textStyle="bold"
-            android:background="#c0c0c0"
-            >
-        </TextView>
+            android:gravity="start"
+            android:text="@string/produto"
+            android:textStyle="bold" />
+
         <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_column="3"
-            android:padding="10sp"
-            android:gravity="center"
+            android:layout_margin="8dp"
             android:layout_span="2"
-            android:text="Qtd"
-            android:textStyle="bold"
-            android:background="#c0c0c0"
-            >
-        </TextView>
+            android:gravity="start"
+            android:text="@string/quantidade"
+            android:textStyle="bold" />
+
         <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_column="4"
-            android:padding="10sp"
-            android:gravity="center"
+            android:layout_margin="8dp"
             android:layout_span="2"
-            android:text="Data"
-            android:textStyle="bold"
-            android:background="#c0c0c0"
-            >
-        </TextView>
+            android:gravity="start"
+            android:text="@string/data"
+            android:textStyle="bold" />
+
     </TableRow>
 
 

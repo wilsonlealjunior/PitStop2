@@ -1,4 +1,4 @@
-package pitstop.com.br.pitstop.activity;
+package pitstop.com.br.pitstop.activity.relatorio;
 
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
@@ -35,6 +35,8 @@ import java.util.List;
 
 import okhttp3.ResponseBody;
 import pitstop.com.br.pitstop.R;
+import pitstop.com.br.pitstop.Util;
+import pitstop.com.br.pitstop.activity.DataHoraView;
 import pitstop.com.br.pitstop.adapter.LstViewTabelaMovimentacaoAdapter;
 
 import pitstop.com.br.pitstop.dao.MovimentacaoProdutoDAO;
@@ -120,7 +122,7 @@ public class RelatorioMovimentacaoProdutoActivity extends AppCompatActivity {
 
                 progressDialog.setMessage("Gerando PDF");
                 progressDialog.show();
-                Call<ResponseBody> call = new RetrofitInializador().getRelatorioService().relatorioMovimentacaoProduto(dataHoraView.getTextViewDataInicio().getText().toString(), dataHoraView.getTextViewDataFim().getText().toString());
+                Call<ResponseBody> call = new RetrofitInializador().getRelatorioService().relatorioMovimentacaoProduto(dataHoraView.getEditTextDataInicio().getText().toString(), dataHoraView.getEditTextDataFim().getText().toString());
                 call.enqueue(new Callback<ResponseBody>() {
                     @Override
                     public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -244,17 +246,17 @@ public class RelatorioMovimentacaoProdutoActivity extends AppCompatActivity {
     }
 
     public boolean isValid() {
-        if (dataHoraView.getTextViewDataInicio().getText().toString().equals("")) {
-            dataHoraView.getTextViewDataInicio().setError("Escolha uma data");
-            dataHoraView.getTextViewDataInicio().requestFocus();
+        if (dataHoraView.getEditTextDataInicio().getText().toString().equals("")) {
+            dataHoraView.getEditTextDataInicio().setError("Escolha uma data");
+            dataHoraView.getEditTextDataInicio().requestFocus();
             snackbar.setText("escolha uma data de inicio");
             snackbar.show();
 //            Toast.makeText(RelatorioMovimentacaoProdutoActivity.this, "escolha uma data de inicio", Toast.LENGTH_SHORT).show();
             return false;
         }
-        if (dataHoraView.getTextViewDataFim().getText().toString().equals("")) {
-            dataHoraView.getTextViewDataFim().setError("Escolha uma data");
-            dataHoraView.getTextViewDataFim().requestFocus();
+        if (dataHoraView.getEditTextDataFim().getText().toString().equals("")) {
+            dataHoraView.getEditTextDataFim().setError("Escolha uma data");
+            dataHoraView.getEditTextDataFim().requestFocus();
             snackbar.setText("escolha uma data de Termino");
             snackbar.show();
 //            Toast.makeText(RelatorioMovimentacaoProdutoActivity.this, "escolha uma data de termino", Toast.LENGTH_SHORT).show();
@@ -262,8 +264,8 @@ public class RelatorioMovimentacaoProdutoActivity extends AppCompatActivity {
         }
 
         try {
-            de = formatter.parse(dataHoraView.getTextViewDataInicio().getText().toString());
-            ate = formatter.parse(dataHoraView.getTextViewDataFim().getText().toString());
+            de = formatter.parse(dataHoraView.getEditTextDataInicio().getText().toString());
+            ate = formatter.parse(dataHoraView.getEditTextDataFim().getText().toString());
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -283,8 +285,8 @@ public class RelatorioMovimentacaoProdutoActivity extends AppCompatActivity {
             return;
         }
         try {
-            de = formatter.parse(dataHoraView.getTextViewDataInicio().getText().toString());
-            ate = formatter.parse(dataHoraView.getTextViewDataFim().getText().toString());
+            de = formatter.parse(dataHoraView.getEditTextDataInicio().getText().toString());
+            ate = formatter.parse(dataHoraView.getEditTextDataFim().getText().toString());
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -323,9 +325,11 @@ public class RelatorioMovimentacaoProdutoActivity extends AppCompatActivity {
                 break;
             case R.id.filtro:
                 if (cardViewFiltros.getVisibility() == View.GONE) {
-                    cardViewFiltros.setVisibility(View.VISIBLE);
+                    Util.expand(cardViewFiltros, null);
+//                    cardViewFiltros.setVisibility(View.VISIBLE);
                 } else {
-                    cardViewFiltros.setVisibility(View.GONE);
+                    Util.collapse(cardViewFiltros, null);
+//                    cardViewFiltros.setVisibility(View.GONE);
                 }
                 break;
 

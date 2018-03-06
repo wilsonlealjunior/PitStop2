@@ -4,7 +4,7 @@ package pitstop.com.br.pitstop.model;
  * Created by wilso on 13/11/2017.
  */
 
-public class VendaEntradaProduto {
+public class ItemVenda {
     String id;
     String idProduto;
     String idEntradaProduto;

@@ -1,20 +1,13 @@
-package pitstop.com.br.pitstop.activity;
+package pitstop.com.br.pitstop.activity.cadastro;
 
-import android.content.ComponentName;
-import android.content.Intent;
-import android.graphics.Color;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
+import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,49 +23,29 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.w3c.dom.Text;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import de.greenrobot.event.EventBus;
 import pitstop.com.br.pitstop.Print;
 import pitstop.com.br.pitstop.R;
+import pitstop.com.br.pitstop.Util;
 import pitstop.com.br.pitstop.adapter.AdpterProdutoPersonalizado;
 import pitstop.com.br.pitstop.adapter.LstViewTabelaVendaAdapter;
 import pitstop.com.br.pitstop.adapter.NonScrollListView;
-import pitstop.com.br.pitstop.dao.EntradaProdutoDAO;
-import pitstop.com.br.pitstop.dao.ProdutoDAO;
-import pitstop.com.br.pitstop.dao.VendaDAO;
 import pitstop.com.br.pitstop.event.AtualizaListaLojasEvent;
 import pitstop.com.br.pitstop.event.AtualizaListaProdutoEvent;
+import pitstop.com.br.pitstop.event.AtualizarGraficos;
 import pitstop.com.br.pitstop.model.EntradaProduto;
-import pitstop.com.br.pitstop.model.Loja;
+import pitstop.com.br.pitstop.model.ItemVenda;
 import pitstop.com.br.pitstop.model.Produto;
-import pitstop.com.br.pitstop.model.VendaEntradaProduto;
 import pitstop.com.br.pitstop.model.Venda;
 import pitstop.com.br.pitstop.preferences.UsuarioPreferences;
 
 
-public class CadastrarVendasActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
-    private EditText campoQuantidae;
-    private Toolbar toolbar;
-    private TextView campoNome;
-    Produto produto;
-    Loja loja;
-    List<Produto> produtos = new ArrayList<>();
-    List<Produto> pesquisa = new ArrayList<>();
-    private EventBus bus = EventBus.getDefault();
-    EntradaProdutoDAO entradaProdutoDAO;
-    ProdutoDAO produtoDAO;
-    VendaDAO vendaDAO;
-    Produto produtoPrincipal = null;
-    Snackbar snackbar;
-    LinearLayout linearLayoutRootVendas;
+public class CadastrarVendasActivity extends BaseCadastroDeTransacaoDeProdutoActivity implements AdapterView.OnItemSelectedListener {
 
 
     Spinner spinnerFormaDeVenda;
@@ -119,92 +92,46 @@ public class CadastrarVendasActivity extends AppCompatActivity implements Adapte
             finish();
             return;
         }
-
-
-        ShowCustomDialogwithList();
-
-
+        mostraListaDeProduto();
     }
 
     public void loadView() {
-        linearLayoutRootVendas = (LinearLayout) findViewById(R.id.ll_root_cadastro_vendas);
-        snackbar = Snackbar.make(linearLayoutRootVendas, "", Snackbar.LENGTH_LONG);
         campoTotalCartao = (EditText) findViewById(R.id.total_cartao);
         spinnerFormaDeVenda = (Spinner) findViewById(R.id.spinner);
-        campoNome = (TextView) findViewById(R.id.nome);
         campoPreco = (TextView) findViewById(R.id.preco);
-        campoTotal = (TextView) findViewById(R.id.total);
+        campoTotal = (TextView) findViewById(R.id.totalDinheiro);
         tvTotalCartao = (TextView) findViewById(R.id.tv_total_cartao);
-        campoQuantidae = (EditText) findViewById(R.id.quantidade);
-        adicionarProduto = (Button) findViewById(R.id.adcionar);
-        toolbar = (Toolbar) findViewById(R.id.main_toolbar);
+        adicionarProduto = (Button) findViewById(R.id.adicionar);
         listaViewDeProdutosCarrinho = (NonScrollListView) findViewById(R.id.lista_de_produto);
-
         adapterTableCarrinho = new LstViewTabelaVendaAdapter(this, R.layout.tabela_carinho_venda, R.id.produto, carrinho);
-
         usuarioPreferences = new UsuarioPreferences(this);
-        entradaProdutoDAO = new EntradaProdutoDAO(this);
-        produtoDAO = new ProdutoDAO(this);
-        vendaDAO = new VendaDAO(this);
-
         venda = new Venda();
+        super.loadView();
 
-
-    }
-
-
-    public void validandoQuantidadeDoProdutoNoEstoque() {
-        if (produto.vinculado()) {
-            produtoPrincipal = produtoDAO.procuraPorId(produto.getIdProdutoPrincipal());
-            produtoPrincipal.setEntradaProdutos(entradaProdutoDAO.procuraTodosDeUmProduto(produtoPrincipal));
-            entradaProdutoDAO.close();
-        } else {
-            produto.setEntradaProdutos(entradaProdutoDAO.procuraTodosDeUmProduto(produto));
-            entradaProdutoDAO.close();
-            produtoPrincipal = produto;
-
-        }
-
-        int quantAntesCalcular = produtoPrincipal.getQuantidade();
-        produtoPrincipal.calcularQuantidade();
-        int quantDepoisCalcular = produtoPrincipal.getQuantidade();
-        if (quantAntesCalcular != quantDepoisCalcular) {
-            for (String produtoVinculoId : produtoPrincipal.getIdProdutoVinculado()) {
-                Produto produtoVinculo = produtoDAO.procuraPorId(produtoVinculoId);
-                produtoDAO.close();
-                produtoVinculo.setQuantidade(produtoPrincipal.getQuantidade());
-                produtoVinculo.desincroniza();
-                produtoDAO.altera(produtoVinculo);
-                produtoDAO.close();
-            }
-            produtoPrincipal.desincroniza();
-            produtoDAO.altera(produtoPrincipal);
-            produtoDAO.close();
-        }
 
     }
 
 
     public boolean isValid() {
 //        validandoQuantidadeDoProdutoNoEstoque();
-        if (campoNome.getText().toString().isEmpty()) {
-            campoNome.setError("Escolha um produto");
-            campoNome.requestFocus();
+        if (campoProduto.getText().toString().isEmpty()) {
+            campoProduto.setError("Escolha um produto");
+            campoProduto.requestFocus();
             snackbar.setText("Escolha um produto");
             snackbar.show();
 //            Toast.makeText(CadastrarVendasActivity.this, "Escolha um Produto", Toast.LENGTH_SHORT).show();
             return false;
         }
-        if (campoQuantidae.getText().length() == 0) {
-            campoQuantidae.setError("Digite uma quantidade");
-            campoQuantidae.requestFocus();
+        if (campoQuantidade.getText().length() == 0) {
+            campoQuantidade.setError("Digite uma quantidade");
+            campoQuantidade.requestFocus();
             return false;
 //                    Toast.makeText(CadastrarVendasActivity.this, "Digite a Quantidade", Toast.LENGTH_SHORT).show();
         }
-        int quantidadeComprada = Integer.valueOf(campoQuantidae.getText().toString());
+        int quantidadeComprada = Integer.valueOf(campoQuantidade.getText().toString());
         if (quantidadeComprada == 0) {
-            campoQuantidae.setError("Digite uma quantidade maior que zero");
-            campoQuantidae.requestFocus();
+            campoQuantidade.setError("Digite uma quantidade maior que zero");
+            campoQuantidade.requestFocus();
             return false;
         }
         if (quantidadeComprada > produto.getQuantidade()) {
@@ -282,7 +209,7 @@ public class CadastrarVendasActivity extends AppCompatActivity implements Adapte
                     return;
                 }
 
-                int quantidadeComprada = Integer.valueOf(campoQuantidae.getText().toString());
+                int quantidadeComprada = Integer.valueOf(campoQuantidade.getText().toString());
 
                 //coloco um novo produto com as mesmas caracteristicas do produto que está no banco a diferença é quantidade
                 //a quantidade é a quantidade comprada.
@@ -334,23 +261,9 @@ public class CadastrarVendasActivity extends AppCompatActivity implements Adapte
 
             }
         });
-        //configurando snackbar
-        snackbar.setAction("OK", new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-            }
-        });
-        snackbar.setActionTextColor(Color.RED);
+        super.setupView();
 
 
-        campoNome.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ShowCustomDialogwithList();
-
-            }
-        });
     }
 
     @Override
@@ -421,21 +334,9 @@ public class CadastrarVendasActivity extends AppCompatActivity implements Adapte
 
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_cadastro, menu);
-
-        return super.onCreateOptionsMenu(menu);
-
-    }
-
-    @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
 
         switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                break;
             case R.id.menu_cadastro_ok:
                 item.setVisible(false);
                 if (carrinho.size() == 0) {
@@ -508,10 +409,16 @@ public class CadastrarVendasActivity extends AppCompatActivity implements Adapte
                         venda.setDataDaVenda(formatter.format(new Date()));
 
                         venda.desincroniza();
-                        venda.setTotal(total);
+                        if (venda.getFormaDePagamento().equals("dinheiro")) {
+                            venda.setTotalDinheiro(total);
+                            venda.setTotalCartao(0);
+                        } else if (venda.getFormaDePagamento().equals("cartao")) {
+                            venda.setTotalCartao(total);
+                            venda.setTotalDinheiro(0);
+                        }
                         if (venda.getFormaDePagamento().equals("dinheiro e cartao")) {
                             venda.setTotalCartao(totalCartao);
-                            venda.setTotal(total - totalCartao);
+                            venda.setTotalDinheiro(total - totalCartao);
                         }
 
                         for (Produto p : carrinho) {
@@ -543,18 +450,18 @@ public class CadastrarVendasActivity extends AppCompatActivity implements Adapte
                                     entradaProdutoDAO.altera(l);
                                     entradaProdutoDAO.close();
 
-                                    VendaEntradaProduto vendaEntradaProduto = new VendaEntradaProduto();
-                                    vendaEntradaProduto.setId(UUID.randomUUID().toString());
-                                    vendaEntradaProduto.setIdVenda(venda.getId());
-                                    vendaEntradaProduto.setIdEntradaProduto(l.getId());
-                                    vendaEntradaProduto.setPrecoDeVenda(produto.getPreco());
-                                    vendaEntradaProduto.setIdProduto(produto.getId());
-                                    vendaEntradaProduto.setQuantidadeVendida(saida);
+                                    ItemVenda itemVenda = new ItemVenda();
+                                    itemVenda.setId(UUID.randomUUID().toString());
+                                    itemVenda.setIdVenda(venda.getId());
+                                    itemVenda.setIdEntradaProduto(l.getId());
+                                    itemVenda.setPrecoDeVenda(produto.getPreco());
+                                    itemVenda.setIdProduto(produto.getId());
+                                    itemVenda.setQuantidadeVendida(saida);
 
-                                    //vendaEntradaProduto.sincroniza();
+                                    //itemVenda.sincroniza();
                                     venda.setLucro(venda.getLucro() + (produto.getPreco() - l.getPrecoDeCompra()) * saida);
 
-                                    venda.getVendaEntradaProdutos().add(vendaEntradaProduto);
+                                    venda.getItemVendas().add(itemVenda);
 
                                     break;
                                 } else {
@@ -568,17 +475,17 @@ public class CadastrarVendasActivity extends AppCompatActivity implements Adapte
                                         entradaProdutoDAO.altera(l);
                                         entradaProdutoDAO.close();
 
-                                        VendaEntradaProduto vendaEntradaProduto = new VendaEntradaProduto();
-                                        vendaEntradaProduto.setId(UUID.randomUUID().toString());
-                                        vendaEntradaProduto.setIdVenda(venda.getId());
-                                        vendaEntradaProduto.setIdEntradaProduto(l.getId());
-                                        vendaEntradaProduto.setIdProduto(produto.getId());
-                                        vendaEntradaProduto.setQuantidadeVendida(quantidadeDisponivel);
-                                        vendaEntradaProduto.setPrecoDeVenda(produto.getPreco());
-                                        //vendaEntradaProduto.sincroniza();
+                                        ItemVenda itemVenda = new ItemVenda();
+                                        itemVenda.setId(UUID.randomUUID().toString());
+                                        itemVenda.setIdVenda(venda.getId());
+                                        itemVenda.setIdEntradaProduto(l.getId());
+                                        itemVenda.setIdProduto(produto.getId());
+                                        itemVenda.setQuantidadeVendida(quantidadeDisponivel);
+                                        itemVenda.setPrecoDeVenda(produto.getPreco());
+                                        //itemVenda.sincroniza();
                                         venda.setLucro(venda.getLucro() + (l.getProduto().getPreco() - l.getPrecoDeCompra()) * quantidadeDisponivel);
 
-                                        venda.getVendaEntradaProdutos().add(vendaEntradaProduto);
+                                        venda.getItemVendas().add(itemVenda);
                                     }
                                 }
 
@@ -611,7 +518,7 @@ public class CadastrarVendasActivity extends AppCompatActivity implements Adapte
                         vendaDAO.close();
                         bus.post(new AtualizaListaProdutoEvent());
                         bus.post(new AtualizaListaLojasEvent());
-
+                        bus.post(new AtualizarGraficos());
 
                         alertDialog.hide();
                         alertDialog.dismiss();
@@ -621,15 +528,16 @@ public class CadastrarVendasActivity extends AppCompatActivity implements Adapte
                 alertDialog.show();
                 String cumpom = "PITSTOP: " + usuarioPreferences.getLoja().getNome() + "\n";
                 SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                cumpom += "Data: " + formatter.format(new Date()) + "\n";
+                cumpom += "Data: " + Util.dataNoformatoBrasileiro(new Date()) + "\n";
                 cumpom += "Vendedor: " + usuarioPreferences.getUsuario().getNome() + "\n";
                 cumpom += "-----------------------\n";
                 for (Produto p : carrinho) {
                     cumpom += p.getNome() + "\n";
-                    cumpom += p.getQuantidade() + " UND X " + p.getPreco() + " " + p.getQuantidade() * p.getPreco() + "\n";
+                    cumpom += p.getQuantidade() + " UND X " + p.getPreco() + "   " + Util.moedaNoFormatoBrasileiro(p.getQuantidade() * p.getPreco()) + "\n";
                 }
                 cumpom += "-----------------------\n";
-                cumpom += "TOTAL R$     " + (total + totalCartao) + "\n\n";
+                cumpom += "TOTAL         " + Util.moedaNoFormatoBrasileiro(total) + "\n\n";
+//                Log.e("Cupom", cumpom);
                 Print imprimir = new Print(CadastrarVendasActivity.this, cumpom);
                 imprimir.imprime();
 
@@ -644,9 +552,8 @@ public class CadastrarVendasActivity extends AppCompatActivity implements Adapte
 
     }
 
-    // Custom Dialog with List
-
-    private void ShowCustomDialogwithList() {
+    @Override
+    public void mostraListaDeProduto() {
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(CadastrarVendasActivity.this, R.style.DialogTheme);
         LayoutInflater inflater = CadastrarVendasActivity.this.getLayoutInflater();
@@ -655,6 +562,8 @@ public class CadastrarVendasActivity extends AppCompatActivity implements Adapte
 
         final ListView listView = (ListView) dialogView.findViewById(R.id.listview);
         SearchView pesquisaDialog = (SearchView) dialogView.findViewById(R.id.pesquisa);
+//        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, labelsLoja);
+
         final AdpterProdutoPersonalizado adapterPesquisa = new AdpterProdutoPersonalizado(pesquisa, this);
         pesquisaDialog.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
 
@@ -717,10 +626,10 @@ public class CadastrarVendasActivity extends AppCompatActivity implements Adapte
                 int itemPosition = position;
 
                 // ListView Clicked item value
-
                 produto = (Produto) listView.getItemAtPosition(position);
-                campoNome.setText(produto.getNome());
-                campoPreco.setText("R$ " + String.valueOf(produto.getPreco()));
+                campoProduto.setText(produto.getNome());
+
+                campoPreco.setText(String.valueOf(produto.getPreco()));
 
                 // Show Alert
                 snackbar.setText("Produto : " + produto.getNome() + " selecionado");
@@ -735,20 +644,6 @@ public class CadastrarVendasActivity extends AppCompatActivity implements Adapte
         });
     }
 
-    public void pesquisar(String txtPesquisa) {
-        int textlength = txtPesquisa.length();
-        pesquisa.clear();
-
-        for (int i = 0; i < produtos.size(); i++) {
-            if (produtos.get(i).getNome().toLowerCase().contains(txtPesquisa.toLowerCase()))
-                pesquisa.add(produtos.get(i));
-//            if (textlength <= produtos.get(i).getNome().length()) {
-//                if (txtPesquisa.equalsIgnoreCase((String) produtos.get(i).getNome().subSequence(0, textlength))) {
-//                    pesquisa.add(produtos.get(i));
-//                }
-//            }
-        }
-    }
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {

@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
@@ -27,11 +28,11 @@ public class DataHoraView {
     private SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
     private Calendar dateTime = Calendar.getInstance();
 
-    private TextView textViewDataInicio;
+    private EditText editTextDataInicio;
     private DatePickerDialog.OnDateSetListener DateSetListenerInicio;
     private TimePickerDialog.OnTimeSetListener HoraSetListenerInicio;
 
-    private TextView textViewDataFim;
+    private EditText editTextDataFim;
     private DatePickerDialog.OnDateSetListener DataSetListenerFim;
     private TimePickerDialog.OnTimeSetListener HoraSetListenerFim;
 
@@ -40,7 +41,7 @@ public class DataHoraView {
 
     private UsuarioPreferences usuarioPreferences;
 
-    DataHoraView(ViewGroup viewRoot, Context context) {
+    public DataHoraView(ViewGroup viewRoot, Context context) {
         this.viewRoot = viewRoot;
         this.context = context;
         usuarioPreferences = new UsuarioPreferences(context);
@@ -57,13 +58,14 @@ public class DataHoraView {
                 long longate = ate.getTime();
                 long longDe = longate - TREZE_HORAS_EM_MILISSEGUNDOS;
                 Date de = new Date(longDe);
-                textViewDataInicio.setText(formatter.format(de));
-                textViewDataFim.setText(formatter.format(ate));
-                textViewDataInicio.setFocusable(false);
-                textViewDataFim.setFocusable(false);
-                textViewDataInicio.setClickable(false);
-                textViewDataFim.setClickable(false);
-
+                editTextDataInicio.setText(formatter.format(de));
+                editTextDataFim.setText(formatter.format(ate));
+                editTextDataInicio.setFocusable(false);
+                editTextDataFim.setEnabled(false);
+                editTextDataFim.setFocusable(false);
+                editTextDataInicio.setClickable(false);
+                editTextDataFim.setClickable(false);
+                editTextDataInicio.setEnabled(false);
             }
 
         }
@@ -71,10 +73,10 @@ public class DataHoraView {
 
 
     private void configurandoListenersDaData() {
-        DateSetListenerInicio = criandoListenerDaData(textViewDataInicio);
-        HoraSetListenerInicio = criandoListernerDeHora(textViewDataInicio);
-        DataSetListenerFim = criandoListenerDaData(textViewDataFim);
-        HoraSetListenerFim = criandoListernerDeHora(textViewDataFim);
+        DateSetListenerInicio = criandoListenerDaData(editTextDataInicio);
+        HoraSetListenerInicio = criandoListernerDeHora(editTextDataInicio);
+        DataSetListenerFim = criandoListenerDaData(editTextDataFim);
+        HoraSetListenerFim = criandoListernerDeHora(editTextDataFim);
     }
 
     @NonNull
@@ -112,14 +114,14 @@ public class DataHoraView {
     }
 
     private void configurandoTextViewDaData() {
-        textViewDataInicio.setOnClickListener(new View.OnClickListener() {
+        editTextDataInicio.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 dateTime = Calendar.getInstance();
                 AtualizandoDataDeAcordoComAEscolhaDoUsuario(DateSetListenerInicio, HoraSetListenerInicio);
             }
         });
-        textViewDataFim.setOnClickListener(new View.OnClickListener() {
+        editTextDataFim.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 dateTime = Calendar.getInstance();
@@ -130,25 +132,26 @@ public class DataHoraView {
 
 
     private void carregandoView() {
-        textViewDataInicio = viewRoot.findViewById(R.id.et_data_inicio);
-        textViewDataFim = viewRoot.findViewById(R.id.et_data_fim);
+        editTextDataInicio = viewRoot.findViewById(R.id.et_data_inicio);
+        editTextDataFim = viewRoot.findViewById(R.id.et_data_fim);
 
     }
 
 
-    public TextView getTextViewDataInicio() {
-        return textViewDataInicio;
+    public TextView getEditTextDataInicio() {
+        return editTextDataInicio;
     }
 
-    public void setTextViewDataInicio(TextView textViewDataInicio) {
-        this.textViewDataInicio = textViewDataInicio;
+    public void setEditTextDataInicio(String editTextDataInicio) {
+        this.editTextDataInicio.setText(editTextDataInicio);
+
     }
 
-    public TextView getTextViewDataFim() {
-        return textViewDataFim;
+    public TextView getEditTextDataFim() {
+        return editTextDataFim;
     }
 
-    public void setTextViewDataFim(TextView textViewDataFim) {
-        this.textViewDataFim = textViewDataFim;
+    public void setEditTextDataFim(String editTextDataFim) {
+        this.editTextDataFim.setText(editTextDataFim);
     }
 }

@@ -1,10 +1,9 @@
 package pitstop.com.br.pitstop.helper;
 
 import android.widget.EditText;
-import android.widget.Spinner;
 
 import pitstop.com.br.pitstop.R;
-import pitstop.com.br.pitstop.activity.CadastroProdutoActivity;
+import pitstop.com.br.pitstop.activity.cadastro.CadastroProdutoActivity;
 import pitstop.com.br.pitstop.model.Produto;
 
 /**

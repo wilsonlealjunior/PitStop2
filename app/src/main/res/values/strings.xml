@@ -94,14 +94,24 @@
     <string name="relatorio">Relatório</string>
     <string name="carrinho">Carrinho</string>
     <string name="loja_de_origem">Loja de origem</string>
-    <string name="loja_de_destinho">Loja de destinho</string>
+    <string name="loja_de_destinho">Loja de destino</string>
     <string name="informacoes_de_cadastro">Informações de Cadastro</string>
-    <string name="digite_o_nome_do_produto">Digite o nome do produto</string>
+    <string name="digite_o_nome_do_produto">Toque para escolher um produto</string>
     <string name="preco_de_compra">Preço de compra</string>
     <string name="adicionar">Adicionar</string>
     <string name="preco_da_unidade_do_produto">Preço da unidade do produto</string>
-    <string name="total">Total</string>
+    <string name="totalDinheiro">Total</string>
     <string name="total_no_cartao">Total no cartão</string>
+    <string name="data_final">Data final</string>
+    <string name="data">Data</string>
+    <string name="prejuizo">Prejuizo</string>
+    <string name="dinheiro">Dinheiro</string>
+    <string name="cartao">Cartão</string>
+    <string name="valor">valor</string>
+    <string name="gerar_grafico">gerar gráfico</string>
+    <string name="total_das_vendas_de_cada_loja">Vendas por loja</string>
+    <string name="total_das_vendas_de_cada_funcionario">Vendas por funcionário</string>
+    <string name="total_das_vendas_por_dia_em_cada_loja">Vendas por dia em cada loja</string>
 
 
 </resources>

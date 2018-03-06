@@ -1,114 +1,101 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
+    android:orientation="vertical"
     tools:context="pitstop.com.br.pitstop.LoginActivity">
 
 
     <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:padding="@dimen/activity_horizontal_margin">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="top|center"
+        android:orientation="vertical">
 
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:src="@drawable/pitstop" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-
             android:layout_margin="8dp"
             android:orientation="vertical">
 
-            <ImageView
-                android:layout_width="@dimen/logo_w_h"
-                android:layout_height="@dimen/logo_w_h"
-                android:layout_gravity="center_horizontal"
 
-                android:src="@mipmap/laucher" />
+            <!--<TextView-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:text="PitStop"-->
+            <!--android:textAlignment="center"-->
+
+            <!--android:textColor="@color/black"-->
+            <!--android:textSize="50dp" />-->
+
 
             <TextView
+                android:id="@+id/loja"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:text="PitStop"
-                android:textAlignment="center"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:text="Loja"
+                android:textSize="16dp">
 
-                android:textColor="@color/black"
-                android:textSize="50dp" />
-        </LinearLayout>
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Loja"
-            android:layout_margin="8dp"
-            android:background="@drawable/round"
-            android:padding="10dp"
-            android:textSize="16dp"
-            android:id="@+id/loja"
-           >
-
-        </TextView>
+            </TextView>
 
 
-        <!--<android.support.v7.widget.AppCompatSpinner-->
-            <!--android:id="@+id/spiner_loja"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_marginBottom="10dp"-->
-            <!--android:background="@drawable/bg_spinner"-->
-            <!--android:padding="10dp" />-->
-
-        <android.support.design.widget.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <EditText
-                android:id="@+id/usuario"
+            <android.support.v7.widget.AppCompatSpinner
+                android:id="@+id/spiner_loja"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="10dp"
-                android:hint="@string/usuario"
-                android:inputType="text" />
-        </android.support.design.widget.TextInputLayout>
+                android:padding="10dp" />
 
-        <android.support.design.widget.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-            <EditText
-                android:id="@+id/password"
+                <EditText
+                    android:id="@+id/usuario"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:hint="@string/usuario"
+                    android:inputType="text" />
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/password"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:hint="@string/hint_password"
+                    android:inputType="textPassword" />
+            </android.support.design.widget.TextInputLayout>
+
+
+            <!-- Login Button -->
+
+            <Button
+
+                android:id="@+id/btn_login"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                android:hint="@string/hint_password"
-                android:inputType="textPassword" />
-        </android.support.design.widget.TextInputLayout>
+                android:layout_marginTop="20dip"
+                android:background="#F5C116"
+                android:text="@string/btn_login"
+                android:textColor="@android:color/black" />
 
-
-        <!-- Login Button -->
-
-        <Button
-            android:id="@+id/btn_login"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dip"
-            android:background="@color/colorAccent"
-            android:text="@string/btn_login"
-            android:textColor="@android:color/black" />
-
-
+        </LinearLayout>
     </LinearLayout>
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_gravity="center|bottom"
-        android:layout_marginBottom="20dp"
-        android:visibility="gone" />
 
-
-</android.support.design.widget.CoordinatorLayout>
+</ScrollView>

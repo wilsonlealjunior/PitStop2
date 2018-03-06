@@ -9,14 +9,33 @@ import java.util.List;
 
 public class Furo {
     String id;
-    List<FuroEntradaProduto> furoEntradeProdutos;
+    List<ItemFuro> furoEntradeProdutos;
     String idLoja;
     String idUsuario;
+    String idProduto;
     int sincronizado;
     String data;
     double valor;
+    double precoDeVenda;
+    int quantidade;
     String momentoDaUltimaAtualizacao;
     private int desativado=0;
+
+    public int getQuantidade() {
+        return quantidade;
+    }
+
+    public void setQuantidade(int quantidade) {
+        this.quantidade = quantidade;
+    }
+
+    public String getIdProduto() {
+        return idProduto;
+    }
+
+    public void setIdProduto(String idProduto) {
+        this.idProduto = idProduto;
+    }
 
     public void desativar(){
         desativado=1;
@@ -38,7 +57,13 @@ public class Furo {
         furoEntradeProdutos = new ArrayList<>();
     }
 
+    public double getPrecoDeVenda() {
+        return precoDeVenda;
+    }
 
+    public void setPrecoDeVenda(double precoDeVenda) {
+        this.precoDeVenda = precoDeVenda;
+    }
 
     public void sincroniza() {
         this.sincronizado = 1;
@@ -55,11 +80,11 @@ public class Furo {
         this.id = id;
     }
 
-    public List<FuroEntradaProduto> getFuroEntradeProdutos() {
+    public List<ItemFuro> getFuroEntradeProdutos() {
         return furoEntradeProdutos;
     }
 
-    public void setFuroEntradeProdutos(List<FuroEntradaProduto> furoEntradeProdutos) {
+    public void setFuroEntradeProdutos(List<ItemFuro> furoEntradeProdutos) {
         this.furoEntradeProdutos = furoEntradeProdutos;
     }
 

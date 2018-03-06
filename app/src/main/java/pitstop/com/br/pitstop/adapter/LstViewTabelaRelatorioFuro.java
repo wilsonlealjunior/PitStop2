@@ -12,9 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import pitstop.com.br.pitstop.R;
-import pitstop.com.br.pitstop.dao.LojaDAO;
-import pitstop.com.br.pitstop.dao.UsuarioDAO;
-import pitstop.com.br.pitstop.model.Avaria;
+import pitstop.com.br.pitstop.Util;
+import pitstop.com.br.pitstop.dao.ProdutoDAO;
 import pitstop.com.br.pitstop.model.Furo;
 
 /**
@@ -26,22 +25,20 @@ public class LstViewTabelaRelatorioFuro extends ArrayAdapter<Furo> {
     List<Furo> item_list;
     ArrayList<String> desc;
     Context context;
-    public LstViewTabelaRelatorioFuro(Context context, int vg, int id, List<Furo> item_list){
-        super(context,vg, id, item_list);
-        this.context=context;
-        groupid=vg;
-        this.item_list=item_list;
+
+    public LstViewTabelaRelatorioFuro(Context context, int vg, int id, List<Furo> item_list) {
+        super(context, vg, id, item_list);
+        this.context = context;
+        groupid = vg;
+        this.item_list = item_list;
 
     }
 
     static class ViewHolder {
-        public TextView loja;
         public TextView data;
         public TextView valor;
         public TextView usuario;
-        public TextView quantidade;
-
-
+        public TextView produto;
 
 
     }
@@ -50,34 +47,34 @@ public class LstViewTabelaRelatorioFuro extends ArrayAdapter<Furo> {
 
         View rowView = convertView;
         // Inflate the rowlayout.xml file if convertView is null
-        if(rowView==null){
+        if (rowView == null) {
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            rowView= inflater.inflate(groupid, parent, false);
+            rowView = inflater.inflate(groupid, parent, false);
             LstViewTabelaRelatorioFuro.ViewHolder viewHolder = new LstViewTabelaRelatorioFuro.ViewHolder();
 
-            viewHolder.data= (TextView) rowView.findViewById(R.id.data);
-            viewHolder.loja = (TextView) rowView.findViewById(R.id.loja);
-            viewHolder.valor= (TextView) rowView.findViewById(R.id.valor);
-            viewHolder.usuario=(TextView) rowView.findViewById(R.id.usuario);
-            viewHolder.quantidade=(TextView) rowView.findViewById(R.id.quantidade);
+            viewHolder.data = (TextView) rowView.findViewById(R.id.data);
+            viewHolder.valor = (TextView) rowView.findViewById(R.id.valor);
+            viewHolder.usuario = (TextView) rowView.findViewById(R.id.usuario);
+            viewHolder.produto = (TextView) rowView.findViewById(R.id.produto);
             rowView.setTag(viewHolder);
 
         }
         // Set text to each TextView of ListView item
         Log.i("count", String.valueOf(item_list.size()));
 
-        Furo items=item_list.get(position);
-        if(items!=null) {
+        Furo items = item_list.get(position);
+        if (items != null) {
             LstViewTabelaRelatorioFuro.ViewHolder holder = (LstViewTabelaRelatorioFuro.ViewHolder) rowView.getTag();
+            ProdutoDAO produtoDAO = new ProdutoDAO(context);
 
-            LojaDAO lojaDAO = new LojaDAO(context);
+            holder.data.setText(Util.dataNoformatoBrasileiro(Util.converteDoFormatoSQLParaDate(items.getData())));
+            holder.usuario.setText(items.getIdUsuario());
 
-            holder.data.setText(items.getData());
-            holder.usuario.setText(String.valueOf(items.getIdUsuario()));
-            holder.loja.setText(lojaDAO.procuraPorId(items.getIdLoja()).getNome());
-            lojaDAO.close();
-            holder.valor.setText(String.valueOf(items.getValor()));
-
+            holder.valor.setText(Util.moedaNoFormatoBrasileiro(items.getValor()));
+            if(items.getIdProduto()!=null) {
+                holder.produto.setText(produtoDAO.procuraPorId(items.getIdProduto()).getNome());
+            }
+            produtoDAO.close();
 
 
         }

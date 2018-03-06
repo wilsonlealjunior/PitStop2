@@ -1,4 +1,4 @@
-package pitstop.com.br.pitstop.activity;
+package pitstop.com.br.pitstop.activity.relatorio;
 
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
@@ -36,6 +36,7 @@ import java.util.List;
 
 import okhttp3.ResponseBody;
 import pitstop.com.br.pitstop.R;
+import pitstop.com.br.pitstop.activity.DataHoraView;
 import pitstop.com.br.pitstop.dao.LojaDAO;
 import pitstop.com.br.pitstop.model.Loja;
 import pitstop.com.br.pitstop.model.Usuario;
@@ -84,6 +85,7 @@ public class RelatorioGeralActivity extends AppCompatActivity {
         dataHoraView = new DataHoraView(viewRoot, this);
 
         lojas = lojaDAO.listarLojas();
+        lojaDAO.close();
         if (lojas.size() == 0) {
             Toast.makeText(RelatorioGeralActivity.this, "Não existe usuarios cadastradas", Toast.LENGTH_SHORT).show();
             finish();
@@ -171,9 +173,9 @@ public class RelatorioGeralActivity extends AppCompatActivity {
                 if (usuarioPreferencia.temUsuario()) {
                     Usuario u = usuarioPreferencia.getUsuario();
                     if (usuarioPreferencia.getUsuario().getRole().equals("Funcionario")) {
-                        call = new RetrofitInializador().getRelatorioService().relatorioGeralFuncionario(usuarioPreferencia.getLoja().getId(), usuarioPreferencia.getUsuario().getNome(), dataHoraView.getTextViewDataInicio().getText().toString(), dataHoraView.getTextViewDataFim().getText().toString());
+                        call = new RetrofitInializador().getRelatorioService().relatorioGeralFuncionario(usuarioPreferencia.getLoja().getId(), usuarioPreferencia.getUsuario().getNome(), dataHoraView.getEditTextDataInicio().getText().toString(), dataHoraView.getEditTextDataFim().getText().toString());
                     } else {
-                        call = new RetrofitInializador().getRelatorioService().relatorioGeral(lojaId, dataHoraView.getTextViewDataInicio().getText().toString(), dataHoraView.getTextViewDataFim().getText().toString());
+                        call = new RetrofitInializador().getRelatorioService().relatorioGeral(lojaId, dataHoraView.getEditTextDataInicio().getText().toString(), dataHoraView.getEditTextDataFim().getText().toString());
 
                     }
                 }
@@ -223,17 +225,17 @@ public class RelatorioGeralActivity extends AppCompatActivity {
     }
 
     public boolean isValid() {
-        if (dataHoraView.getTextViewDataInicio().getText().toString().equals("")) {
-            dataHoraView.getTextViewDataInicio().setError("Escolha uma data");
-            dataHoraView.getTextViewDataInicio().requestFocus();
+        if (dataHoraView.getEditTextDataInicio().getText().toString().equals("")) {
+            dataHoraView.getEditTextDataInicio().setError("Escolha uma data");
+            dataHoraView.getEditTextDataInicio().requestFocus();
             snackbar.setText("escolha uma data de inicio");
             snackbar.show();
 //            Toast.makeText(RelatorioGeralActivity.this, "escolha uma data de inicio", Toast.LENGTH_SHORT).show();
             return false;
         }
-        if (dataHoraView.getTextViewDataFim().getText().toString().equals("")) {
-            dataHoraView.getTextViewDataFim().setError("Escolha uma data");
-            dataHoraView.getTextViewDataFim().requestFocus();
+        if (dataHoraView.getEditTextDataFim().getText().toString().equals("")) {
+            dataHoraView.getEditTextDataFim().setError("Escolha uma data");
+            dataHoraView.getEditTextDataFim().requestFocus();
             snackbar.setText("escolha uma data de termino");
             snackbar.show();
 //            Toast.makeText(RelatorioGeralActivity.this, "escolha uma data de termino", Toast.LENGTH_SHORT).show();
@@ -241,8 +243,8 @@ public class RelatorioGeralActivity extends AppCompatActivity {
         }
 
         try {
-            de = formatter.parse(dataHoraView.getTextViewDataInicio().getText().toString());
-            ate = formatter.parse(dataHoraView.getTextViewDataFim().getText().toString());
+            de = formatter.parse(dataHoraView.getEditTextDataInicio().getText().toString());
+            ate = formatter.parse(dataHoraView.getEditTextDataFim().getText().toString());
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -334,15 +336,15 @@ public class RelatorioGeralActivity extends AppCompatActivity {
                 finish();
                 break;
             case R.id.filtro:
-                if (dataHoraView.getTextViewDataInicio().getVisibility() == View.GONE) {
-                    dataHoraView.getTextViewDataInicio().setVisibility(View.VISIBLE);
+                if (dataHoraView.getEditTextDataInicio().getVisibility() == View.GONE) {
+                    dataHoraView.getEditTextDataInicio().setVisibility(View.VISIBLE);
                 } else {
-                    dataHoraView.getTextViewDataInicio().setVisibility(View.GONE);
+                    dataHoraView.getEditTextDataInicio().setVisibility(View.GONE);
                 }
-                if (dataHoraView.getTextViewDataFim().getVisibility() == View.GONE) {
-                    dataHoraView.getTextViewDataFim().setVisibility(View.VISIBLE);
+                if (dataHoraView.getEditTextDataFim().getVisibility() == View.GONE) {
+                    dataHoraView.getEditTextDataFim().setVisibility(View.VISIBLE);
                 } else {
-                    dataHoraView.getTextViewDataFim().setVisibility(View.GONE);
+                    dataHoraView.getEditTextDataFim().setVisibility(View.GONE);
                 }
                 if (btnGerarRelatorio.getVisibility() == View.GONE) {
                     btnGerarRelatorio.setVisibility(View.VISIBLE);

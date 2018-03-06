@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import pitstop.com.br.pitstop.R;
+import pitstop.com.br.pitstop.Util;
 import pitstop.com.br.pitstop.dao.LojaDAO;
 import pitstop.com.br.pitstop.dao.ProdutoDAO;
 import pitstop.com.br.pitstop.model.MovimentacaoProduto;
@@ -74,7 +75,9 @@ public class LstViewTabelaMovimentacaoAdapter extends ArrayAdapter<MovimentacaoP
             lojaDAO.close();
             holder.quantidade.setText(String.valueOf(items.getQuantidade()));
             holder.nome.setText(String.valueOf(produtoDAO.procuraPorId(items.getIdProduto()).getNome()));
-            holder.data.setText(String.valueOf(items.getData()));
+            produtoDAO.close();
+            String data = Util.dataNoformatoBrasileiro(Util.converteDoFormatoSQLParaDate(items.getData()));
+            holder.data.setText(String.valueOf(data));
 
         }
         return rowView;

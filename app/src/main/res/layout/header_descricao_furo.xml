@@ -8,7 +8,7 @@
     <TableRow
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-
+        android:background="#c0c0c0"
         >
         <TextView
             android:layout_column="0"
@@ -16,6 +16,7 @@
             android:gravity="left"
             android:layout_span="2"
             android:text="Produto"
+            android:textSize="12sp"
             android:textStyle="bold"
             android:background="#c0c0c0"
             >
@@ -24,7 +25,19 @@
             android:layout_column="1"
             android:padding="10sp"
             android:gravity="left"
-            android:text="Qtd"
+            android:textSize="12sp"
+            android:text="Quantidade"
+            android:textStyle="bold"
+            android:layout_span="2"
+            android:background="#c0c0c0"
+            >
+        </TextView>
+        <TextView
+            android:layout_column="1"
+            android:padding="10sp"
+            android:textSize="12sp"
+            android:gravity="left"
+            android:text="Unidade (R$)"
             android:textStyle="bold"
             android:layout_span="2"
             android:background="#c0c0c0"
@@ -34,7 +47,8 @@
             android:layout_column="2"
             android:padding="10sp"
             android:gravity="left"
-            android:text="Valor"
+            android:text="Total"
+            android:textSize="12sp"
             android:textStyle="bold"
             android:background="#c0c0c0"
             android:layout_span="2"

@@ -1,4 +1,4 @@
-package pitstop.com.br.pitstop.activity;
+package pitstop.com.br.pitstop.activity.relatorio;
 
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
@@ -49,6 +49,8 @@ import java.util.Locale;
 import de.greenrobot.event.EventBus;
 import okhttp3.ResponseBody;
 import pitstop.com.br.pitstop.R;
+import pitstop.com.br.pitstop.Util;
+import pitstop.com.br.pitstop.activity.DataHoraView;
 import pitstop.com.br.pitstop.adapter.LstViewTabelaDescricaoFuroAdapter;
 import pitstop.com.br.pitstop.adapter.LstViewTabelaRelatorioFuro;
 import pitstop.com.br.pitstop.dao.EntradaProdutoDAO;
@@ -59,7 +61,7 @@ import pitstop.com.br.pitstop.dao.UsuarioDAO;
 import pitstop.com.br.pitstop.event.AtualizaListaProdutoEvent;
 import pitstop.com.br.pitstop.model.EntradaProduto;
 import pitstop.com.br.pitstop.model.Furo;
-import pitstop.com.br.pitstop.model.FuroEntradaProduto;
+import pitstop.com.br.pitstop.model.ItemFuro;
 import pitstop.com.br.pitstop.model.Loja;
 import pitstop.com.br.pitstop.model.Produto;
 import pitstop.com.br.pitstop.model.Usuario;
@@ -120,6 +122,7 @@ public class RelatorioFuroActivity extends AppCompatActivity {
         dataHoraView = new DataHoraView(viewRoot, this);
 
         lojas = lojaDAO.listarLojas();
+        lojaDAO.close();
         if (lojas.size() == 0) {
             Toast.makeText(RelatorioFuroActivity.this, "Não existe usuarios cadastradas", Toast.LENGTH_SHORT).show();
             finish();
@@ -131,6 +134,7 @@ public class RelatorioFuroActivity extends AppCompatActivity {
             labelsLojas.add(l.getNome());
         }
         usuarios = usuarioDAO.listarUsuarios();
+        usuarioDAO.close();
         labelsUsuarios.add("Todos");
         for (Usuario u : usuarios) {
             labelsUsuarios.add(u.getNome());
@@ -264,7 +268,7 @@ public class RelatorioFuroActivity extends AppCompatActivity {
                 }
                 progressDialog.setMessage("Gerando PDF");
                 progressDialog.show();
-                Call<ResponseBody> call = new RetrofitInializador().getRelatorioService().relatorioFuro(lojaId, funcionarioId, dataHoraView.getTextViewDataInicio().getText().toString(), dataHoraView.getTextViewDataFim().getText().toString());
+                Call<ResponseBody> call = new RetrofitInializador().getRelatorioService().relatorioFuro(lojaId, funcionarioId, dataHoraView.getEditTextDataInicio().getText().toString(), dataHoraView.getEditTextDataFim().getText().toString());
                 call.enqueue(new Callback<ResponseBody>() {
                     @Override
                     public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -309,17 +313,17 @@ public class RelatorioFuroActivity extends AppCompatActivity {
     }
 
     public boolean isValid() {
-        if (dataHoraView.getTextViewDataInicio().getText().toString().equals("")) {
-            dataHoraView.getTextViewDataInicio().setError("Escolha uma data");
-            dataHoraView.getTextViewDataInicio().requestFocus();
+        if (dataHoraView.getEditTextDataInicio().getText().toString().equals("")) {
+            dataHoraView.getEditTextDataInicio().setError("Escolha uma data");
+            dataHoraView.getEditTextDataInicio().requestFocus();
             snackbar.setText("escolha uma data de inicio");
             snackbar.show();
 //            Toast.makeText(RelatorioFuroActivity.this, "escolha uma data de inicio", Toast.LENGTH_SHORT).show();
             return false;
         }
-        if (dataHoraView.getTextViewDataFim().getText().toString().equals("")) {
-            dataHoraView.getTextViewDataFim().setError("Escolha uma data");
-            dataHoraView.getTextViewDataFim().requestFocus();
+        if (dataHoraView.getEditTextDataFim().getText().toString().equals("")) {
+            dataHoraView.getEditTextDataFim().setError("Escolha uma data");
+            dataHoraView.getEditTextDataFim().requestFocus();
             snackbar.setText("escolha uma data de termino");
             snackbar.show();
 //            Toast.makeText(RelatorioFuroActivity.this, "escolha uma data de termino", Toast.LENGTH_SHORT).show();
@@ -327,8 +331,8 @@ public class RelatorioFuroActivity extends AppCompatActivity {
         }
 
         try {
-            de = formatter.parse(dataHoraView.getTextViewDataInicio().getText().toString());
-            ate = formatter.parse(dataHoraView.getTextViewDataFim().getText().toString());
+            de = formatter.parse(dataHoraView.getEditTextDataInicio().getText().toString());
+            ate = formatter.parse(dataHoraView.getEditTextDataFim().getText().toString());
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -465,6 +469,7 @@ public class RelatorioFuroActivity extends AppCompatActivity {
         if (!isValid()) {
             return;
         }
+        cardViewResumo.setVisibility(View.VISIBLE);
         String lojaId;
         String funcionarioId;
         if (lojaEscolhida == null) {
@@ -482,8 +487,8 @@ public class RelatorioFuroActivity extends AppCompatActivity {
         relatorioFuros.clear();
 
         try {
-            de = formatter.parse(dataHoraView.getTextViewDataInicio().getText().toString());
-            ate = formatter.parse(dataHoraView.getTextViewDataFim().getText().toString());
+            de = formatter.parse(dataHoraView.getEditTextDataInicio().getText().toString());
+            ate = formatter.parse(dataHoraView.getEditTextDataFim().getText().toString());
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -491,6 +496,7 @@ public class RelatorioFuroActivity extends AppCompatActivity {
         String stringDe = formatter1.format(de);
         String stringAte = formatter1.format(ate);
         furos = furoDAO.relatorio(stringDe, stringAte, lojaId, funcionarioId);
+        furoDAO.close();
         double auxFuro = 0.0;
         for (Furo furo : furos) {
             auxFuro += furo.getValor();
@@ -528,9 +534,11 @@ public class RelatorioFuroActivity extends AppCompatActivity {
                 break;
             case R.id.filtro:
                 if (cardViewFiltros.getVisibility() == View.GONE) {
-                    cardViewFiltros.setVisibility(View.VISIBLE);
+                    Util.expand(cardViewFiltros, null);
+//                    cardViewFiltros.setVisibility(View.VISIBLE);
                 } else {
-                    cardViewFiltros.setVisibility(View.GONE);
+                    Util.collapse(cardViewFiltros, null);
+//                    cardViewFiltros.setVisibility(View.GONE);
                 }
                 break;
 
@@ -556,9 +564,9 @@ public class RelatorioFuroActivity extends AppCompatActivity {
                             EntradaProdutoDAO entradaProdutoDAO = new EntradaProdutoDAO(getApplicationContext());
                             ProdutoDAO produtoDAO = new ProdutoDAO(getApplicationContext());
                             if ((f.getFuroEntradeProdutos() != null) && (!f.getFuroEntradeProdutos().isEmpty())) {
-                                for (FuroEntradaProduto furoEntradaProduto : f.getFuroEntradeProdutos()) {
-                                    int quantidade = furoEntradaProduto.getQuantidade();
-                                    EntradaProduto entradaProduto = entradaProdutoDAO.procuraPorId(furoEntradaProduto.getIdEntradaProduto());
+                                for (ItemFuro itemFuro : f.getFuroEntradeProdutos()) {
+                                    int quantidade = itemFuro.getQuantidade();
+                                    EntradaProduto entradaProduto = entradaProdutoDAO.procuraPorId(itemFuro.getIdEntradaProduto());
                                     entradaProdutoDAO.close();
                                     entradaProduto.setQuantidadeVendidaMovimentada(entradaProduto.getQuantidadeVendidaMovimentada() - quantidade);
                                     Produto produto = entradaProduto.getProduto();

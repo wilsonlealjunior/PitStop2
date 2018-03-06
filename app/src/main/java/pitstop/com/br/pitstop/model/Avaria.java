@@ -9,13 +9,31 @@ import java.util.List;
 
 public class Avaria {
     String id;
-    List<AvariaEntradaProduto> avariaEntradeProdutos;
+    List<ItemAvaria> avariaEntradeProdutos;
     String idLoja;
+    String idProduto;
+    int quantidade;
     int sincronizado;
     String data;
     String momentoDaUltimaAtualizacao;
     double prejuizo;
     private int desativado=0;
+
+    public String getIdProduto() {
+        return idProduto;
+    }
+
+    public void setIdProduto(String idProduto) {
+        this.idProduto = idProduto;
+    }
+
+    public int getQuantidade() {
+        return quantidade;
+    }
+
+    public void setQuantidade(int quantidade) {
+        this.quantidade = quantidade;
+    }
 
     public void desativar(){
         desativado=1;
@@ -79,11 +97,11 @@ public class Avaria {
         this.id = id;
     }
 
-    public List<AvariaEntradaProduto>  getAvariaEntradeProdutos() {
+    public List<ItemAvaria>  getAvariaEntradeProdutos() {
         return avariaEntradeProdutos;
     }
 
-    public void setAvariaEntradeProdutos(List<AvariaEntradaProduto>  avariaEntradeProdutos) {
+    public void setAvariaEntradeProdutos(List<ItemAvaria>  avariaEntradeProdutos) {
         this.avariaEntradeProdutos = avariaEntradeProdutos;
     }
 

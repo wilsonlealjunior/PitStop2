@@ -12,8 +12,6 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -26,12 +24,11 @@ import de.greenrobot.event.Subscribe;
 import de.greenrobot.event.ThreadMode;
 import dmax.dialog.SpotsDialog;
 import pitstop.com.br.pitstop.R;
+import pitstop.com.br.pitstop.activity.cadastro.CadastroLojaActivity;
 import pitstop.com.br.pitstop.adapter.LojaRecicleViewAdpater;
 import pitstop.com.br.pitstop.dao.LojaDAO;
 import pitstop.com.br.pitstop.event.AtualizaListaLojasEvent;
-import pitstop.com.br.pitstop.event.AtualizaListaProdutoEvent;
 import pitstop.com.br.pitstop.model.Loja;
-import pitstop.com.br.pitstop.model.Usuario;
 import pitstop.com.br.pitstop.sic.ObjetosSinkSincronizador;
 
 
@@ -40,7 +37,6 @@ import android.app.Activity;
 import android.widget.Button;
 
 import android.support.v7.widget.SearchView;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 

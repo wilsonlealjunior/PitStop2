@@ -1,4 +1,4 @@
-package pitstop.com.br.pitstop.activity;
+package pitstop.com.br.pitstop.activity.cadastro;
 
 import android.content.Intent;
 import android.graphics.Color;
@@ -81,6 +81,7 @@ public class CadastroProdutoActivity extends AppCompatActivity {
 
         //validando os requisitos para a funcionalidade da pagina
         lojas = lojaDAO.listarLojas();
+        lojaDAO.close();
         if (lojas.size() == 0) {
             Toast.makeText(CadastroProdutoActivity.this, "não existe lojas cadastradas", Toast.LENGTH_SHORT).show();
             finish();
@@ -262,6 +263,7 @@ public class CadastroProdutoActivity extends AppCompatActivity {
                             produto.setLoja(loja);
                             if (rgVinculacao.getCheckedRadioButtonId() == (R.id.rb_vinculado)) {
                                 Produto produtoaux = produtoDAO.procuraPorNomeELoja(produtoPrincipal.getNome(), loja);
+                                produtoDAO.close();
                                 if (produtoaux == null) {
                                     continue;
                                 } else {

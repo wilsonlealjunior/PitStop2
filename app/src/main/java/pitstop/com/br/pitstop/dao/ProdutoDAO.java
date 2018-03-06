@@ -162,9 +162,12 @@ public class ProdutoDAO {
             produto.sincroniza();
 
             if (existe(produto)) {
+                close();
                 altera(produto);
+                close();
             } else {
                 insere(produto);
+                close();
             }
 
         }

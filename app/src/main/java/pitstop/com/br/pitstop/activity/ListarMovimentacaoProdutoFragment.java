@@ -22,6 +22,7 @@ import de.greenrobot.event.EventBus;
 import de.greenrobot.event.Subscribe;
 import de.greenrobot.event.ThreadMode;
 import pitstop.com.br.pitstop.R;
+import pitstop.com.br.pitstop.activity.cadastro.CadastroMovimentacaoProdutoActivity;
 import pitstop.com.br.pitstop.adapter.LstViewTabelaMovimentacaoAdapter;
 import pitstop.com.br.pitstop.dao.MovimentacaoProdutoDAO;
 import pitstop.com.br.pitstop.dao.ProdutoDAO;
@@ -171,6 +172,7 @@ public class ListarMovimentacaoProdutoFragment extends Fragment {
         for (int i = 0; i < movimentacaoProdutos.size(); i++) {
             ProdutoDAO produtoDAO = new ProdutoDAO(context);
             Produto p = produtoDAO.procuraPorId(movimentacaoProdutos.get(i).getIdProduto());
+            produtoDAO.close();
 //            if (textlength <= p.getNome().length()) {
 //                if (txtPesquisa.equalsIgnoreCase((String) p.getNome().subSequence(0, textlength))) {
 //                    pesquisa.add(movimentacaoProdutos.get(i));

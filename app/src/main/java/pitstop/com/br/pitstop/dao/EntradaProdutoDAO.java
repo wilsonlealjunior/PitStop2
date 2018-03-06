@@ -43,13 +43,17 @@ public class EntradaProdutoDAO {
 //            Log.e("EntradaProduto-1", entradaProduto.getId());
             //Log.e("EntradaProduto-1 - sinc", String.valueOf(entradaProduto.getSincronizado()));
             if (existe(entradaProduto)) {
+                close();
                 if(entradaProduto.estaDesativado()){
                     deleta(entradaProduto);
+                    close();
                 } else {
                     altera(entradaProduto);
+                    close();
                 }
             } else if (!entradaProduto.estaDesativado()){
                 insere(entradaProduto);
+                close();
             }
 
         }
@@ -135,9 +139,9 @@ public class EntradaProdutoDAO {
             entradaProduto.setQuantidadeVendidaMovimentada(Integer.parseInt(c.getString(c.getColumnIndex("quantidadeVendidaMovimentada"))));
             ProdutoDAO produtoDAO = new ProdutoDAO(context);
             entradaProduto.setProduto(produtoDAO.procuraPorId(c.getString(c.getColumnIndex("produto_id"))));
-
-            entradaProduto.setSincronizado(Integer.parseInt(c.getString(c.getColumnIndex("sincronizado"))));
             produtoDAO.close();
+            entradaProduto.setSincronizado(Integer.parseInt(c.getString(c.getColumnIndex("sincronizado"))));
+
             entradaProdutos.add(entradaProduto);
 
         }

@@ -4,14 +4,9 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import pitstop.com.br.pitstop.model.AvariaEntradaProduto;
-import pitstop.com.br.pitstop.model.Furo;
-import pitstop.com.br.pitstop.model.Produto;
 
 /**
  * Created by wilso on 30/12/2017.
@@ -68,8 +63,10 @@ public class ProdutoVinculoDAO {
 //            produto.sincroniza();
 
             if (existe(id)) {
+                close();
             } else {
                 insere(id_produto, id);
+                close();
             }
 
         }

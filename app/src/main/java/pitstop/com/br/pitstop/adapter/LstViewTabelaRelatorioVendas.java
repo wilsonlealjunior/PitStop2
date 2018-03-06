@@ -15,10 +15,8 @@ import java.util.Date;
 import java.util.List;
 
 import pitstop.com.br.pitstop.R;
-import pitstop.com.br.pitstop.dao.EntradaProdutoDAO;
-import pitstop.com.br.pitstop.model.EntradaProduto;
+import pitstop.com.br.pitstop.Util;
 import pitstop.com.br.pitstop.model.Venda;
-import pitstop.com.br.pitstop.model.VendaEntradaProduto;
 import pitstop.com.br.pitstop.preferences.UsuarioPreferences;
 
 /**
@@ -41,7 +39,7 @@ public class LstViewTabelaRelatorioVendas extends ArrayAdapter<Venda> {
 
     static class ViewHolder {
         public TextView data;
-        public TextView total;
+        public TextView totalDinheiro;
         public TextView totalCartao;
         public TextView lucro;
 
@@ -56,7 +54,7 @@ public class LstViewTabelaRelatorioVendas extends ArrayAdapter<Venda> {
             rowView = inflater.inflate(groupid, parent, false);
             LstViewTabelaRelatorioVendas.ViewHolder viewHolder = new LstViewTabelaRelatorioVendas.ViewHolder();
             viewHolder.data = (TextView) rowView.findViewById(R.id.data);
-            viewHolder.total = (TextView) rowView.findViewById(R.id.total);
+            viewHolder.totalDinheiro = (TextView) rowView.findViewById(R.id.total_dinheiro);
             viewHolder.lucro = (TextView) rowView.findViewById(R.id.lucro);
             viewHolder.totalCartao = (TextView) rowView.findViewById(R.id.total_cartao);
             rowView.setTag(viewHolder);
@@ -75,31 +73,14 @@ public class LstViewTabelaRelatorioVendas extends ArrayAdapter<Venda> {
                     holder.lucro.setVisibility(View.GONE);
                 }
             }
-            holder.lucro.setText(String.valueOf(items.getLucro()));
-            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            holder.lucro.setText((Util.moedaNoFormatoBrasileiro(items.getLucro())));
             Date d = null;
-            try {
-                d = format.parse(items.getDataDaVenda());
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
+            d = Util.converteDoFormatoSQLParaDate(items.getDataDaVenda());
+            holder.data.setText(Util.dataNoformatoBrasileiro(d));
+            holder.totalDinheiro.setText(Util.moedaNoFormatoBrasileiro(items.getTotalDinheiro()));
+            holder.totalCartao.setText(Util.moedaNoFormatoBrasileiro((items.getTotalCartao())));
 
-            holder.data.setText(String.valueOf(format.format(d)));
-            //essa é uma parte que deve ser mudada, como o sistema
-            // a estava em producao e nao tinha a forma de pagamento
-            // "dinheiro e cartao" entao a variavel total representava
-            // a venda tanto no cartao como em dinheiro, porem foi acrescentado
-            // essa nova forma de venda e por isso uma nova variavel total foi adicionada
-            // (Total Cartao) que so é usada para essa nova forma de pagamento, o total continua representando o
-            // total da venda tanto no cartao como em dinheiro mas quando a venda é em cartao em dinheiro o total
-            // representa a venda em dinheior e o total cartao representa a venda em cartao
-            if (items.getFormaDePagamento().equals("cartao")) {
-                holder.total.setText("R$ " + String.valueOf("0"));
-                holder.totalCartao.setText("R$ " + String.valueOf(items.getTotal()));
-            } else {
-                holder.total.setText("R$ " + String.valueOf(items.getTotal()));
-                holder.totalCartao.setText("R$ " + String.valueOf(items.getTotalCartao()));
-            }
+
         }
         return rowView;
     }

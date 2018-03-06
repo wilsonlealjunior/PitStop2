@@ -8,17 +8,15 @@ import java.util.List;
  */
 
 public class Venda {
-
     String id;
     String idLoja;
-    List<VendaEntradaProduto> vendaEntradaProdutos;
+    List<ItemVenda> itemVendas;
     String nomeVendedor;
-
     String dataDaVenda;
     String formaDePagamento;
     String MomentoDaUltimaAtualizacao;
     int sincronizado;
-    double total;
+    double totalDinheiro;
     double totalCartao;
     double lucro;
     private int desativado=0;
@@ -47,12 +45,12 @@ public class Venda {
         this.desativado = desativado;
     }
 
-    public double getTotal() {
-        return total;
+    public double getTotalDinheiro() {
+        return totalDinheiro;
     }
 
-    public void setTotal(double total) {
-        this.total = total;
+    public void setTotalDinheiro(double totalDinheiro) {
+        this.totalDinheiro = totalDinheiro;
     }
 
     public double getLucro() {
@@ -96,12 +94,12 @@ public class Venda {
         this.idLoja = idLoja;
     }
 
-    public List<VendaEntradaProduto> getVendaEntradaProdutos() {
-        return vendaEntradaProdutos;
+    public List<ItemVenda> getItemVendas() {
+        return itemVendas;
     }
 
-    public void setVendaEntradaProdutos(List<VendaEntradaProduto> vendaEntradaProdutos) {
-        this.vendaEntradaProdutos = vendaEntradaProdutos;
+    public void setItemVendas(List<ItemVenda> itemVendas) {
+        this.itemVendas = itemVendas;
     }
 
     public String getFormaDePagamento() {
@@ -114,7 +112,7 @@ public class Venda {
 
 
     public Venda() {
-        vendaEntradaProdutos = new ArrayList<>();
+        itemVendas = new ArrayList<>();
     }
 
 

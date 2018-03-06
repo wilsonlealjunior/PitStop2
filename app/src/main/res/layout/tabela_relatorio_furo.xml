@@ -13,12 +13,13 @@
             android:id="@+id/data"
             android:layout_column="0"
             android:padding="10sp"
+            android:textSize="12sp"
             android:gravity="left"
             android:layout_span="2"
             >
         </TextView>
         <TextView
-            android:id="@+id/loja"
+            android:id="@+id/usuario"
             android:layout_column="1"
             android:padding="10sp"
             android:gravity="left"
@@ -26,7 +27,7 @@
             >
         </TextView>
         <TextView
-            android:id="@+id/usuario"
+            android:id="@+id/produto"
             android:layout_column="3"
             android:padding="10sp"
             android:gravity="left"

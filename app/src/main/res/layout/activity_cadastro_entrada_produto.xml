@@ -6,7 +6,7 @@
 
 
     <LinearLayout
-        android:id="@+id/ll_root_cadastro_entrada_produto"
+        android:id="@+id/ll_root_cadastro"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
@@ -54,9 +54,9 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
                     android:layout_marginLeft="8dp"
                     android:layout_marginRight="8dp"
+                    android:layout_marginTop="8dp"
                     android:text="@string/loja" />
 
                 <Spinner
@@ -68,9 +68,9 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
                     android:layout_marginLeft="8dp"
                     android:layout_marginRight="8dp"
+                    android:layout_marginTop="8dp"
                     android:text="@string/produto" />
 
                 <TextView
@@ -86,7 +86,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
-                    <EditText
+                    <android.support.design.widget.TextInputEditText
                         android:id="@+id/preco_de_compra"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -100,7 +100,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
-                    <EditText
+                    <android.support.design.widget.TextInputEditText
                         android:id="@+id/quantidade"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -110,18 +110,29 @@
                         android:padding="8dp" />
                 </android.support.design.widget.TextInputLayout>
 
-                <Button
-                    android:id="@+id/adicionar"
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_margin="8dp"
                     android:background="@android:color/holo_blue_dark"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp"
-                    android:shadowColor="@android:color/holo_blue_light"
-                    android:text="@string/adicionar"
-                    android:textColor="@android:color/white" />
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:src="@drawable/ic_action_add" />
+
+                    <Button
+                        android:id="@+id/adicionar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:background="@android:color/holo_blue_dark"
+                        android:text="@string/adicionar"
+                        android:textColor="@android:color/white" />
+                </LinearLayout>
 
 
             </LinearLayout>

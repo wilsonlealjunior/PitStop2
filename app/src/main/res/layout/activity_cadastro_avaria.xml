@@ -1,156 +1,185 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/ll_root_cadastr_avaria"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <include
-        android:id="@+id/main_toolbar"
-        layout="@layout/toolbar" />
-
-    <android.support.v7.widget.CardView
+    <LinearLayout
+        android:id="@+id/ll_root_cadastro"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cardCornerRadius="8dp"
-        app:cardElevation="10dp"
-        app:cardUseCompatPadding="true">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
+        <include
+            android:id="@+id/main_toolbar"
+            layout="@layout/toolbar" />
 
-        <LinearLayout
+        <android.support.v7.widget.CardView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="10dp"
+            app:cardUseCompatPadding="true">
 
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@android:color/holo_blue_dark"
-                android:orientation="horizontal">
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
 
-                <ImageView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="8dp"
-                    android:src="@mipmap/cadastro" />
+                    android:background="@android:color/holo_blue_dark"
+                    android:orientation="horizontal">
+
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginLeft="8dp"
+                        android:src="@mipmap/cadastro" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="8dp"
+                        android:text="@string/informacoes_de_cadastro"
+                        android:textColor="@android:color/white"
+                        android:textSize="18sp" />
+                </LinearLayout>
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="8dp"
-                    android:text="@string/informacoes_de_cadastro"
-                    android:textColor="@android:color/white"
-                    android:textSize="18sp" />
-            </LinearLayout>
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginRight="8dp"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/loja" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginTop="8dp"
-                android:text="@string/loja" />
-
-            <android.support.v7.widget.AppCompatSpinner
-                android:id="@+id/spinner"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="8dp" />
+                <android.support.v7.widget.AppCompatSpinner
+                    android:id="@+id/spinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="8dp" />
 
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginTop="8dp"
-                android:text="@string/produto" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginRight="8dp"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/produto" />
 
-            <TextView
-                android:id="@+id/produto"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="8dp"
-                android:hint="@string/digite_o_nome_do_produto"
-                android:padding="8dp"
-                android:textSize="18sp" />
-
-            <android.support.design.widget.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <EditText
-                    android:id="@+id/quantidade"
+                <TextView
+                    android:id="@+id/produto"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="8dp"
-                    android:hint="@string/quantidade"
-                    android:inputType="number" />
-            </android.support.design.widget.TextInputLayout>
+                    android:hint="@string/digite_o_nome_do_produto"
+                    android:padding="8dp"
+                    android:textSize="18sp" />
+
+                <android.support.design.widget.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
 
-            <!--<Button-->
-            <!--android:id="@+id/adicionar"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_gravity="center"-->
-            <!--android:background="@android:color/holo_blue_dark"-->
-            <!--android:paddingLeft="10dp"-->
-            <!--android:paddingRight="10dp"-->
-            <!--android:shadowColor="@android:color/holo_blue_light"-->
-            <!--android:text="Adicionar"-->
-            <!--android:textColor="@android:color/white" />-->
-        </LinearLayout>
-    </android.support.v7.widget.CardView>
+                    <android.support.design.widget.TextInputEditText
+                        android:id="@+id/quantidade"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="8dp"
+                        android:hint="@string/quantidade"
+                        android:inputType="number" />
+                </android.support.design.widget.TextInputLayout>
 
-    <!--<LinearLayout-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="match_parent">-->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_margin="8dp"
+                    android:background="@android:color/holo_blue_dark"
+                    android:orientation="horizontal">
 
-    <!--<android.support.v7.widget.CardView-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--app:cardCornerRadius="8dp"-->
-    <!--app:cardElevation="10dp"-->
-    <!--app:cardUseCompatPadding="true">-->
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:src="@drawable/ic_action_add" />
 
-    <!--<LinearLayout-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="match_parent"-->
-    <!--android:orientation="vertical">-->
+                    <Button
+                        android:id="@+id/adicionar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:background="@android:color/holo_blue_dark"
+                        android:text="@string/adicionar"
+                        android:textColor="@android:color/white" />
+                </LinearLayout>
 
-    <!--<TextView-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:background="@android:color/holo_blue_dark"-->
-    <!--android:padding="5dp"-->
-    <!--android:shadowColor="@android:color/holo_blue_light"-->
-    <!--android:text="Produtos avariados"-->
-    <!--android:textColor="@android:color/white"-->
-    <!--android:textSize="20dp" />-->
 
-    <!--<ListView-->
-    <!--android:id="@+id/lista_de_produto"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="match_parent" />-->
-    <!--</LinearLayout>-->
-    <!--</android.support.v7.widget.CardView>-->
-    <!--</LinearLayout>-->
-    <!--    <Button
-            android:id="@+id/cadastrar_avaria"
-            android:layout_width="wrap_content"
+                <!--<Button-->
+                <!--android:id="@+id/adicionar"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_gravity="center"-->
+                <!--android:background="@android:color/holo_blue_dark"-->
+                <!--android:paddingLeft="10dp"-->
+                <!--android:paddingRight="10dp"-->
+                <!--android:shadowColor="@android:color/holo_blue_light"-->
+                <!--android:text="Adicionar"-->
+                <!--android:textColor="@android:color/white" />-->
+            </LinearLayout>
+        </android.support.v7.widget.CardView>
+
+        <android.support.v7.widget.CardView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:background="@android:color/holo_blue_dark"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:shadowColor="@android:color/holo_blue_light"
-            android:text="Cadastrar!"
-            android:textColor="@android:color/white" />-->
+            app:cardCornerRadius="8dp"
+            app:cardElevation="8dp"
+            app:cardUseCompatPadding="true">
 
-</LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/holo_blue_dark"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginLeft="8dp"
+                        android:src="@mipmap/carrinho" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="8dp"
+                        android:text="@string/carrinho"
+                        android:textColor="@android:color/white"
+                        android:textSize="18sp" />
+                </LinearLayout>
+
+                <pitstop.com.br.pitstop.adapter.NonScrollListView
+                    android:id="@+id/lista_de_avaria"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+            </LinearLayout>
+
+        </android.support.v7.widget.CardView>
+
+
+    </LinearLayout>
+</ScrollView>
 
 

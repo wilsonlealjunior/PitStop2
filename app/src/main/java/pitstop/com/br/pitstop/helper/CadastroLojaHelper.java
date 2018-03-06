@@ -2,10 +2,8 @@ package pitstop.com.br.pitstop.helper;
 
 import android.widget.EditText;
 
-import java.util.UUID;
-
 import pitstop.com.br.pitstop.R;
-import pitstop.com.br.pitstop.activity.CadastroLojaActivity;
+import pitstop.com.br.pitstop.activity.cadastro.CadastroLojaActivity;
 import pitstop.com.br.pitstop.model.Loja;
 
 /**

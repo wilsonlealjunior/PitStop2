@@ -1,4 +1,4 @@
-package pitstop.com.br.pitstop.activity;
+package pitstop.com.br.pitstop.activity.relatorio;
 
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
@@ -7,29 +7,23 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.StrictMode;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.ContextMenu;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.SearchView;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -37,27 +31,22 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import de.greenrobot.event.EventBus;
 import okhttp3.ResponseBody;
 import pitstop.com.br.pitstop.R;
-import pitstop.com.br.pitstop.adapter.LstViewTabelaDescricaoAvariaAdapter;
-import pitstop.com.br.pitstop.adapter.LstViewTabelaRelatorioAvaria;
-import pitstop.com.br.pitstop.dao.AvariaDAO;
+import pitstop.com.br.pitstop.Util;
+import pitstop.com.br.pitstop.activity.DataHoraView;
+import pitstop.com.br.pitstop.adapter.LstViewTabelaRelatorioEntradaProduto;
 import pitstop.com.br.pitstop.dao.EntradaProdutoDAO;
 import pitstop.com.br.pitstop.dao.LojaDAO;
 import pitstop.com.br.pitstop.dao.ProdutoDAO;
 import pitstop.com.br.pitstop.event.AtualizaListaProdutoEvent;
-import pitstop.com.br.pitstop.model.Avaria;
-import pitstop.com.br.pitstop.model.AvariaEntradaProduto;
 import pitstop.com.br.pitstop.model.EntradaProduto;
 import pitstop.com.br.pitstop.model.Loja;
 import pitstop.com.br.pitstop.model.Produto;
@@ -66,11 +55,10 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class RelatorioAvariaActivity extends AppCompatActivity {
-
+public class RelatorioEntradaProdutoActivity extends AppCompatActivity {
     Date de;
     Date ate;
-    Avaria avariaClicada;
+
 
     SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 
@@ -78,47 +66,40 @@ public class RelatorioAvariaActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private Button btnGerarRelatorio;
     private Snackbar snackbar;
-    private LinearLayout linearLayoutRootRelatorioAvaria;
-    List<Avaria> relatorioAvarias = new ArrayList<>();
-    List<Avaria> avarias = new ArrayList<>();
-    DataHoraView dataHoraView;
+    private LinearLayout linearLayoutRootRelatorioEntradaProduto;
 
 
-    LstViewTabelaRelatorioAvaria adapterTable;
-    private ListView listaViewDeAvaria;
-
-
+    LstViewTabelaRelatorioEntradaProduto adapterTable;
+    private ListView listaViewDeEntradaProduto;
+    List<EntradaProduto> entradaDeProdutos;
+    ProgressDialog progressDialog;
+    Button btnGerarRelatorioPDF;
+    EntradaProdutoDAO entradaProdutoDAO = new EntradaProdutoDAO(this);
     List<String> labelsLojas = new ArrayList<>();
     List<Loja> lojas;
     Loja lojaEscolhida;
     Spinner lojaSpinner;
     LojaDAO lojaDAO = new LojaDAO(this);
-    AvariaDAO avariaDAO = new AvariaDAO(this);
-    Button btnGerarRelatorioPDF;
-    ProgressDialog progressDialog;
-    private Boolean avariaDeletada = false;
-    ViewGroup viewRoot;
+    private Boolean entradaprodutoDeletada = false;
     private EventBus bus = EventBus.getDefault();
-    TextView tvResumeCardLucro;
-    TextView tvResumeCardTotal;
-    TextView tvLucro;
-    CardView cardViewResumo;
+    ViewGroup viewRoot;
+    DataHoraView dataHoraView;
     CardView cardViewFiltros;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_relatorio_avaria);
+        setContentView(R.layout.activity_relatorio_entrada_produto);
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
         StrictMode.setVmPolicy(builder.build());
         viewRoot = (ViewGroup) findViewById(android.R.id.content);
         dataHoraView = new DataHoraView(viewRoot, this);
 
         lojas = lojaDAO.listarLojas();
+        lojaDAO.close();
         if (lojas.size() == 0) {
-            Toast.makeText(RelatorioAvariaActivity.this, "Não existe usuarios cadastradas", Toast.LENGTH_SHORT).show();
-            finish();
+            Toast.makeText(RelatorioEntradaProdutoActivity.this, "Não existe usuarios cadastradas", Toast.LENGTH_SHORT).show();
             return;
 
         }
@@ -136,29 +117,22 @@ public class RelatorioAvariaActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true); //Mostrar o botão
         getSupportActionBar().setHomeButtonEnabled(true);      //Ativar o botão
-        getSupportActionBar().setTitle("Relatorio de Avarias");
+        getSupportActionBar().setTitle("Relatorio de Entrada");
 
-
-        linearLayoutRootRelatorioAvaria = (LinearLayout) findViewById(R.id.ll_root_relatorio_avaria);
-        snackbar = Snackbar.make(linearLayoutRootRelatorioAvaria, "", Snackbar.LENGTH_LONG);
-        btnGerarRelatorio = (Button) findViewById(R.id.gerar_relatorio);
-        btnGerarRelatorioPDF = (Button) findViewById(R.id.gerar_relatorio_pdf);
+        linearLayoutRootRelatorioEntradaProduto = (LinearLayout) findViewById(R.id.ll_root_relatorio_entrada);
+        snackbar = Snackbar.make(linearLayoutRootRelatorioEntradaProduto, "", Snackbar.LENGTH_LONG);
         progressDialog = new ProgressDialog(this);
         progressDialog.setCancelable(false);
-        cardViewResumo = (CardView) findViewById(R.id.lista_transacoes_resumo);
-        tvResumeCardTotal = (TextView) findViewById(R.id.resumo_card_total);
-        tvResumeCardLucro = (TextView) findViewById(R.id.resumo_card_lucro);
-        cardViewFiltros = (CardView) findViewById(R.id.card_view_filtros);
-        tvLucro = (TextView) findViewById(R.id.tv_lucro);
-        cardViewResumo.setVisibility(View.GONE);
-        tvResumeCardLucro.setVisibility(View.GONE);
-        tvLucro.setVisibility(View.GONE);
-        listaViewDeAvaria = (ListView) findViewById(R.id.lista_de_avarias);
-        ViewGroup headerView = (ViewGroup) getLayoutInflater().inflate(R.layout.header_relatorio_avaria, listaViewDeAvaria, false);
-        listaViewDeAvaria.addHeaderView(headerView);
-        registerForContextMenu(listaViewDeAvaria);
 
-        adapterTable = new LstViewTabelaRelatorioAvaria(this, R.layout.tabela_relatorio_avaria, R.id.quantidade, relatorioAvarias);
+        btnGerarRelatorio = (Button) findViewById(R.id.gerar_relatorio);
+        btnGerarRelatorioPDF = (Button) findViewById(R.id.gerar_relatorio_pdf);
+        cardViewFiltros = (CardView) findViewById(R.id.card_view_filtros);
+
+
+        listaViewDeEntradaProduto = (ListView) findViewById(R.id.lista_de_entradaProduto);
+        ViewGroup headerView = (ViewGroup) getLayoutInflater().inflate(R.layout.header_relatorio_entrada_produto, listaViewDeEntradaProduto, false);
+        listaViewDeEntradaProduto.addHeaderView(headerView);
+        registerForContextMenu(listaViewDeEntradaProduto);
 
 
         lojaSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -172,7 +146,6 @@ public class RelatorioAvariaActivity extends AppCompatActivity {
                 }
 
             }
-
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
@@ -196,18 +169,6 @@ public class RelatorioAvariaActivity extends AppCompatActivity {
             }
         });
 
-        listaViewDeAvaria.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            //
-            @Override
-            public void onItemClick(AdapterView<?> lista, View item, int position, long id) {
-                Log.e("posicao", String.valueOf(position));
-                avariaClicada = (Avaria) listaViewDeAvaria.getItemAtPosition(position);
-                if (position != 0) {
-                    ShowCustomDialogwithList();
-                }
-
-            }
-        });
 
         btnGerarRelatorioPDF.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -216,17 +177,16 @@ public class RelatorioAvariaActivity extends AppCompatActivity {
                 if (!isValid()) {
                     return;
                 }
-
                 String lojaId;
-
+                String lojaEscolhidaId = null;
                 if (lojaEscolhida == null) {
-                    lojaId = "%";
+                    lojaEscolhidaId = "%";
                 } else {
-                    lojaId = lojaEscolhida.getId();
+                    lojaEscolhidaId = lojaEscolhida.getId();
                 }
                 progressDialog.setMessage("Gerando PDF");
                 progressDialog.show();
-                Call<ResponseBody> call = new RetrofitInializador().getRelatorioService().relatorioAvarias(lojaId, dataHoraView.getTextViewDataInicio().getText().toString(), dataHoraView.getTextViewDataFim().getText().toString().toString());
+                Call<ResponseBody> call = new RetrofitInializador().getRelatorioService().relatorioEntradaProdutos(dataHoraView.getEditTextDataInicio().getText().toString(), dataHoraView.getEditTextDataFim().getText().toString(), lojaEscolhidaId);
                 call.enqueue(new Callback<ResponseBody>() {
                     @Override
                     public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -234,7 +194,7 @@ public class RelatorioAvariaActivity extends AppCompatActivity {
                             Log.d("TAG", "server contacted and has file");
 
                             boolean writtenToDisk = writeResponseBodyToDisk(response.body());
-//                            snackbar.setText("PDF gerado com sucesso");
+//                            snackbar.setText( "PDF gerado com sucesso");
 //                            snackbar.show();
                             Toast.makeText(getApplicationContext(), "PDF gerado com sucesso", Toast.LENGTH_SHORT).show();
                             progressDialog.dismiss();
@@ -244,7 +204,7 @@ public class RelatorioAvariaActivity extends AppCompatActivity {
                         } else {
                             Log.d("TAG", "server contact failed");
                             progressDialog.dismiss();
-//                            snackbar.setText("Erro ao gerar o pdf");
+//                            snackbar.setText( "Erro ao gerar o pdf");
 //                            snackbar.show();
                             Toast.makeText(getApplicationContext(), "Erro ao gerar o pdf", Toast.LENGTH_SHORT).show();
 
@@ -268,30 +228,29 @@ public class RelatorioAvariaActivity extends AppCompatActivity {
             }
         });
 
-
     }
 
     public boolean isValid() {
-        if (dataHoraView.getTextViewDataInicio().getText().toString().equals("")) {
-            dataHoraView.getTextViewDataInicio().setError("Escolha uma data");
-            dataHoraView.getTextViewDataInicio().requestFocus();
+        if (dataHoraView.getEditTextDataInicio().getText().toString().equals("")) {
+            dataHoraView.getEditTextDataInicio().setError("Escolha uma data");
+            dataHoraView.getEditTextDataInicio().requestFocus();
             snackbar.setText("escolha uma data de inicio");
             snackbar.show();
-//            Toast.makeText(RelatorioAvariaActivity.this, "escolha uma data de inicio", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(RelatorioEntradaProdutoActivity.this, "escolha uma data de inicio", Toast.LENGTH_SHORT).show();
             return false;
         }
-        if (dataHoraView.getTextViewDataFim().getText().toString().equals("")) {
-            dataHoraView.getTextViewDataFim().setError("Escolha uma data");
-            dataHoraView.getTextViewDataFim().requestFocus();
+        if (dataHoraView.getEditTextDataFim().getText().toString().equals("")) {
+            dataHoraView.getEditTextDataFim().setError("Escolha uma data");
+            dataHoraView.getEditTextDataFim().requestFocus();
             snackbar.setText("escolha uma data de termino");
             snackbar.show();
-//            Toast.makeText(RelatorioAvariaActivity.this, "escolha uma data de termino", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(RelatorioEntradaProdutoActivity.this, "escolha uma data de termino", Toast.LENGTH_SHORT).show();
             return false;
         }
 
         try {
-            de = formatter.parse(dataHoraView.getTextViewDataInicio().getText().toString());
-            ate = formatter.parse(dataHoraView.getTextViewDataFim().getText().toString());
+            de = formatter.parse(dataHoraView.getEditTextDataInicio().getText().toString());
+            ate = formatter.parse(dataHoraView.getEditTextDataFim().getText().toString());
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -304,10 +263,70 @@ public class RelatorioAvariaActivity extends AppCompatActivity {
         return true;
     }
 
+    private void gerarRelatorio() {
+
+        if (!isValid()) {
+            return;
+        }
+        String lojaEscolhidaId = null;
+        if (lojaEscolhida == null) {
+            lojaEscolhidaId = "%";
+        } else {
+            lojaEscolhidaId = lojaEscolhida.getId();
+        }
+
+
+        try {
+            de = formatter.parse(dataHoraView.getEditTextDataInicio().getText().toString());
+            ate = formatter.parse(dataHoraView.getEditTextDataFim().getText().toString());
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String deString = format1.format(de);
+        String ateString = format1.format(ate);
+
+
+//        entradaDeProdutos.clear();
+        entradaDeProdutos = entradaProdutoDAO.relatorio(lojaEscolhidaId, deString, ateString);
+        entradaProdutoDAO.close();
+//
+//        for (EntradaProduto entradaProduto : entradaProdutoDAO.relatorio(lojaEscolhidaId, deString, ateString)) {
+//            Date d = null;
+//            try {
+//                d = formatter.parse(entradaProduto.getData());
+//            } catch (ParseException e) {
+//                e.printStackTrace();
+//            }
+//            if (d.after(de) && d.before(ate)) {
+//                //  TODO: 12/12/2017 verificar como otimizar essa parte do codigo, não dá para ficar trazendo todos os registros
+//                if (!lojaEscolhidaId.equals("%")) {
+//                    if (entradaProduto.getProduto().getLoja().getId().equals(lojaEscolhidaId))
+//                        entradaDeProdutos.add(entradaProduto);
+//                }else{
+//                    entradaDeProdutos.add(entradaProduto);
+//                }
+//            }
+//
+//
+//        }
+
+        adapterTable = new LstViewTabelaRelatorioEntradaProduto(this, R.layout.tabela_relatorio_entrada_produto, R.id.quantidade, entradaDeProdutos);
+
+
+        listaViewDeEntradaProduto.setAdapter(adapterTable);
+        adapterTable.notifyDataSetChanged();
+
+
+    }
+
+
     private boolean writeResponseBodyToDisk(ResponseBody body) {
         try {
 
-            File futureStudioIconFile = new File(getExternalFilesDir(null) + File.separator + "relatorioAvaria.pdf");
+
+            File futureStudioIconFile = new File(getExternalFilesDir(null) + File.separator + "relatorioEntradaProduto.pdf");
             //File futureStudioIconFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),"relatorio.pdf");
 
             InputStream inputStream = null;
@@ -358,7 +377,7 @@ public class RelatorioAvariaActivity extends AppCompatActivity {
     public void views() {
         progressDialog.setMessage("Preparando para exibir PDF");
         progressDialog.show();
-        File pdfFile = new File(getExternalFilesDir(null) + File.separator + "relatorioAvaria.pdf");  // -> filename = maven.pdf
+        File pdfFile = new File(getExternalFilesDir(null) + File.separator + "relatorioEntradaProduto.pdf");  // -> filename = maven.pdf
         Uri path = Uri.fromFile(pdfFile);
         Intent pdfIntent = new Intent(Intent.ACTION_VIEW);
         pdfIntent.setDataAndType(path, "application/pdf");
@@ -370,99 +389,9 @@ public class RelatorioAvariaActivity extends AppCompatActivity {
         } catch (ActivityNotFoundException e) {
 //            snackbar.setText("Não existe aplicativo para visualizar o PDF");
 //            snackbar.show();
-            Toast.makeText(RelatorioAvariaActivity.this, "Não existe aplicativo para visualizar o PDF", Toast.LENGTH_SHORT).show();
+            Toast.makeText(RelatorioEntradaProdutoActivity.this, "Não existe aplicativo para visualizar o PDF", Toast.LENGTH_SHORT).show();
             progressDialog.dismiss();
         }
-    }
-
-
-    // Custom Dialog with List
-    private void ShowCustomDialogwithList() {
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(RelatorioAvariaActivity.this, R.style.DialogTheme);
-        LayoutInflater inflater = RelatorioAvariaActivity.this.getLayoutInflater();
-
-        View dialogView = inflater.inflate(R.layout.alert_dialog_personalizado_lstview, null);
-        dialogBuilder.setView(dialogView);
-
-        final ListView listView = (ListView) dialogView.findViewById(R.id.listview);
-        SearchView pesquisaDialog = (SearchView) dialogView.findViewById(R.id.pesquisa);
-        pesquisaDialog.setVisibility(View.INVISIBLE);
-        TextView title = (TextView) dialogView.findViewById(R.id.title);
-        title.setVisibility(View.VISIBLE);
-        title.setText("Descrição da Avaria");
-        ViewGroup headerView = (ViewGroup) getLayoutInflater().inflate(R.layout.header_descricao_avaria, listView, false);
-        listView.addHeaderView(headerView);
-
-        // Defined Array values to show in ListView
-
-        LstViewTabelaDescricaoAvariaAdapter adapterp = new LstViewTabelaDescricaoAvariaAdapter(this, R.layout.tabela_descricao_avaria, R.id.quantidade, avariaClicada.getAvariaEntradeProdutos());
-        listView.setAdapter(adapterp);
-
-
-        final AlertDialog alertDialog = dialogBuilder.create();
-        Window window = alertDialog.getWindow();
-        window.setLayout(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        window.setGravity(Gravity.CENTER); // set alert dialog in center
-        // window.setGravity(Gravity.BOTTOM|Gravity.CENTER_HORIZONTAL); // set alert dialog in Bottom
-
-
-        // Cancel Button
-        Button cancel_btn = (Button) dialogView.findViewById(R.id.buttoncancellist);
-
-        cancel_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                alertDialog.hide();
-                alertDialog.dismiss();
-            }
-        });
-
-
-        alertDialog.show();
-
-    }
-
-    private void gerarRelatorio() {
-
-        if (!isValid()) {
-            return;
-        }
-        cardViewResumo.setVisibility(View.VISIBLE);
-        relatorioAvarias.clear();
-        String lojaId;
-        if (lojaEscolhida == null) {
-            lojaId = "%";
-        } else {
-            lojaId = lojaEscolhida.getId();
-        }
-        try {
-            de = formatter.parse(dataHoraView.getTextViewDataInicio().getText().toString());
-            ate = formatter.parse(dataHoraView.getTextViewDataFim().getText().toString());
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String deString = format1.format(de);
-        String ateString = format1.format(ate);
-        avarias = avariaDAO.relatorio(lojaId, deString, ateString);
-        avariaDAO.close();
-
-        double auxTotal = 0.0;
-        for (Avaria avaria : avarias) {
-            auxTotal += avaria.getPrejuizo();
-            relatorioAvarias.add(avaria);
-
-
-        }
-        final NumberFormat formatoBrasileiro = DecimalFormat.getCurrencyInstance(new Locale("pt", "br"));
-        tvResumeCardTotal.setText(formatoBrasileiro.format(auxTotal).
-                replace("R$", "R$ ").
-                replace("-R$", "R$ -"));
-//        total.setText("O total das avarias é R$ " + auxTotal + " reais");
-
-
-        listaViewDeAvaria.setAdapter(adapterTable);
-        adapterTable.notifyDataSetChanged();
     }
 
 
@@ -479,19 +408,20 @@ public class RelatorioAvariaActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                if (avariaDeletada) {
+                if (entradaprodutoDeletada) {
                     bus.post(new AtualizaListaProdutoEvent());
                 }
                 finish();
                 break;
             case R.id.filtro:
                 if (cardViewFiltros.getVisibility() == View.GONE) {
-                    cardViewFiltros.setVisibility(View.VISIBLE);
+                    Util.expand(cardViewFiltros,null);
+//                    cardViewFiltros.setVisibility(View.VISIBLE);
                 } else {
-                    cardViewFiltros.setVisibility(View.GONE);
+                    Util.collapse(cardViewFiltros,null);
+//                    cardViewFiltros.setVisibility(View.GONE);
                 }
                 break;
-
 
         }
         return super.onOptionsItemSelected(item);
@@ -505,44 +435,43 @@ public class RelatorioAvariaActivity extends AppCompatActivity {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
-                Avaria avaria = (Avaria) listaViewDeAvaria.getItemAtPosition(info.position);
+                EntradaProduto entradaProduto = (EntradaProduto) listaViewDeEntradaProduto.getItemAtPosition(info.position);
                 if (info.position != 0) {
-                    for (Avaria a : relatorioAvarias) {
-                        if (a.getId().equals(avaria.getId())) {
-                            a.desativar();
-                            a.desincroniza();
-                            EntradaProdutoDAO entradaProdutoDAO = new EntradaProdutoDAO(getApplicationContext());
+                    for (EntradaProduto ep : entradaDeProdutos) {
+                        if (ep.getId().equals(entradaProduto.getId())) {
+                            ep.desativar();
+                            ep.desincroniza();
                             ProdutoDAO produtoDAO = new ProdutoDAO(getApplicationContext());
-                            if ((a.getAvariaEntradeProdutos() != null) && (!a.getAvariaEntradeProdutos().isEmpty())) {
-                                for (AvariaEntradaProduto avariaEntradaProduto : a.getAvariaEntradeProdutos()) {
-                                    int quantidade = avariaEntradaProduto.getQuantidade();
-                                    EntradaProduto entradaProduto = entradaProdutoDAO.procuraPorId(avariaEntradaProduto.getIdEntradaProduto());
-                                    entradaProdutoDAO.close();
-                                    entradaProduto.setQuantidadeVendidaMovimentada(entradaProduto.getQuantidadeVendidaMovimentada() - quantidade);
-                                    Produto produto = entradaProduto.getProduto();
-                                    for (String produtoVinculoId : produto.getIdProdutoVinculado()) {
-                                        Produto p = produtoDAO.procuraPorId(produtoVinculoId);
-                                        produtoDAO.close();
-                                        p.setQuantidade(p.getQuantidade() + quantidade);
-                                        p.desincroniza();
-                                        produtoDAO.altera(p);
-                                        produtoDAO.close();
-                                    }
-                                    produto.setQuantidade(produto.getQuantidade() + quantidade);
-                                    entradaProduto.desincroniza();
-                                    produto.desincroniza();
-                                    entradaProdutoDAO.altera(entradaProduto);
-                                    entradaProdutoDAO.close();
-                                    produtoDAO.altera(produto);
+
+                            if (ep.getQuantidadeVendidaMovimentada() == 0) {
+
+                                int quantidade = ep.getQuantidade();
+                                Produto produto = ep.getProduto();
+                                for (String produtoVinculoId : produto.getIdProdutoVinculado()) {
+                                    Produto p = produtoDAO.procuraPorId(produtoVinculoId);
                                     produtoDAO.close();
-
-
+                                    p.setQuantidade(p.getQuantidade() - quantidade);
+                                    p.desincroniza();
+                                    produtoDAO.altera(p);
+                                    produtoDAO.close();
                                 }
+
+                                produto.setQuantidade(produto.getQuantidade() - quantidade);
+
+                                produto.desincroniza();
+
+                                produtoDAO.altera(produto);
+                                produtoDAO.close();
+                            } else {
+                                snackbar.setText("Já foi realizado alguma operação com esses produtos");
+                                snackbar.show();
+//                                Toast.makeText(RelatorioEntradaProdutoActivity.this, "Já foi realizado alguma operação com esses produtos", Toast.LENGTH_SHORT).show();
+
                             }
 
 
-                            avariaDAO.altera(a);
-                            avariaDAO.close();
+                            entradaProdutoDAO.altera(ep);
+                            entradaProdutoDAO.close();
                             adapterTable.notifyDataSetChanged();
                             break;
 
@@ -550,12 +479,12 @@ public class RelatorioAvariaActivity extends AppCompatActivity {
 
 
                     }
-                    if (relatorioAvarias.remove(avaria)) {
-                        snackbar.setText("Avaria deletada");
-                        avariaDeletada = true;
+                    if (entradaDeProdutos.remove(entradaProduto)) {
+                        snackbar.setText("Entrada de Produto deletada");
+                        entradaprodutoDeletada = true;
                         snackbar.show();
-//                        Toast.makeText(RelatorioAvariaActivity.this, "Avaria deletada", Toast.LENGTH_SHORT).show();
-                        listaViewDeAvaria.setAdapter(adapterTable);
+//                        Toast.makeText(RelatorioEntradaProdutoActivity.this, "Entrada de Produto deletada", Toast.LENGTH_SHORT).show();
+                        listaViewDeEntradaProduto.setAdapter(adapterTable);
                         adapterTable.notifyDataSetChanged();
                     }
                 }
@@ -568,10 +497,9 @@ public class RelatorioAvariaActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (avariaDeletada) {
+        if (entradaprodutoDeletada) {
             bus.post(new AtualizaListaProdutoEvent());
         }
         super.onBackPressed();
     }
-
 }

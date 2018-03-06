@@ -36,9 +36,12 @@ public class LojaDAO {
             Log.e("loja-1", loja.getNome());
 
             if (existe(loja)) {
+                close();
                 altera(loja);
+                close();
             } else {
                 insere(loja);
+                close();
             }
 
         }

@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import pitstop.com.br.pitstop.R;
+import pitstop.com.br.pitstop.Util;
 import pitstop.com.br.pitstop.model.EntradaProduto;
 
 /**
@@ -62,7 +63,7 @@ public class LstViewTabelaRelatorioEntradaProduto extends ArrayAdapter<EntradaPr
         if(items!=null) {
             LstViewTabelaRelatorioEntradaProduto.ViewHolder holder = (LstViewTabelaRelatorioEntradaProduto.ViewHolder) rowView.getTag();
             holder.produto.setText(items.getProduto().getNome());
-            holder.precoDeCompra.setText(String.valueOf(items.getPrecoDeCompra()));
+            holder.precoDeCompra.setText(Util.moedaNoFormatoBrasileiro(items.getPrecoDeCompra()));
             holder.quantidade.setText(String.valueOf(items.getQuantidade()));
             holder.loja.setText(String.valueOf(items.getProduto().getLoja().getNome()));
 

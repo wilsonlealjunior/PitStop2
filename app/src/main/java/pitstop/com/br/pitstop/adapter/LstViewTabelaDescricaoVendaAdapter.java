@@ -12,24 +12,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 import pitstop.com.br.pitstop.R;
+import pitstop.com.br.pitstop.Util;
 import pitstop.com.br.pitstop.dao.EntradaProdutoDAO;
 import pitstop.com.br.pitstop.dao.ProdutoDAO;
 import pitstop.com.br.pitstop.model.EntradaProduto;
+import pitstop.com.br.pitstop.model.ItemVenda;
 import pitstop.com.br.pitstop.model.Produto;
-import pitstop.com.br.pitstop.model.Venda;
-import pitstop.com.br.pitstop.model.VendaEntradaProduto;
 import pitstop.com.br.pitstop.preferences.UsuarioPreferences;
 
 /**
  * Created by wilso on 29/11/2017.
  */
 
-public class LstViewTabelaDescricaoVendaAdapter extends ArrayAdapter<VendaEntradaProduto> {
+public class LstViewTabelaDescricaoVendaAdapter extends ArrayAdapter<ItemVenda> {
     int groupid;
-    List<VendaEntradaProduto> item_list;
+    List<ItemVenda> item_list;
     ArrayList<String> desc;
     Context context;
-    public LstViewTabelaDescricaoVendaAdapter(Context context, int vg, int id, List<VendaEntradaProduto> item_list){
+    public LstViewTabelaDescricaoVendaAdapter(Context context, int vg, int id, List<ItemVenda> item_list){
         super(context,vg, id, item_list);
         this.context=context;
         groupid=vg;
@@ -61,7 +61,7 @@ public class LstViewTabelaDescricaoVendaAdapter extends ArrayAdapter<VendaEntrad
         // Set text to each TextView of ListView item
         Log.i("count", String.valueOf(item_list.size()));
 
-        VendaEntradaProduto items=item_list.get(position);
+        ItemVenda items=item_list.get(position);
         if(items!=null) {
 
             LstViewTabelaDescricaoVendaAdapter.ViewHolder holder = (LstViewTabelaDescricaoVendaAdapter.ViewHolder) rowView.getTag();
@@ -69,16 +69,18 @@ public class LstViewTabelaDescricaoVendaAdapter extends ArrayAdapter<VendaEntrad
             EntradaProdutoDAO entradaProdutoDAO = new EntradaProdutoDAO(context);
             ProdutoDAO produtoDAO = new ProdutoDAO(context);
             Produto produto = produtoDAO.procuraPorId(items.getIdProduto());
+            produtoDAO.close();
             EntradaProduto ep = entradaProdutoDAO.procuraPorId(items.getIdEntradaProduto());
+            entradaProdutoDAO.close();
             holder.produto.setText(produto.getNome());
             UsuarioPreferences up = new UsuarioPreferences(context);
             if(up.temUsuario()) {
                 if (up.getUsuario().getRole().equals("Funcionario")) {
-                    holder.lucro.setText(String.valueOf((produto.getPreco())*items.getQuantidadeVendida()));
+                    holder.lucro.setText(Util.moedaNoFormatoBrasileiro((produto.getPreco())*items.getQuantidadeVendida()));
 
                 }
                 else{
-                    holder.lucro.setText(String.valueOf((produto.getPreco()-ep.getPrecoDeCompra())*items.getQuantidadeVendida()));
+                    holder.lucro.setText(Util.moedaNoFormatoBrasileiro((produto.getPreco()-ep.getPrecoDeCompra())*items.getQuantidadeVendida()));
                 }
             }
            holder.quantidade.setText(String.valueOf(items.getQuantidadeVendida()));

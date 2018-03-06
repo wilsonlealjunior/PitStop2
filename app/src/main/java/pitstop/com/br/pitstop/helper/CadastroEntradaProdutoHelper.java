@@ -4,11 +4,10 @@ import android.widget.EditText;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 import java.util.UUID;
 
 import pitstop.com.br.pitstop.R;
-import pitstop.com.br.pitstop.activity.CadastroEntradaProdutoActivity;
+import pitstop.com.br.pitstop.activity.cadastro.CadastroEntradaProdutoActivity;
 import pitstop.com.br.pitstop.model.EntradaProduto;
 
 /**

@@ -9,7 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import pitstop.com.br.pitstop.model.Avaria;
-import pitstop.com.br.pitstop.model.AvariaEntradaProduto;
+import pitstop.com.br.pitstop.model.ItemAvaria;
+import pitstop.com.br.pitstop.model.Loja;
 
 
 /**
@@ -37,11 +38,12 @@ public class AvariaDAO {
         dados.put("data", avaria.getData());
         dados.put("prejuizo", avaria.getPrejuizo());
         dados.put("desativado", avaria.getDesativado());
-
-        AvariaEntradaProdutoDAO avariaEntradaProdutoDAO = new AvariaEntradaProdutoDAO(context);
-        for (AvariaEntradaProduto avariaEntradaProduto : avaria.getAvariaEntradeProdutos()) {
-            avariaEntradaProdutoDAO.insere(avariaEntradaProduto);
-            avariaEntradaProdutoDAO.close();
+        dados.put("id_produto", avaria.getIdProduto());
+        dados.put("quantidade", avaria.getQuantidade());
+        ItemAvariaDAO itemAvariaDAO = new ItemAvariaDAO(context);
+        for (ItemAvaria itemAvaria : avaria.getAvariaEntradeProdutos()) {
+            itemAvariaDAO.insere(itemAvaria);
+            itemAvariaDAO.close();
         }
 
         db.insert("Avaria", null, dados);
@@ -58,11 +60,12 @@ public class AvariaDAO {
             dados.put("data", avaria.getData());
             dados.put("prejuizo", avaria.getPrejuizo());
             dados.put("desativado", avaria.getDesativado());
-
-            AvariaEntradaProdutoDAO avariaEntradaProdutoDAO = new AvariaEntradaProdutoDAO(context);
-            for (AvariaEntradaProduto avariaEntradaProduto : avaria.getAvariaEntradeProdutos()) {
-                avariaEntradaProdutoDAO.insere(avariaEntradaProduto);
-                avariaEntradaProdutoDAO.close();
+            dados.put("id_produto", avaria.getIdProduto());
+            dados.put("quantidade", avaria.getQuantidade());
+            ItemAvariaDAO itemAvariaDAO = new ItemAvariaDAO(context);
+            for (ItemAvaria itemAvaria : avaria.getAvariaEntradeProdutos()) {
+                itemAvariaDAO.insere(itemAvaria);
+                itemAvariaDAO.close();
             }
 
             db.insert("Avaria", null, dados);
@@ -73,10 +76,10 @@ public class AvariaDAO {
 
     public void deleta(Avaria avaria) {
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
-        AvariaEntradaProdutoDAO avariaEntradaProdutoDAO = new AvariaEntradaProdutoDAO(context);
-        for (AvariaEntradaProduto avariaEntradaProduto : avaria.getAvariaEntradeProdutos()) {
-            avariaEntradaProdutoDAO.deleta(avariaEntradaProduto);
-            avariaEntradaProdutoDAO.close();
+        ItemAvariaDAO itemAvariaDAO = new ItemAvariaDAO(context);
+        for (ItemAvaria itemAvaria : avaria.getAvariaEntradeProdutos()) {
+            itemAvariaDAO.deleta(itemAvaria);
+            itemAvariaDAO.close();
         }
 
         String[] params = {avaria.getId().toString()};
@@ -98,10 +101,12 @@ public class AvariaDAO {
             avaria.setSincronizado(Integer.parseInt(c.getString(c.getColumnIndex("sincronizado"))));
             avaria.setData(c.getString(c.getColumnIndex("data")));
             avaria.setPrejuizo(Double.valueOf(c.getString(c.getColumnIndex("prejuizo"))));
+            avaria.setIdProduto(c.getString(c.getColumnIndex("id_produto")));
+            avaria.setQuantidade(Integer.parseInt(c.getString(c.getColumnIndex("quantidade"))));
 
-            AvariaEntradaProdutoDAO avariaEntradaProdutoDAO = new AvariaEntradaProdutoDAO(context);
-            avaria.setAvariaEntradeProdutos(avariaEntradaProdutoDAO.procuraPorAvaria(avaria.getId()));
-            avariaEntradaProdutoDAO.close();
+            ItemAvariaDAO itemAvariaDAO = new ItemAvariaDAO(context);
+            avaria.setAvariaEntradeProdutos(itemAvariaDAO.procuraPorAvaria(avaria.getId()));
+            itemAvariaDAO.close();
 
 
             avarias.add(avaria);
@@ -109,6 +114,24 @@ public class AvariaDAO {
         }
         c.close();
         return avarias;
+    }
+
+    public double relatorioResumo(Loja lojaEscolhida, String de, String ate) {
+        String lojaEscolhidaId ="%";
+        if(lojaEscolhida!=null){
+            lojaEscolhidaId = lojaEscolhida.getId();
+        }
+        String sql = "SELECT ifnull(sum(prejuizo),0) as prejuizo FROM Avaria where desativado=0 and id_loja like '" + lojaEscolhidaId + "' and data between '" + de + "' and '" + ate + "';";
+        SQLiteDatabase db = databaseHelper.getReadableDatabase();
+        Cursor c = db.rawQuery(sql, null);
+
+        double prejuizo=0;
+        while (c.moveToNext()) {
+            prejuizo = Double.valueOf((c.getString(c.getColumnIndex("prejuizo"))));
+
+        }
+        c.close();
+        return prejuizo;
     }
 
     public List<Avaria> relatorio(String lojaEscolhidaId, String de, String ate) {
@@ -126,10 +149,11 @@ public class AvariaDAO {
             avaria.setSincronizado(Integer.parseInt(c.getString(c.getColumnIndex("sincronizado"))));
             avaria.setData(c.getString(c.getColumnIndex("data")));
             avaria.setPrejuizo(Double.valueOf(c.getString(c.getColumnIndex("prejuizo"))));
-
-            AvariaEntradaProdutoDAO avariaEntradaProdutoDAO = new AvariaEntradaProdutoDAO(context);
-            avaria.setAvariaEntradeProdutos(avariaEntradaProdutoDAO.procuraPorAvaria(avaria.getId()));
-            avariaEntradaProdutoDAO.close();
+            avaria.setIdProduto(c.getString(c.getColumnIndex("id_produto")));
+            avaria.setQuantidade(Integer.parseInt(c.getString(c.getColumnIndex("quantidade"))));
+            ItemAvariaDAO itemAvariaDAO = new ItemAvariaDAO(context);
+            avaria.setAvariaEntradeProdutos(itemAvariaDAO.procuraPorAvaria(avaria.getId()));
+            itemAvariaDAO.close();
 
 
             avarias.add(avaria);
@@ -154,10 +178,11 @@ public class AvariaDAO {
             avaria.setSincronizado(Integer.parseInt(c.getString(c.getColumnIndex("sincronizado"))));
             avaria.setData(c.getString(c.getColumnIndex("data")));
             avaria.setPrejuizo(Double.valueOf(c.getString(c.getColumnIndex("prejuizo"))));
-
-            AvariaEntradaProdutoDAO avariaEntradaProdutoDAO = new AvariaEntradaProdutoDAO(context);
-            avaria.setAvariaEntradeProdutos(avariaEntradaProdutoDAO.procuraPorAvaria(avaria.getId()));
-            avariaEntradaProdutoDAO.close();
+            avaria.setIdProduto(c.getString(c.getColumnIndex("id_produto")));
+            avaria.setQuantidade(Integer.parseInt(c.getString(c.getColumnIndex("quantidade"))));
+            ItemAvariaDAO itemAvariaDAO = new ItemAvariaDAO(context);
+            avaria.setAvariaEntradeProdutos(itemAvariaDAO.procuraPorAvaria(avaria.getId()));
+            itemAvariaDAO.close();
 
 
             avarias.add(avaria);
@@ -175,13 +200,17 @@ public class AvariaDAO {
             avaria.sincroniza();
 
             if (existe(avaria)) {
+                close();
                 if (avaria.estaDesativado()) {
                     deleta(avaria);
+                    close();
                 } else {
                     altera(avaria);
+                    close();
                 }
             } else if (!avaria.estaDesativado()) {
                 insere(avaria);
+                close();
             }
 
         }
@@ -216,10 +245,11 @@ public class AvariaDAO {
             avaria.setSincronizado(Integer.parseInt(c.getString(c.getColumnIndex("sincronizado"))));
             avaria.setData(c.getString(c.getColumnIndex("data")));
             avaria.setPrejuizo(Double.valueOf(c.getString(c.getColumnIndex("prejuizo"))));
-
-            AvariaEntradaProdutoDAO avariaEntradaProdutoDAO = new AvariaEntradaProdutoDAO(context);
-            avaria.setAvariaEntradeProdutos(avariaEntradaProdutoDAO.procuraPorAvaria(avaria.getId()));
-            avariaEntradaProdutoDAO.close();
+            avaria.setIdProduto(c.getString(c.getColumnIndex("id_produto")));
+            avaria.setQuantidade(Integer.parseInt(c.getString(c.getColumnIndex("quantidade"))));
+            ItemAvariaDAO itemAvariaDAO = new ItemAvariaDAO(context);
+            avaria.setAvariaEntradeProdutos(itemAvariaDAO.procuraPorAvaria(avaria.getId()));
+            itemAvariaDAO.close();
 
 
             avarias.add(avaria);
@@ -241,6 +271,8 @@ public class AvariaDAO {
         dados.put("sincronizado", avaria.getSincronizado());
         dados.put("data", avaria.getData());
         dados.put("prejuizo", avaria.getPrejuizo());
+        dados.put("id_produto", avaria.getIdProduto());
+        dados.put("quantidade", avaria.getQuantidade());
 
 
         String[] params = {avaria.getId().toString()};
@@ -262,10 +294,11 @@ public class AvariaDAO {
             avaria.setSincronizado(Integer.parseInt(c.getString(c.getColumnIndex("sincronizado"))));
             avaria.setData(c.getString(c.getColumnIndex("data")));
             avaria.setPrejuizo(Double.valueOf(c.getString(c.getColumnIndex("prejuizo"))));
-
-            AvariaEntradaProdutoDAO avariaEntradaProdutoDAO = new AvariaEntradaProdutoDAO(context);
-            avaria.setAvariaEntradeProdutos(avariaEntradaProdutoDAO.procuraPorAvaria(avaria.getId()));
-            avariaEntradaProdutoDAO.close();
+            avaria.setIdProduto(c.getString(c.getColumnIndex("id_produto")));
+            avaria.setQuantidade(Integer.parseInt(c.getString(c.getColumnIndex("quantidade"))));
+            ItemAvariaDAO itemAvariaDAO = new ItemAvariaDAO(context);
+            avaria.setAvariaEntradeProdutos(itemAvariaDAO.procuraPorAvaria(avaria.getId()));
+            itemAvariaDAO.close();
 
 
         }

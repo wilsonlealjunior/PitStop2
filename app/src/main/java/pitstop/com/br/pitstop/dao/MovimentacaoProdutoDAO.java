@@ -122,13 +122,17 @@ public class MovimentacaoProdutoDAO {
             movimentacaoProduto.sincroniza();
 
             if (existe(movimentacaoProduto)) {
+                close();
                 if(movimentacaoProduto.estaDesativado()){
                     deleta(movimentacaoProduto);
+                    close();
                 } else {
                     altera(movimentacaoProduto);
+                    close();
                 }
             } else if (!movimentacaoProduto.estaDesativado()){
                 insere(movimentacaoProduto);
+                close();
             }
 
         }

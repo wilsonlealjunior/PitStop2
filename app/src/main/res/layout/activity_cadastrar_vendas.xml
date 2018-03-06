@@ -5,7 +5,7 @@
     android:orientation="vertical">
 
     <LinearLayout
-        android:id="@+id/ll_root_cadastro_vendas"
+        android:id="@+id/ll_root_cadastro"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
@@ -52,13 +52,13 @@
 
 
                 <TextView
-                    android:id="@+id/nome"
+                    android:id="@+id/produto"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="8dp"
-                    android:padding="8dp"
                     android:focusable="false"
                     android:hint="@string/digite_o_nome_do_produto"
+                    android:padding="8dp"
                     android:textSize="18sp" />
 
                 <LinearLayout
@@ -86,7 +86,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
-                    <EditText
+                    <android.support.design.widget.TextInputEditText
                         android:id="@+id/quantidade"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -112,7 +112,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="0dp"
                             android:layout_weight="0.5"
-                            android:hint="@string/total"
+                            android:hint="@string/totalDinheiro"
                             android:textSize="18sp"
                             android:textStyle="bold" />
 
@@ -134,21 +134,33 @@
                         android:orientation="vertical">
 
                         <TextView
-                            android:id="@+id/total"
+                            android:id="@+id/totalDinheiro"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="end"
-                            android:hint="@string/total"
+                            android:hint="@string/totalDinheiro"
                             android:textSize="18sp"
                             android:textStyle="bold" />
 
-                        <EditText
-                            android:id="@+id/total_cartao"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="end"
-                            android:hint="@string/total_no_cartao"
-                            android:inputType="numberDecimal" />
+                        <android.support.design.widget.TextInputLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                            <android.support.design.widget.TextInputEditText
+                                android:id="@+id/total_cartao"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="end"
+                                android:inputType="numberDecimal" />
+                            <!--
+                                                    <EditText
+                                                        android:id="@+id/total_cartao"
+                                                        android:layout_width="wrap_content"
+                                                        android:layout_height="wrap_content"
+                                                        android:layout_gravity="end"
+                                                        android:hint="@string/total_no_cartao"
+                                                        android:inputType="numberDecimal" />-->
+                        </android.support.design.widget.TextInputLayout>
 
 
                     </LinearLayout>
@@ -165,24 +177,34 @@
 
                 <android.support.v7.widget.AppCompatSpinner
                     android:id="@+id/spinner"
-                    android:layout_margin="8dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    />
+                    android:layout_margin="8dp" />
 
 
-                <Button
-                    android:layout_margin="8dp"
-                    android:id="@+id/adcionar"
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
+                    android:layout_margin="8dp"
                     android:background="@android:color/holo_blue_dark"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp"
-                    android:shadowColor="@android:color/holo_blue_light"
-                    android:text="@string/adicionar"
-                    android:textColor="@android:color/white" />
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:src="@drawable/ic_action_add" />
+
+                    <Button
+                        android:id="@+id/adicionar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:background="@android:color/holo_blue_dark"
+                        android:text="@string/adicionar"
+                        android:textColor="@android:color/white" />
+                </LinearLayout>
             </LinearLayout>
         </android.support.v7.widget.CardView>
 

@@ -8,8 +8,6 @@ import android.database.sqlite.SQLiteDatabase;
 import java.util.ArrayList;
 import java.util.List;
 
-import pitstop.com.br.pitstop.model.Avaria;
-import pitstop.com.br.pitstop.model.AvariaEntradaProduto;
 import pitstop.com.br.pitstop.model.Usuario;
 
 /**
@@ -98,13 +96,17 @@ public class UsuarioDAO {
             usuario.sincroniza();
 
             if (existe(usuario)) {
+                close();
                 if(usuario.estaDesativado()){
                     deleta(usuario);
+                    close();
                 } else {
                     altera(usuario);
+                    close();
                 }
             } else if (!usuario.estaDesativado()){
                 insere(usuario);
+                close();
             }
 
         }

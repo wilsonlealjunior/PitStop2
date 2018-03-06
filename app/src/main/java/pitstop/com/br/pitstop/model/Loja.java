@@ -25,6 +25,7 @@ public class Loja implements Serializable {
     public void sincroniza() {
         this.sincronizado = 1;
     }
+
     public void desincroniza() {
         this.sincronizado = 0;
     }
@@ -76,7 +77,6 @@ public class Loja implements Serializable {
 
     @Override
     public String toString() {
-        return nome + "\nEndereco: " +
-                endereco;
+        return nome;
     }
 }

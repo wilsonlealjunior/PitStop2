@@ -14,6 +14,7 @@ import android.widget.ListView;
 import java.util.ArrayList;
 
 import pitstop.com.br.pitstop.R;
+import pitstop.com.br.pitstop.activity.cadastro.CadastrarVendasActivity;
 import pitstop.com.br.pitstop.model.Produto;
 import pitstop.com.br.pitstop.adapter.LstViewTabelaEstoqueAdpter;
 

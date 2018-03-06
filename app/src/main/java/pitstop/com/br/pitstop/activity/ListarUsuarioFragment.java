@@ -57,7 +57,7 @@ public class ListarUsuarioFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_listar_usuario, container, false);
         recyclerView = (RecyclerView) rootView.findViewById(R.id.card_recycler_usuario_view);
         recyclerView.setHasFixedSize(true);
-        usuarioRecicleViewAdapter = new UsuarioRecicleViewAdapter(getLayoutInflater(savedInstanceState),usuarios, context);
+        usuarioRecicleViewAdapter = new UsuarioRecicleViewAdapter(usuarios, context);
         recyclerView.setAdapter(usuarioRecicleViewAdapter);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(layoutManager);

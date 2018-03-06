@@ -8,7 +8,6 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -20,10 +19,7 @@ import java.util.List;
 import de.greenrobot.event.EventBus;
 import pitstop.com.br.pitstop.R;
 import pitstop.com.br.pitstop.SignupActivity;
-import pitstop.com.br.pitstop.activity.CadastroEntradaProdutoActivity;
-import pitstop.com.br.pitstop.activity.CadastroMovimentacaoProdutoActivity;
 import pitstop.com.br.pitstop.dao.UsuarioDAO;
-import pitstop.com.br.pitstop.event.AtualizaListaProdutoEvent;
 import pitstop.com.br.pitstop.event.AtualizarListaUsuarioEvent;
 import pitstop.com.br.pitstop.model.Usuario;
 
@@ -36,17 +32,15 @@ public class UsuarioRecicleViewAdapter extends RecyclerView.Adapter<UsuarioRecic
     private static UsuarioRecicleViewAdapter.ItemClickListener itemClickListener;
     Context contexto;
     EventBus bus = EventBus.getDefault();
-    LayoutInflater li;
 
     public void setOnItemClickListener(UsuarioRecicleViewAdapter.ItemClickListener itemClickListener) {
         this.itemClickListener = itemClickListener;
         this.contexto = contexto;
     }
 
-    public UsuarioRecicleViewAdapter(LayoutInflater li, List<Usuario> usuarios, Context context) {
+    public UsuarioRecicleViewAdapter( List<Usuario> usuarios, Context context) {
         this.usuarios = usuarios;
         this.contexto = context;
-        this.li = li;
     }
 
     @Override

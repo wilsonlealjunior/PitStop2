@@ -18,9 +18,8 @@
             android:name=".activity.MainActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
-            android:name=".activity.CadastroProdutoActivity"
+            android:name=".activity.cadastro.CadastroProdutoActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
-        <activity android:name=".barraInferior" />
         <activity android:name=".SignupActivity" />
         <activity
             android:name=".LoginActivity"
@@ -33,47 +32,49 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activity.CadastroLojaActivity"
+            android:name=".activity.cadastro.CadastroLojaActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
             android:name=".activity.NavigationViewActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
+        <activity android:name=".activity.cadastro.CadastroEntradaProdutoActivity" />
         <activity
-            android:name=".activity.CadastroEntradaProdutoActivity"
-            />
-        <activity
-            android:name=".activity.CadastrarVendasActivity"
+            android:name=".activity.cadastro.CadastrarVendasActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
-            android:name=".activity.CadastroMovimentacaoProdutoActivity"
+            android:name=".activity.cadastro.CadastroMovimentacaoProdutoActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
-            android:name=".activity.RelatorioVendasActivity"
+            android:name=".activity.relatorio.RelatorioVendasActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
-            android:name=".activity.RelatorioEntradaProdutoActivity"
+            android:name=".activity.relatorio.RelatorioEntradaProdutoActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
-            android:name=".activity.RelatorioMovimentacaoProdutoActivity"
+            android:name=".activity.relatorio.RelatorioMovimentacaoProdutoActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
-            android:name=".activity.CadastroAvariaActivity"
+            android:name=".activity.cadastro.CadastroAvariaActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
             android:name=".activity.NavigationViewFuncionarioActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
-            android:name=".activity.RelatorioAvariaActivity"
+            android:name=".activity.relatorio.RelatorioAvariaActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
-            android:name=".activity.CadastroFuroActivity"
+            android:name=".activity.cadastro.CadastroFuroActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
-            android:name=".activity.RelatorioFuroActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"></activity>
+            android:name=".activity.relatorio.RelatorioFuroActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
-            android:name=".activity.RelatorioGeralActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"></activity>
+            android:name=".activity.relatorio.RelatorioGeralActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
+        <activity android:name=".activity.Dashboard" />
+        <activity android:name=".activity.grafico.GraficoDeBarraTotalVendasUsuarioView" />
+        <activity android:name=".activity.grafico.GraficoDeBarraTotalVendasLojaView" />
+        <activity android:name=".activity.grafico.GraficoDeLinhaVendaPorDiaLojaView"></activity>
     </application>
 
 </manifest>

@@ -51,5 +51,9 @@ public interface RelatorioService {
     @POST("relatorioVendasFuncionario")
     Call<ResponseBody> relatorioVendasFuncionario(@Field("formaDePagamentoEscolhido") String formaDePagamentoEscolhido, @Field("lojaEscolhidaId") String lojaEscolhidaId, @Field("usuarioEscolhido") String usuarioEscolhido, @Field("de") String de, @Field("ate") String ate);
 
+    @FormUrlEncoded
+    @POST("estoqueAtual")
+    Call<ResponseBody> estoqueAtual(@Field("loja") String loja);
+
 
 }

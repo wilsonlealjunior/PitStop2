@@ -1,4 +1,4 @@
-package pitstop.com.br.pitstop.activity;
+package pitstop.com.br.pitstop.activity.cadastro;
 
 import android.content.Intent;
 import android.graphics.Color;
@@ -28,14 +28,12 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import de.greenrobot.event.EventBus;
-import pitstop.com.br.pitstop.adapter.AdpterProdutoPersonalizado;
 import pitstop.com.br.pitstop.dao.LojaDAO;
 import pitstop.com.br.pitstop.event.AtualizaListaLojasEvent;
 import pitstop.com.br.pitstop.event.AtualizaListaProdutoEvent;
@@ -47,7 +45,6 @@ import pitstop.com.br.pitstop.model.Produto;
 
 public class CadastroLojaActivity extends AppCompatActivity {
     private CadastroLojaHelper cadastroLojaHelper;
-    private AHBottomNavigation bottomNavigation;
     private List<Loja> pesquisa = new ArrayList<>();
     private List<Loja> lojas = new ArrayList<>();
     private Toolbar toolbar;
@@ -90,6 +87,7 @@ public class CadastroLojaActivity extends AppCompatActivity {
         }
 
         lojas = lojaDAO.listarLojas();
+        lojaDAO.close();
         nomeLojaCopiarProdutos = (EditText) findViewById(R.id.nome_loja_copiar_produtos);
         nomeLojaCopiarProdutos.setVisibility(View.GONE);
         nomeLojaCopiarProdutos.setFocusable(false);
@@ -202,6 +200,7 @@ public class CadastroLojaActivity extends AppCompatActivity {
 
 
                             List<Produto> produtos = produtoDAO.procuraPorLoja(lojaEscolhidaParaCopiarProdutos);
+                            produtoDAO.close();
                             for (Produto produtoPrincipal : produtos) {
                                 //o if é para saber se ele é um produtoPrincipal
                                 if (!produtoPrincipal.vinculado()) {

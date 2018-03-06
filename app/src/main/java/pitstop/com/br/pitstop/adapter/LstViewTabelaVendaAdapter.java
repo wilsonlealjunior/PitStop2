@@ -11,6 +11,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import pitstop.com.br.pitstop.Util;
 import pitstop.com.br.pitstop.model.Produto;
 import pitstop.com.br.pitstop.R;
 
@@ -62,9 +63,9 @@ public class LstViewTabelaVendaAdapter extends ArrayAdapter<Produto> {
         if(items!=null) {
             ViewHolder holder = (ViewHolder) rowView.getTag();
             holder.produto.setText(items.getNome());
-            holder.preco.setText(String.valueOf(items.getPreco()));
+            holder.preco.setText(Util.moedaNoFormatoBrasileiro(items.getPreco()));
             holder.quantidade.setText(String.valueOf(items.getQuantidade()));
-            holder.total.setText(String.valueOf(items.getQuantidade()*items.getPreco()));
+            holder.total.setText(Util.moedaNoFormatoBrasileiro(items.getQuantidade()*items.getPreco()));
 
         }
         return rowView;

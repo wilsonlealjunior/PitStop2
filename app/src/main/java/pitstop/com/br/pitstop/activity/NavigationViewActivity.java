@@ -6,9 +6,9 @@ package pitstop.com.br.pitstop.activity;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.GravityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -17,17 +17,23 @@ import android.view.View;
 import de.greenrobot.event.EventBus;
 import pitstop.com.br.pitstop.LoginActivity;
 import pitstop.com.br.pitstop.R;
-import pitstop.com.br.pitstop.SignupActivity;
+import pitstop.com.br.pitstop.activity.cadastro.CadastrarVendasActivity;
+import pitstop.com.br.pitstop.activity.cadastro.CadastroAvariaActivity;
+import pitstop.com.br.pitstop.activity.cadastro.CadastroEntradaProdutoActivity;
+import pitstop.com.br.pitstop.activity.cadastro.CadastroFuroActivity;
+import pitstop.com.br.pitstop.activity.cadastro.CadastroMovimentacaoProdutoActivity;
+import pitstop.com.br.pitstop.activity.relatorio.RelatorioAvariaActivity;
+import pitstop.com.br.pitstop.activity.relatorio.RelatorioEntradaProdutoActivity;
+import pitstop.com.br.pitstop.activity.relatorio.RelatorioFuroActivity;
+import pitstop.com.br.pitstop.activity.relatorio.RelatorioGeralActivity;
+import pitstop.com.br.pitstop.activity.relatorio.RelatorioMovimentacaoProdutoActivity;
+import pitstop.com.br.pitstop.activity.relatorio.RelatorioVendasActivity;
 import pitstop.com.br.pitstop.event.AtualizaListaLojasEvent;
 import pitstop.com.br.pitstop.event.AtualizaListaProdutoEvent;
 import pitstop.com.br.pitstop.model.Loja;
 import pitstop.com.br.pitstop.model.Usuario;
 import pitstop.com.br.pitstop.preferences.UsuarioPreferences;
-import pitstop.com.br.pitstop.retrofit.RetrofitInializador;
 import pitstop.com.br.pitstop.sic.ObjetosSinkSincronizador;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 
 import android.content.res.Configuration;
@@ -39,9 +45,10 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
 import android.view.MenuItem;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class NavigationViewActivity extends AppCompatActivity {
 
@@ -77,11 +84,20 @@ public class NavigationViewActivity extends AppCompatActivity {
         progressDialog = new ProgressDialog(this);
         progressDialog.setCancelable(false);
 
+        //Esse trecho de codigo é para colocar notificação no navigation drawer
+    /*    TextView aniversariantesAlert = new TextView(this);
+        aniversariantesAlert.setTextColor(Color.WHITE);
+        aniversariantesAlert.setGravity(Gravity.CENTER);
+        aniversariantesAlert.setBackgroundResource(R.drawable.custom_circle_orange);
+        aniversariantesAlert.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.LEFT | Gravity.CENTER_VERTICAL));
+        aniversariantesAlert.setText(String.valueOf(5));
+
+        navigationView.getMenu().findItem(R.id.dashboard).setActionView(aniversariantesAlert);*/
 
         objetosSinkSincronizador.buscaTodos();
 
         if (lojaVindaDaTelaDeListarProduto != null) {
-//            navigationView.setCheckedItem(R.id.produto);
+            navigationView.setCheckedItem(R.id.produto);
             MenuItem item = navigationView.getMenu().findItem(R.id.produto);
             Fragment fragment = new ListarProdutoFragment();
             setFragment(fragment, item);
@@ -91,9 +107,9 @@ public class NavigationViewActivity extends AppCompatActivity {
             //At start set home fragment
             if (savedInstanceState == null) {
 
-//                navigationView.setCheckedItem(R.id.loja);
-                MenuItem item = navigationView.getMenu().findItem(R.id.loja);
-                Fragment fragment = new ListarLojaFragment();
+                navigationView.setCheckedItem(R.id.dashboard);
+                MenuItem item = navigationView.getMenu().findItem(R.id.dashboard);
+                Fragment fragment = new DashboardFragment();
                 setFragment(fragment, item);
             }
         }
@@ -262,14 +278,18 @@ public class NavigationViewActivity extends AppCompatActivity {
 
                 Fragment fragment = null;
                 switch (item.getItemId()) {
+                    case R.id.dashboard:
+
+                        objetosSinkSincronizador.buscaTodos();
+                        fragment = new DashboardFragment();
+                        setFragment(fragment, item);
+                        break;
+//
                     case R.id.loja:
 
                         objetosSinkSincronizador.buscaTodos();
                         fragment = new ListarLojaFragment();
-
                         //Replace fragment
-
-
                         setFragment(fragment, item);
                         break;
 

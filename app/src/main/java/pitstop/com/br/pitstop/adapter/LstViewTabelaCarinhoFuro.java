@@ -12,10 +12,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import pitstop.com.br.pitstop.R;
+import pitstop.com.br.pitstop.Util;
 import pitstop.com.br.pitstop.dao.LojaDAO;
-import pitstop.com.br.pitstop.model.EntradaProduto;
+import pitstop.com.br.pitstop.dao.ProdutoDAO;
 import pitstop.com.br.pitstop.model.Furo;
-import pitstop.com.br.pitstop.model.FuroEntradaProduto;
+import pitstop.com.br.pitstop.model.ItemFuro;
+import pitstop.com.br.pitstop.model.Produto;
 
 /**
  * Created by wilso on 25/12/2017.
@@ -67,18 +69,16 @@ public class LstViewTabelaCarinhoFuro extends ArrayAdapter<Furo> {
         if (items != null) {
             LstViewTabelaCarinhoFuro.ViewHolder holder = (LstViewTabelaCarinhoFuro.ViewHolder) rowView.getTag();
 
-            LojaDAO lojaDAO = new LojaDAO(context);
+            ProdutoDAO produtoDAO = new ProdutoDAO(context);
+            Produto produto = produtoDAO.procuraPorId(items.getIdProduto());
+            produtoDAO.close();
+
 
 //            holder.produto.setText(items.);
             holder.usuario.setText(String.valueOf(items.getIdUsuario()));
-            holder.loja.setText(lojaDAO.procuraPorId(items.getIdLoja()).getNome());
-            lojaDAO.close();
-            int quantidade = 0;
-            for (FuroEntradaProduto furoEntradaProduto : items.getFuroEntradeProdutos()) {
-                quantidade += furoEntradaProduto.getQuantidade();
-            }
-            holder.quantidade.setText(String.valueOf(quantidade));
-
+            holder.loja.setText(produto.getLoja().getNome());
+            holder.quantidade.setText(String.valueOf(items.getQuantidade()));
+            holder.produto.setText(produto.getNome());
 
         }
         return rowView;

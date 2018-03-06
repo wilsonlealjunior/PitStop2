@@ -12,22 +12,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 import pitstop.com.br.pitstop.R;
+import pitstop.com.br.pitstop.Util;
 import pitstop.com.br.pitstop.dao.EntradaProdutoDAO;
-import pitstop.com.br.pitstop.model.AvariaEntradaProduto;
+import pitstop.com.br.pitstop.model.ItemAvaria;
 import pitstop.com.br.pitstop.model.EntradaProduto;
-import pitstop.com.br.pitstop.model.VendaEntradaProduto;
 
 /**
  * Created by wilso on 30/11/2017.
  */
 
-public class LstViewTabelaDescricaoAvariaAdapter extends ArrayAdapter<AvariaEntradaProduto> {
+public class LstViewTabelaDescricaoAvariaAdapter extends ArrayAdapter<ItemAvaria> {
 
     int groupid;
-    List<AvariaEntradaProduto> item_list;
+    List<ItemAvaria> item_list;
     ArrayList<String> desc;
     Context context;
-    public LstViewTabelaDescricaoAvariaAdapter(Context context, int vg, int id, List<AvariaEntradaProduto> item_list){
+    public LstViewTabelaDescricaoAvariaAdapter(Context context, int vg, int id, List<ItemAvaria> item_list){
         super(context,vg, id, item_list);
         this.context=context;
         groupid=vg;
@@ -59,15 +59,16 @@ public class LstViewTabelaDescricaoAvariaAdapter extends ArrayAdapter<AvariaEntr
         // Set text to each TextView of ListView item
         Log.i("count", String.valueOf(item_list.size()));
 
-        AvariaEntradaProduto items=item_list.get(position);
+        ItemAvaria items=item_list.get(position);
         if(items!=null) {
 
             LstViewTabelaDescricaoAvariaAdapter.ViewHolder holder = (LstViewTabelaDescricaoAvariaAdapter.ViewHolder) rowView.getTag();
 
             EntradaProdutoDAO entradaProdutoDAO = new EntradaProdutoDAO(context);
             EntradaProduto ep = entradaProdutoDAO.procuraPorId(items.getIdEntradaProduto());
+            entradaProdutoDAO.close();
             holder.produto.setText(String.valueOf(ep.getProduto().getNome()));
-            holder.prejuizo.setText(String.valueOf((ep.getPrecoDeCompra())*items.getQuantidade()));
+            holder.prejuizo.setText(Util.moedaNoFormatoBrasileiro((ep.getPrecoDeCompra()) * items.getQuantidade()));
             holder.quantidade.setText(String.valueOf(items.getQuantidade()));
 
         }

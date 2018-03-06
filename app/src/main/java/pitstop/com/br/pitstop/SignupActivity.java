@@ -157,10 +157,12 @@ public class SignupActivity extends AppCompatActivity {
                                 Toast.makeText(getApplicationContext(), "Usuario Cadastrado com sucesso", Toast.LENGTH_LONG).show();
                                 UsuarioDAO usuarioDAO = new UsuarioDAO(getApplicationContext());
                                 usuarioDAO.insere(usuario);
+                                usuarioDAO.close();
                             } else {
                                 Toast.makeText(getApplicationContext(), "Usuario alterado com sucesso", Toast.LENGTH_LONG).show();
                                 UsuarioDAO usuarioDAO = new UsuarioDAO(getApplicationContext());
                                 usuarioDAO.altera(usuario);
+                                usuarioDAO.close();
                             }
                             Intent intentVaiProNavigation = new Intent(getApplicationContext(), LoginActivity.class);
                             intentVaiProNavigation.putExtra("usuario", usuario);

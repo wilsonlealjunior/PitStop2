@@ -13,6 +13,7 @@
             android:id="@+id/loja"
             android:layout_column="0"
             android:padding="10sp"
+            android:textSize="12sp"
             android:gravity="left"
             android:layout_span="2"
             >
@@ -22,6 +23,7 @@
             android:layout_column="1"
             android:padding="10sp"
             android:gravity="left"
+            android:textSize="12sp"
             android:layout_span="2"
             >
         </TextView>
@@ -29,14 +31,17 @@
             android:id="@+id/quantidade"
             android:layout_column="2"
             android:padding="10sp"
+            android:textSize="12sp"
             android:gravity="left"
             android:layout_span="2"
             >
         </TextView>
+
         <TextView
             android:id="@+id/usuario"
             android:layout_column="3"
             android:padding="10sp"
+            android:textSize="12sp"
             android:gravity="left"
             android:layout_span="2"
             >

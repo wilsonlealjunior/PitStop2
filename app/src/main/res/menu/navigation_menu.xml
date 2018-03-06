@@ -2,6 +2,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Main Menus -->
     <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/dashboard"
+            android:checkable="true"
+            android:checked="false"
+            android:icon="@mipmap/ic_dashboard"
+            android:title="Dashboard" />
 
         <item android:title="Cadastros">
             <menu>

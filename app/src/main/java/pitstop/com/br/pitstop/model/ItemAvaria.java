@@ -1,15 +1,16 @@
 package pitstop.com.br.pitstop.model;
 
 /**
- * Created by wilso on 15/12/2017.
+ * Created by wilso on 27/11/2017.
  */
 
-public class FuroEntradaProduto {
+public class ItemAvaria {
     String id;
-    String idFuro;
+    String idAvaria;
     String idEntradaProduto;
     int quantidade;
     int sincronizado;
+
     public void sincroniza() {
         this.sincronizado = 1;
     }
@@ -26,12 +27,12 @@ public class FuroEntradaProduto {
         this.id = id;
     }
 
-    public String getIdFuro() {
-        return idFuro;
+    public String getIdAvaria() {
+        return idAvaria;
     }
 
-    public void setIdFuro(String idFuro) {
-        this.idFuro = idFuro;
+    public void setIdAvaria(String idAvaria) {
+        this.idAvaria = idAvaria;
     }
 
     public String getIdEntradaProduto() {

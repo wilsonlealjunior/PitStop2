@@ -9,10 +9,9 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
-import pitstop.com.br.pitstop.model.AvariaEntradaProduto;
+import pitstop.com.br.pitstop.model.ItemVenda;
 import pitstop.com.br.pitstop.model.Loja;
 import pitstop.com.br.pitstop.model.Usuario;
-import pitstop.com.br.pitstop.model.VendaEntradaProduto;
 import pitstop.com.br.pitstop.model.Venda;
 
 /**
@@ -41,13 +40,13 @@ public class VendaDAO {
         dados.put("dataDaVenda", venda.getDataDaVenda());
         dados.put("sincronizado", venda.getSincronizado());
         dados.put("id_loja", venda.getIdLoja());
-        dados.put("total", venda.getTotal());
+        dados.put("totalDinheiro", venda.getTotalDinheiro());
         dados.put("totalCartao", venda.getTotalCartao());
-        dados.put("prejuizo", venda.getLucro());
-        VendaEntradaProdutoDAO vendaEntradaProdutoDAO = new VendaEntradaProdutoDAO(context);
-        for (VendaEntradaProduto pl : venda.getVendaEntradaProdutos()) {
-            vendaEntradaProdutoDAO.insere(pl);
-            vendaEntradaProdutoDAO.close();
+        dados.put("lucro", venda.getLucro());
+        ItemVendaDAO itemVendaDAO = new ItemVendaDAO(context);
+        for (ItemVenda pl : venda.getItemVendas()) {
+            itemVendaDAO.insere(pl);
+            itemVendaDAO.close();
         }
 
         db.insert("Vendas", null, dados);
@@ -65,14 +64,14 @@ public class VendaDAO {
             dados.put("dataDaVenda", venda.getDataDaVenda());
             dados.put("sincronizado", venda.getSincronizado());
             dados.put("id_loja", venda.getIdLoja());
-            dados.put("total", venda.getTotal());
+            dados.put("totalDinheiro", venda.getTotalDinheiro());
 
             dados.put("totalCartao", venda.getTotalCartao());
-            dados.put("prejuizo", venda.getLucro());
-            VendaEntradaProdutoDAO vendaEntradaProdutoDAO = new VendaEntradaProdutoDAO(context);
-            for (VendaEntradaProduto pl : venda.getVendaEntradaProdutos()) {
-                vendaEntradaProdutoDAO.insere(pl);
-                vendaEntradaProdutoDAO.close();
+            dados.put("lucro", venda.getLucro());
+            ItemVendaDAO itemVendaDAO = new ItemVendaDAO(context);
+            for (ItemVenda pl : venda.getItemVendas()) {
+                itemVendaDAO.insere(pl);
+                itemVendaDAO.close();
             }
 
             db.insert("Vendas", null, dados);
@@ -85,10 +84,10 @@ public class VendaDAO {
     public void deleta(Venda venda) {
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
-        VendaEntradaProdutoDAO vendaEntradaProdutoDAO = new VendaEntradaProdutoDAO(context);
-        for (VendaEntradaProduto vendaEntradaProduto : venda.getVendaEntradaProdutos()) {
-            vendaEntradaProdutoDAO.deleta(vendaEntradaProduto);
-            vendaEntradaProdutoDAO.close();
+        ItemVendaDAO itemVendaDAO = new ItemVendaDAO(context);
+        for (ItemVenda itemVenda : venda.getItemVendas()) {
+            itemVendaDAO.deleta(itemVenda);
+            itemVendaDAO.close();
         }
 
         String[] params = {venda.getId().toString()};
@@ -110,12 +109,12 @@ public class VendaDAO {
             venda.setNomeVendedor((c.getString(c.getColumnIndex("nomeVendedor"))));
             venda.setSincronizado(Integer.valueOf(c.getString(c.getColumnIndex("sincronizado"))));
             venda.setIdLoja(c.getString(c.getColumnIndex("id_loja")));
-            venda.setTotal(Double.valueOf(c.getString(c.getColumnIndex("total"))));
+            venda.setTotalDinheiro(Double.valueOf(c.getString(c.getColumnIndex("totalDinheiro"))));
             venda.setTotalCartao(Double.valueOf(c.getString(c.getColumnIndex("totalCartao"))));
-            venda.setLucro(Double.valueOf(c.getString(c.getColumnIndex("prejuizo"))));
-            VendaEntradaProdutoDAO vendaEntradaProdutoDAO = new VendaEntradaProdutoDAO(context);
-            venda.setVendaEntradaProdutos(vendaEntradaProdutoDAO.procuraPorVenda(venda));
-            vendaEntradaProdutoDAO.close();
+            venda.setLucro(Double.valueOf(c.getString(c.getColumnIndex("lucro"))));
+            ItemVendaDAO itemVendaDAO = new ItemVendaDAO(context);
+            venda.setItemVendas(itemVendaDAO.procuraPorVenda(venda));
+            itemVendaDAO.close();
 
 
             vendas.add(venda);
@@ -140,12 +139,12 @@ public class VendaDAO {
             venda.setNomeVendedor((c.getString(c.getColumnIndex("nomeVendedor"))));
             venda.setSincronizado(Integer.valueOf(c.getString(c.getColumnIndex("sincronizado"))));
             venda.setIdLoja(c.getString(c.getColumnIndex("id_loja")));
-            venda.setTotal(Double.valueOf(c.getString(c.getColumnIndex("total"))));
+            venda.setTotalDinheiro(Double.valueOf(c.getString(c.getColumnIndex("totalDinheiro"))));
             venda.setTotalCartao(Double.valueOf(c.getString(c.getColumnIndex("totalCartao"))));
-            venda.setLucro(Double.valueOf(c.getString(c.getColumnIndex("prejuizo"))));
-            VendaEntradaProdutoDAO vendaEntradaProdutoDAO = new VendaEntradaProdutoDAO(context);
-            venda.setVendaEntradaProdutos(vendaEntradaProdutoDAO.procuraPorVenda(venda));
-            vendaEntradaProdutoDAO.close();
+            venda.setLucro(Double.valueOf(c.getString(c.getColumnIndex("lucro"))));
+            ItemVendaDAO itemVendaDAO = new ItemVendaDAO(context);
+            venda.setItemVendas(itemVendaDAO.procuraPorVenda(venda));
+            itemVendaDAO.close();
 
 
             vendas.add(venda);
@@ -160,9 +159,8 @@ public class VendaDAO {
         String Idloja;
         if (formaDePagamento == null) {
             formaDePagamento = "%";
-        }
-        else{
-            formaDePagamento = "%"+formaDePagamento+"%";
+        } else {
+            formaDePagamento = "%" + formaDePagamento + "%";
         }
         if (f == null) {
             funcionario = "%";
@@ -189,19 +187,52 @@ public class VendaDAO {
             venda.setNomeVendedor((c.getString(c.getColumnIndex("nomeVendedor"))));
             venda.setSincronizado(Integer.valueOf(c.getString(c.getColumnIndex("sincronizado"))));
             venda.setIdLoja(c.getString(c.getColumnIndex("id_loja")));
-            venda.setTotal(Double.valueOf(c.getString(c.getColumnIndex("total"))));
+            venda.setTotalDinheiro(Double.valueOf(c.getString(c.getColumnIndex("totalDinheiro"))));
             venda.setTotalCartao(Double.valueOf(c.getString(c.getColumnIndex("totalCartao"))));
-            venda.setLucro(Double.valueOf(c.getString(c.getColumnIndex("prejuizo"))));
-            VendaEntradaProdutoDAO vendaEntradaProdutoDAO = new VendaEntradaProdutoDAO(context);
-            venda.setVendaEntradaProdutos(vendaEntradaProdutoDAO.procuraPorVenda(venda));
-            vendaEntradaProdutoDAO.close();
-
+            venda.setLucro(Double.valueOf(c.getString(c.getColumnIndex("lucro"))));
+            ItemVendaDAO itemVendaDAO = new ItemVendaDAO(context);
+            venda.setItemVendas(itemVendaDAO.procuraPorVenda(venda));
+            itemVendaDAO.close();
 
             vendas.add(venda);
 
         }
         c.close();
         return vendas;
+    }
+
+    public List<Double> relatorioResumo(String de, String ate, String formaDePagamento, Loja L, Usuario f) {
+        String funcionario;
+        String Idloja;
+        if (formaDePagamento == null) {
+            formaDePagamento = "%";
+        } else {
+            formaDePagamento = "%" + formaDePagamento + "%";
+        }
+        if (f == null) {
+            funcionario = "%";
+        } else {
+            funcionario = f.getNome();
+        }
+        if (L == null) {
+            Idloja = "%";
+        } else {
+            Idloja = L.getId();
+        }
+        String sql = "SELECT ifnull((sum(totalDinheiro)+sum(totalCartao)),0) as total, ifnull(sum(lucro),0) as lucro  FROM Vendas WHERE desativado = 0 and dataDaVenda between '" + de + "' and '" + ate + "' and formaDePagamento like '" + formaDePagamento + "' and nomeVendedor like '" + funcionario + "' and id_loja like '" + Idloja + "' order by dataDaVenda desc";
+        Log.e("SQL", sql);
+        SQLiteDatabase db = databaseHelper.getReadableDatabase();
+        Cursor c = db.rawQuery(sql, new String[]{});
+        List<Double> totais = new ArrayList<>();
+        while (c.moveToNext()) {
+            double total = Double.valueOf((c.getString(c.getColumnIndex("total"))));
+            double lucro = Double.valueOf((c.getString(c.getColumnIndex("lucro"))));
+            totais.add(total);
+            totais.add(lucro);
+
+        }
+        c.close();
+        return totais;
     }
 
     public List<Venda> buscaPorPagamento(String formaDePagamento) {
@@ -219,13 +250,13 @@ public class VendaDAO {
             venda.setNomeVendedor((c.getString(c.getColumnIndex("nomeVendedor"))));
             venda.setSincronizado(Integer.valueOf(c.getString(c.getColumnIndex("sincronizado"))));
             venda.setIdLoja(c.getString(c.getColumnIndex("id_loja")));
-            venda.setTotal(Double.valueOf(c.getString(c.getColumnIndex("total"))));
+            venda.setTotalDinheiro(Double.valueOf(c.getString(c.getColumnIndex("totalDinheiro"))));
             venda.setTotalCartao(Double.valueOf(c.getString(c.getColumnIndex("totalCartao"))));
-            venda.setLucro(Double.valueOf(c.getString(c.getColumnIndex("prejuizo"))));
+            venda.setLucro(Double.valueOf(c.getString(c.getColumnIndex("lucro"))));
 
-            VendaEntradaProdutoDAO vendaEntradaProdutoDAO = new VendaEntradaProdutoDAO(context);
-            venda.setVendaEntradaProdutos(vendaEntradaProdutoDAO.procuraPorVenda(venda));
-            vendaEntradaProdutoDAO.close();
+            ItemVendaDAO itemVendaDAO = new ItemVendaDAO(context);
+            venda.setItemVendas(itemVendaDAO.procuraPorVenda(venda));
+            itemVendaDAO.close();
 
 
             vendas.add(venda);
@@ -250,18 +281,46 @@ public class VendaDAO {
             venda.setNomeVendedor((c.getString(c.getColumnIndex("nomeVendedor"))));
             venda.setSincronizado(Integer.valueOf(c.getString(c.getColumnIndex("sincronizado"))));
             venda.setIdLoja(c.getString(c.getColumnIndex("id_loja")));
-            venda.setTotal(Double.valueOf(c.getString(c.getColumnIndex("total"))));
+            venda.setTotalDinheiro(Double.valueOf(c.getString(c.getColumnIndex("totalDinheiro"))));
             venda.setTotalCartao(Double.valueOf(c.getString(c.getColumnIndex("totalCartao"))));
-            venda.setLucro(Double.valueOf(c.getString(c.getColumnIndex("prejuizo"))));
-            VendaEntradaProdutoDAO vendaEntradaProdutoDAO = new VendaEntradaProdutoDAO(context);
-            venda.setVendaEntradaProdutos(vendaEntradaProdutoDAO.procuraPorVenda(venda));
-            vendaEntradaProdutoDAO.close();
+            venda.setLucro(Double.valueOf(c.getString(c.getColumnIndex("lucro"))));
+            ItemVendaDAO itemVendaDAO = new ItemVendaDAO(context);
+            venda.setItemVendas(itemVendaDAO.procuraPorVenda(venda));
+            itemVendaDAO.close();
 
             vendas.add(venda);
 
         }
         c.close();
         return vendas;
+    }
+
+    public double somaDoTotalPor(Loja loja, String dataInicial, String dataFinal) {
+        String sql = "SELECT ifnull((sum(totalDinheiro)+sum(totalCartao)),0) as total FROM Vendas WHERE id_loja like '" + loja.getId() + "' and dataDaVenda between '" + dataInicial + "' and '" + dataFinal + "'";
+//        Log.e("SQL Total", sql);
+        SQLiteDatabase db = databaseHelper.getReadableDatabase();
+        Cursor c = db.rawQuery(sql, new String[]{});
+        double total = 0;
+        while (c.moveToNext()) {
+            total = Double.valueOf(c.getString(c.getColumnIndex("total")));
+        }
+
+        c.close();
+        return total;
+    }
+
+    public double somaDoTotalPor(Usuario usuario, String dataInicial, String dataFinal) {
+        String sql = "SELECT ifnull((sum(totalDinheiro)+sum(totalCartao)),0) as total FROM Vendas WHERE nomeVendedor like '" + usuario.getNome() + "' and dataDaVenda between '" + dataInicial + "' and '" + dataFinal + "'";
+//        Log.e("SQL Total", sql);
+        SQLiteDatabase db = databaseHelper.getReadableDatabase();
+        Cursor c = db.rawQuery(sql, new String[]{});
+        double total = 0;
+        while (c.moveToNext()) {
+            total = Double.valueOf(c.getString(c.getColumnIndex("total")));
+        }
+
+        c.close();
+        return total;
     }
 
 
@@ -272,13 +331,17 @@ public class VendaDAO {
             venda.sincroniza();
 
             if (existe(venda)) {
+                close();
                 if (venda.estaDesativado()) {
                     deleta(venda);
+                    close();
                 } else {
                     altera(venda);
+                    close();
                 }
             } else if (!venda.estaDesativado()) {
                 insere(venda);
+                close();
             }
 
         }
@@ -311,12 +374,12 @@ public class VendaDAO {
             venda.setNomeVendedor((c.getString(c.getColumnIndex("nomeVendedor"))));
             venda.setSincronizado(Integer.valueOf(c.getString(c.getColumnIndex("sincronizado"))));
             venda.setIdLoja(c.getString(c.getColumnIndex("id_loja")));
-            venda.setTotal(Double.valueOf(c.getString(c.getColumnIndex("total"))));
+            venda.setTotalDinheiro(Double.valueOf(c.getString(c.getColumnIndex("totalDinheiro"))));
             venda.setTotalCartao(Double.valueOf(c.getString(c.getColumnIndex("totalCartao"))));
-            venda.setLucro(Double.valueOf(c.getString(c.getColumnIndex("prejuizo"))));
-            VendaEntradaProdutoDAO vendaEntradaProdutoDAO = new VendaEntradaProdutoDAO(context);
-            venda.setVendaEntradaProdutos(vendaEntradaProdutoDAO.procuraPorVenda(venda));
-            vendaEntradaProdutoDAO.close();
+            venda.setLucro(Double.valueOf(c.getString(c.getColumnIndex("lucro"))));
+            ItemVendaDAO itemVendaDAO = new ItemVendaDAO(context);
+            venda.setItemVendas(itemVendaDAO.procuraPorVenda(venda));
+            itemVendaDAO.close();
 
 
             vendas.add(venda);
@@ -338,13 +401,15 @@ public class VendaDAO {
         dados.put("nomeVendedor", venda.getNomeVendedor());
         dados.put("sincronizado", venda.getSincronizado());
         dados.put("id_loja", venda.getIdLoja());
-        dados.put("total", venda.getTotal());
+        dados.put("totalDinheiro", venda.getTotalDinheiro());
         dados.put("totalCartao", venda.getTotalCartao());
-        dados.put("prejuizo", venda.getLucro());
+        dados.put("lucro", venda.getLucro());
 
 
         String[] params = {venda.getId().toString()};
         db.update("Vendas", dados, "id = ?", params);
+
+
     }
 
 
@@ -362,12 +427,12 @@ public class VendaDAO {
             venda.setNomeVendedor((c.getString(c.getColumnIndex("nomeVendedor"))));
             venda.setSincronizado(Integer.valueOf(c.getString(c.getColumnIndex("sincronizado"))));
             venda.setIdLoja(c.getString(c.getColumnIndex("id_loja")));
-            venda.setTotal(Double.valueOf(c.getString(c.getColumnIndex("total"))));
+            venda.setTotalDinheiro(Double.valueOf(c.getString(c.getColumnIndex("totalDinheiro"))));
             venda.setTotalCartao(Double.valueOf(c.getString(c.getColumnIndex("totalCartao"))));
-            venda.setLucro(Double.valueOf(c.getString(c.getColumnIndex("prejuizo"))));
-            VendaEntradaProdutoDAO vendaEntradaProdutoDAO = new VendaEntradaProdutoDAO(context);
-            venda.setVendaEntradaProdutos(vendaEntradaProdutoDAO.procuraPorVenda(venda));
-            vendaEntradaProdutoDAO.close();
+            venda.setLucro(Double.valueOf(c.getString(c.getColumnIndex("lucro"))));
+            ItemVendaDAO itemVendaDAO = new ItemVendaDAO(context);
+            venda.setItemVendas(itemVendaDAO.procuraPorVenda(venda));
+            itemVendaDAO.close();
 
         }
         c.close();
