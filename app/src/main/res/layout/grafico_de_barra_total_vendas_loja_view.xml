@@ -58,6 +58,7 @@
                 android:layout_weight="0.5"
                 android:background="@android:color/holo_blue_dark"
                 android:padding="8dp"
+                android:foreground="?android:attr/selectableItemBackground"
                 android:shadowColor="@android:color/holo_blue_light"
                 android:text="@string/gerar_grafico"
                 android:textColor="@android:color/white" />

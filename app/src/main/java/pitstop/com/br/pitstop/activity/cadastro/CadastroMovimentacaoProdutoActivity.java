@@ -23,11 +23,15 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import de.greenrobot.event.Subscribe;
+import de.greenrobot.event.ThreadMode;
 import pitstop.com.br.pitstop.R;
 import pitstop.com.br.pitstop.adapter.LstViewTabelaMovimentacaoAdapter;
 import pitstop.com.br.pitstop.adapter.NonScrollListView;
+import pitstop.com.br.pitstop.assyncTask.CarregarListaDeProdutoTask;
 import pitstop.com.br.pitstop.event.AtualizaListaLojasEvent;
 import pitstop.com.br.pitstop.event.AtualizaListaProdutoEvent;
+import pitstop.com.br.pitstop.event.CarregaListaDeProduto;
 import pitstop.com.br.pitstop.model.EntradaProduto;
 import pitstop.com.br.pitstop.model.Loja;
 import pitstop.com.br.pitstop.model.MovimentacaoProduto;
@@ -68,15 +72,17 @@ public class CadastroMovimentacaoProdutoActivity extends BaseCadastroDeTransacao
             return;
 
         }
-        todoProdutos = produtoDAO.listarProdutos();
-        produtoDAO.close();
-        if (todoProdutos.size() == 0) {
-            Toast.makeText(getApplicationContext(), "Não existe Produtos cadastrados", Toast.LENGTH_LONG).show();
-            finish();
-            return;
-        }
-
-        setupView();
+        CarregarListaDeProdutoTask carregarListaDeProdutoTask = new CarregarListaDeProdutoTask(this, null, todoProdutos);
+        carregarListaDeProdutoTask.execute();
+        //        todoProdutos = produtoDAO.listarProdutos();
+//        produtoDAO.close();
+//        if (todoProdutos.size() == 0) {
+//            Toast.makeText(getApplicationContext(), "Não existe Produtos cadastrados", Toast.LENGTH_LONG).show();
+//            finish();
+//            return;
+//        }
+//
+//        setupView();
     }
 
     public void setupView() {
@@ -178,7 +184,7 @@ public class CadastroMovimentacaoProdutoActivity extends BaseCadastroDeTransacao
                 movProd.setData(formatter.format(new Date()));
 
                 carinho.add(movProd);
-
+                hideKeyboard(CadastroMovimentacaoProdutoActivity.this,getCurrentFocus());
                 snackbar.setText("Produto " + produtoPrincipal.getNome() + " adicionado ao carrinho");
                 snackbar.show();
 //                Toast toast = Toast.makeText(CadastroMovimentacaoProdutoActivity.this, "Produto " + produtoPrincipal.getNome() + " adicionado ao carrinho", Toast.LENGTH_SHORT);
@@ -205,6 +211,7 @@ public class CadastroMovimentacaoProdutoActivity extends BaseCadastroDeTransacao
     }
 
     public void loadView() {
+        bus.register(this);
         listaViewDeProdutos = (NonScrollListView) findViewById(R.id.lista_de_produto);
 
         super.loadView();
@@ -253,8 +260,6 @@ public class CadastroMovimentacaoProdutoActivity extends BaseCadastroDeTransacao
         }
         return true;
     }
-
-
 
 
     @Override
@@ -315,7 +320,6 @@ public class CadastroMovimentacaoProdutoActivity extends BaseCadastroDeTransacao
             }
         });
     }
-
 
 
     @Override
@@ -500,5 +504,17 @@ public class CadastroMovimentacaoProdutoActivity extends BaseCadastroDeTransacao
 
     }
 
+    @Subscribe(threadMode = ThreadMode.MainThread)
+    public void chamarSetupView(CarregaListaDeProduto event) {
+        setupView();
+    }
+
+
+    @Override
+    public void onDestroy() {
+        // Unregister
+        bus.unregister(this);
+        super.onDestroy();
+    }
 
 }

@@ -243,6 +243,7 @@ public class FuroDAO {
         String existe = "SELECT id FROM Furo WHERE id=? LIMIT 1";
         Cursor cursor = db.rawQuery(existe, new String[]{furo.getId()});
         int quantidade = cursor.getCount();
+        cursor.close();
         return quantidade > 0;
     }
 

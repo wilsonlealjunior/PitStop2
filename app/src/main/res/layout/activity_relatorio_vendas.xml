@@ -127,6 +127,7 @@
                         android:layout_margin="8dp"
                         android:layout_weight="0.5"
                         android:background="@android:color/holo_blue_dark"
+                        android:foreground="?android:attr/selectableItemBackground"
                         android:shadowColor="@android:color/holo_blue_light"
                         android:text="@string/gerar_relatorio"
                         android:textColor="@android:color/white" />
@@ -139,6 +140,7 @@
                         android:layout_gravity="center"
                         android:layout_margin="8dp"
                         android:layout_weight="0.5"
+                        android:foreground="?android:attr/selectableItemBackground"
                         android:background="@android:color/holo_red_light"
                         android:shadowColor="@android:color/holo_blue_light"
                         android:text="@string/gerar_pdf"
@@ -164,6 +166,7 @@
 
 
             <LinearLayout
+
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
@@ -192,11 +195,15 @@
                         android:textSize="18sp" />
                 </LinearLayout>
 
+                <ScrollView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
 
-                <pitstop.com.br.pitstop.adapter.NonScrollListView
-                    android:id="@+id/lista_de_vendas"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/lista_de_vendas"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                </ScrollView>
 
                 <LinearLayout
                     android:id="@+id/progressBar"

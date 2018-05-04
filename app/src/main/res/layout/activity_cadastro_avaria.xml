@@ -74,6 +74,12 @@
                     android:layout_marginTop="8dp"
                     android:text="@string/produto" />
 
+                <!--<ProgressBar-->
+                    <!--android:id="@+id/progressBarProduto"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="match_parent"-->
+                    <!--android:layout_gravity="center" />-->
+
                 <TextView
                     android:id="@+id/produto"
                     android:layout_width="match_parent"
@@ -112,6 +118,7 @@
                         android:src="@drawable/ic_action_add" />
 
                     <Button
+                        android:foreground="?android:attr/selectableItemBackground"
                         android:id="@+id/adicionar"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"

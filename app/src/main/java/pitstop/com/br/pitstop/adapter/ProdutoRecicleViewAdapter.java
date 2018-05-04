@@ -25,12 +25,13 @@ import pitstop.com.br.pitstop.preferences.UsuarioPreferences;
 public class ProdutoRecicleViewAdapter extends RecyclerView.Adapter<ProdutoRecicleViewAdapter.ViewHolder> {
     private List<Produto> produtos;
     private static ItemClickListener itemClickListener;
+
     Context contexto;
 
     public void setOnItemClickListener(ItemClickListener itemClickListener) {
         this.itemClickListener = itemClickListener;
-        this.contexto = contexto;
     }
+
 
     public ProdutoRecicleViewAdapter(List<Produto> produtos, Context context) {
         this.produtos = produtos;
@@ -114,7 +115,7 @@ public class ProdutoRecicleViewAdapter extends RecyclerView.Adapter<ProdutoRecic
         @Override
         public void onClick(View v) {
             if (itemClickListener != null) {
-                itemClickListener.onItemClick(produtos.get(getAdapterPosition()).getSincronizado());
+                itemClickListener.onItemClick(getAdapterPosition());
             }
 //            Log.d(TAG, "Elemento " + getAdapterPosition() + " clicado.");
         }
@@ -126,6 +127,8 @@ public class ProdutoRecicleViewAdapter extends RecyclerView.Adapter<ProdutoRecic
 
         void onItemClick(int position);
     }
+
+
 
 
 }

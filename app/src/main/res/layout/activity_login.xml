@@ -91,6 +91,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dip"
                 android:background="#F5C116"
+                android:foreground="?android:attr/selectableItemBackground"
                 android:text="@string/btn_login"
                 android:textColor="@android:color/black" />
 

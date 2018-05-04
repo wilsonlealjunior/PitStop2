@@ -66,8 +66,8 @@ public class UsuarioRecicleViewAdapter extends RecyclerView.Adapter<UsuarioRecic
                 TextView mensagem = (TextView) dialogView.findViewById(R.id.mensagem);
                 Button positivo = (Button) dialogView.findViewById(R.id.positivo);
                 Button negativo = (Button) dialogView.findViewById(R.id.negativo);
-                mensagem.setText("Desejar confirmar o cadastro de entrada de produtos? ");
-                titulo.setText("Confirmação de cadastro");
+                mensagem.setText("Deseja excluir o usuario  "+u.getNome()+" ?");
+                titulo.setText("Confirmação de exclusão");
 
                 final AlertDialog alertDialog = dialogBuilder.create();
                 Window window = alertDialog.getWindow();

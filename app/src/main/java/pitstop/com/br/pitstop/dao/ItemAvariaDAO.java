@@ -119,6 +119,7 @@ public class ItemAvariaDAO {
         String existe = "SELECT id FROM Item_Avaria WHERE id=? LIMIT 1";
         Cursor cursor = db.rawQuery(existe, new String[]{itemAvaria.getId()});
         int quantidade = cursor.getCount();
+        cursor.close();
         return quantidade > 0;
     }
     public void close(){

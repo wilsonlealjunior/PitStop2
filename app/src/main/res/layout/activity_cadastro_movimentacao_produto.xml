@@ -118,6 +118,7 @@
                     android:background="@android:color/holo_blue_dark"
                     android:paddingLeft="10dp"
                     android:paddingRight="10dp"
+                    android:foreground="?android:attr/selectableItemBackground"
                     android:shadowColor="@android:color/holo_blue_light"
                     android:text="@string/adicionar"
                     android:textColor="@android:color/white" />

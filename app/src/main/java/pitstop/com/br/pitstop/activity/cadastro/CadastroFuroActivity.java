@@ -22,14 +22,18 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import de.greenrobot.event.Subscribe;
+import de.greenrobot.event.ThreadMode;
 import pitstop.com.br.pitstop.R;
 import pitstop.com.br.pitstop.Util;
 import pitstop.com.br.pitstop.adapter.LstViewTabelaCarinhoFuro;
 import pitstop.com.br.pitstop.adapter.NonScrollListView;
+import pitstop.com.br.pitstop.assyncTask.CarregarListaDeProdutoTask;
 import pitstop.com.br.pitstop.dao.FuroDAO;
 import pitstop.com.br.pitstop.event.AtualizaListaLojasEvent;
 import pitstop.com.br.pitstop.event.AtualizaListaProdutoEvent;
 import pitstop.com.br.pitstop.event.AtualizarGraficos;
+import pitstop.com.br.pitstop.event.CarregaListaDeProduto;
 import pitstop.com.br.pitstop.model.EntradaProduto;
 import pitstop.com.br.pitstop.model.Furo;
 import pitstop.com.br.pitstop.model.ItemFuro;
@@ -58,6 +62,7 @@ public class CadastroFuroActivity extends BaseCadastroDeTransacaoDeProdutoActivi
     private NonScrollListView listaViewDeFurosCarrinho;
     LstViewTabelaCarinhoFuro adapterTableCarrinho;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,14 +79,16 @@ public class CadastroFuroActivity extends BaseCadastroDeTransacaoDeProdutoActivi
         for (Loja loja : lojas) {
             labelsLoja.add(loja.getNome());
         }
-        todoProdutos = produtoDAO.listarProdutos();
-        produtoDAO.close();
-        if (todoProdutos.size() == 0) {
-            Toast.makeText(getApplicationContext(), "Não existe Produtos cadastrados", Toast.LENGTH_LONG).show();
-            finish();
-            return;
-        }
-        setupView();
+        CarregarListaDeProdutoTask carregarListaDeProdutoTask = new CarregarListaDeProdutoTask(this, null, todoProdutos);
+        carregarListaDeProdutoTask.execute();
+//        todoProdutos = produtoDAO.listarProdutos();
+//        produtoDAO.close();
+//        if (todoProdutos.size() == 0) {
+//            Toast.makeText(getApplicationContext(), "Não existe Produtos cadastrados", Toast.LENGTH_LONG).show();
+//            finish();
+//            return;
+//        }
+//        setupView();
 
     }
 
@@ -189,6 +196,7 @@ public class CadastroFuroActivity extends BaseCadastroDeTransacaoDeProdutoActivi
     }
 
     public void loadView() {
+        bus.register(this);
         spinnerFuncionario = (Spinner) findViewById(R.id.spinner_funcionario);
         spinnerLoja = (Spinner) findViewById(R.id.spinner);
 
@@ -449,6 +457,18 @@ public class CadastroFuroActivity extends BaseCadastroDeTransacaoDeProdutoActivi
 
         return super.onOptionsItemSelected(item);
 
+    }
+
+    @Subscribe(threadMode = ThreadMode.MainThread)
+    public void carregaListaDeProduto(CarregaListaDeProduto event) {
+        setupView();
+    }
+
+    @Override
+    public void onDestroy() {
+        // Unregister
+        bus.unregister(this);
+        super.onDestroy();
     }
 
 }

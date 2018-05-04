@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rl_fragment_list_produto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:id="@+id/rl_fragment_list_produto">
-
+    android:layout_height="match_parent">
 
 
     <android.support.v7.widget.CardView
@@ -19,10 +18,10 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            >
+            android:orientation="horizontal">
 
             <ImageView
+                android:id="@+id/ic_loja"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
@@ -42,15 +41,25 @@
 
     </android.support.v7.widget.CardView>
 
-
-
+    <TextView
+        android:id="@+id/tv_data_ultima_sincronizacao"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/card_view_do_spinner_loja"
+        android:layout_marginBottom="0dp"
+        android:layout_marginRight="16dp"
+        android:gravity="end"
+        android:textAlignment="textEnd"
+        android:textColor="@color/black"
+        android:textSize="12sp"
+        android:textStyle="italic" />
 
 
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipe_lista_produto"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/card_view_do_spinner_loja"
+        android:layout_below="@id/tv_data_ultima_sincronizacao"
         android:layout_margin="8dp">
 
 
@@ -71,6 +80,7 @@
         android:layout_marginBottom="16dp"
         android:layout_marginRight="16dp"
         android:background="@drawable/fundo"
+        android:foreground="?android:attr/selectableItemBackground"
         android:elevation="6dp"
         android:stateListAnimator="@null"
         android:text="+"

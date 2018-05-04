@@ -143,6 +143,7 @@ public class MovimentacaoProdutoDAO {
         String existe = "SELECT id FROM movimentacao_produto WHERE id=? LIMIT 1";
         Cursor cursor = db.rawQuery(existe, new String[]{movimentacaoProduto.getId()});
         int quantidade = cursor.getCount();
+        cursor.close();
         return quantidade > 0;
     }
     public void close(){

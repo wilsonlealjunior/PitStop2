@@ -29,15 +29,19 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import de.greenrobot.event.Subscribe;
+import de.greenrobot.event.ThreadMode;
 import pitstop.com.br.pitstop.Print;
 import pitstop.com.br.pitstop.R;
 import pitstop.com.br.pitstop.Util;
 import pitstop.com.br.pitstop.adapter.AdpterProdutoPersonalizado;
 import pitstop.com.br.pitstop.adapter.LstViewTabelaVendaAdapter;
 import pitstop.com.br.pitstop.adapter.NonScrollListView;
+import pitstop.com.br.pitstop.assyncTask.CarregarListaDeProdutoTask;
 import pitstop.com.br.pitstop.event.AtualizaListaLojasEvent;
 import pitstop.com.br.pitstop.event.AtualizaListaProdutoEvent;
 import pitstop.com.br.pitstop.event.AtualizarGraficos;
+import pitstop.com.br.pitstop.event.CarregaListaDeProduto;
 import pitstop.com.br.pitstop.model.EntradaProduto;
 import pitstop.com.br.pitstop.model.ItemVenda;
 import pitstop.com.br.pitstop.model.Produto;
@@ -78,7 +82,7 @@ public class CadastrarVendasActivity extends BaseCadastroDeTransacaoDeProdutoAct
         //vendaSincronizador = new VendaSincronizador(this);
 
         loadView();
-        setupView();
+//        setupView();
         if (!usuarioPreferences.temUsuario()) {
 
             Toast.makeText(CadastrarVendasActivity.this, "Não existe usuario logado", Toast.LENGTH_SHORT).show();
@@ -92,10 +96,26 @@ public class CadastrarVendasActivity extends BaseCadastroDeTransacaoDeProdutoAct
             finish();
             return;
         }
+        CarregarListaDeProdutoTask carregarListaDeProdutoTask = new CarregarListaDeProdutoTask(this, loja, produtos);
+        carregarListaDeProdutoTask.execute();
+        //        mostraListaDeProduto();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MainThread)
+    public void carregaListaDeProduto(CarregaListaDeProduto event) {
+        setupView();
         mostraListaDeProduto();
     }
 
+    @Override
+    public void onDestroy() {
+        // Unregister
+        bus.unregister(this);
+        super.onDestroy();
+    }
+
     public void loadView() {
+        bus.register(this);
         campoTotalCartao = (EditText) findViewById(R.id.total_cartao);
         spinnerFormaDeVenda = (Spinner) findViewById(R.id.spinner);
         campoPreco = (TextView) findViewById(R.id.preco);
@@ -106,6 +126,7 @@ public class CadastrarVendasActivity extends BaseCadastroDeTransacaoDeProdutoAct
         adapterTableCarrinho = new LstViewTabelaVendaAdapter(this, R.layout.tabela_carinho_venda, R.id.produto, carrinho);
         usuarioPreferences = new UsuarioPreferences(this);
         venda = new Venda();
+        loja = usuarioPreferences.getLoja();
         super.loadView();
 
 
@@ -164,9 +185,9 @@ public class CadastrarVendasActivity extends BaseCadastroDeTransacaoDeProdutoAct
 
 
         //inicizalizando variaveis
-        loja = usuarioPreferences.getLoja();
-        produtos = produtoDAO.procuraPorLoja(loja);
-        produtoDAO.close();
+
+//        produtos = produtoDAO.procuraPorLoja(loja);
+//        produtoDAO.close();
         campoTotalCartao.setVisibility(View.GONE);
         tvTotalCartao.setVisibility(View.GONE);
 //        campoTotalCartao.setFocusable(false);
@@ -218,8 +239,11 @@ public class CadastrarVendasActivity extends BaseCadastroDeTransacaoDeProdutoAct
                 prodCarinho.setQuantidade(quantidadeComprada);
                 prodCarinho.setNome(produto.getNome());
                 prodCarinho.setPreco(produto.getPreco());
+                prodCarinho.setEntradaProdutos(entradaProdutoDAO.procuraTodosDeUmProduto(prodCarinho));
+                entradaProdutoDAO.close();
                 carrinho.add(prodCarinho);
                 total += prodCarinho.getQuantidade() * prodCarinho.getPreco();
+                hideKeyboard(CadastrarVendasActivity.this,getCurrentFocus());
                 snackbar.setText("Produto " + produto.getNome() + " adicionado ao carrinho");
                 snackbar.show();
 //                Toast toast = Toast.makeText(CadastrarVendasActivity.this, "Produto " + produto.getNome() + " adicionado ao carrinho", Toast.LENGTH_SHORT);

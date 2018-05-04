@@ -107,8 +107,8 @@
             android:layout_gravity="center"
             android:layout_margin="8dp"
             android:layout_weight="0.5"
+            android:foreground="?android:attr/selectableItemBackground"
             android:background="@android:color/holo_blue_dark"
-            android:padding="8dp"
             android:shadowColor="@android:color/holo_blue_light"
             android:text="Atualizar"
             android:textColor="@android:color/white" />
@@ -116,7 +116,6 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-
             android:layout_margin="8dp"
             android:background="#848484" />
 

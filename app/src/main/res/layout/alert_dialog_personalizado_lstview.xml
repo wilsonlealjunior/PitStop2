@@ -54,6 +54,7 @@
 
 
     <Button
+        android:foreground="?android:attr/selectableItemBackground"
         android:id="@+id/buttoncancellist"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

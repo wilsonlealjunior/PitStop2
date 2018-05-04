@@ -352,6 +352,7 @@ public class VendaDAO {
         String existe = "SELECT id FROM Vendas WHERE id=? LIMIT 1";
         Cursor cursor = db.rawQuery(existe, new String[]{venda.getId()});
         int quantidade = cursor.getCount();
+        cursor.close();
         return quantidade > 0;
     }
 

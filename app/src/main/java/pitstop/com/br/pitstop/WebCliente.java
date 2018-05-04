@@ -19,7 +19,7 @@ import java.util.Scanner;
 public class WebCliente {
     public String listarProdutos() {
         try {
-            URL url = new URL("http://10.0.0.15:8080/webServiceEstoque/listarProdutos");
+            URL url = new URL("http://10.0.0.15:8080/webServiceEstoque/ListarProdutos");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestProperty("Content-type", "application/json");
             connection.setRequestProperty("Accept", "application/json");
@@ -43,7 +43,7 @@ public class WebCliente {
     }
     public String salvarProduto(String json) {
         try {
-            URL url = new URL("http://localhost:8080/webServiceEstoque/listarProdutos");
+            URL url = new URL("http://localhost:8080/webServiceEstoque/ListarProdutos");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestProperty("Content-type", "application/json");
             connection.setRequestProperty("Accept", "application/json");

@@ -53,6 +53,7 @@ public class ProdutoVinculoDAO {
         String existe = "SELECT id FROM ProdutoVinculo WHERE id=? LIMIT 1";
         Cursor cursor = db.rawQuery(existe, new String[]{id_vinculo});
         int quantidade = cursor.getCount();
+        cursor.close();
         return quantidade > 0;
     }
 

@@ -53,7 +53,7 @@ public class LoginActivity extends AppCompatActivity {
     List<String> labelsLojas = new ArrayList<>();
     LojaDAO lojaDAO = new LojaDAO(this);
     //Administrador descomenta aqui
-        ArrayAdapter<String> spinnerAdapterLojas;
+    ArrayAdapter<String> spinnerAdapterLojas;
     UsuarioPreferences usuarioPreferences;
 
     String nomeusuario;
@@ -82,9 +82,14 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin = (Button) findViewById(R.id.btn_login);
         tvLoja = (TextView) findViewById(R.id.loja);
         usuarioPreferences = new UsuarioPreferences(getApplicationContext());
+        boolean administrador = true;
         //Aeroporto
         //Administrador comenta aqui
-//        lojaEscolhida = lojaDAO.procuraPorId("38176321-bc0d-462f-8b47-56e118ac14d1");
+        if (administrador == false) {
+            lojaEscolhida = lojaDAO.procuraPorId("38176321-bc0d-462f-8b47-56e118ac14d1");
+            spinerLojas.setVisibility(View.GONE);
+        }
+
         if (lojaEscolhida != null) {
 
             tvLoja.setText(lojaEscolhida.getNome());
@@ -124,22 +129,24 @@ public class LoginActivity extends AppCompatActivity {
 
         }
         //Administrador descomenta aqui
-        spinnerAdapterLojas = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, labelsLojas);
+        if (administrador == true) {
+            spinnerAdapterLojas = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, labelsLojas);
 
-        spinnerAdapterLojas.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinerLojas.setAdapter(spinnerAdapterLojas);
-        spinerLojas.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                lojaEscolhida = lojas.get(i);
+            spinnerAdapterLojas.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinerLojas.setAdapter(spinnerAdapterLojas);
+            spinerLojas.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                    lojaEscolhida = lojas.get(i);
 
-            }
+                }
 
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
+                @Override
+                public void onNothingSelected(AdapterView<?> adapterView) {
 
-            }
-        });
+                }
+            });
+        }
 
 
         btnLogin.setOnClickListener(new View.OnClickListener() {

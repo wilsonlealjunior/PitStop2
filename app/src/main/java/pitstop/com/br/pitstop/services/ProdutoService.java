@@ -19,7 +19,7 @@ public interface ProdutoService {
     @POST("adicionarProduto")
     Call<Void> insere(@Body Produto produto);
 
-    @GET("listarProdutos")
+    @GET("ListarProdutos")
     Call<List<Produto>> listarProdutos();
 
     @GET("diffProduto")

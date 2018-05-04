@@ -32,6 +32,7 @@
         android:layout_marginRight="16dp"
         android:background="@drawable/fundo"
         android:elevation="6dp"
+        android:foreground="?android:attr/selectableItemBackground"
         android:stateListAnimator="@null"
         android:text="+"
         android:textColor="#ffffff"

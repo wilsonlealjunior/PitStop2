@@ -1,51 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/white"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:id="@+id/ll_nome_produto"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@android:color/white"
-        android:orientation="vertical">
-
-        <RelativeLayout
-            android:id="@+id/ll_nome_produto"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@android:color/holo_blue_dark">
-
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <ImageButton
-                    android:id="@+id/icone"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/button_logout"
-                    android:backgroundTint="@color/white"
-                    android:clickable="true"
-                    android:src="@mipmap/aviso" />
-
-                <TextView
-                    android:id="@+id/titulo"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="@android:color/holo_blue_dark"
-                    android:padding="10dp"
-                    android:shadowColor="@android:color/holo_blue_light"
-                    android:text="TITULO"
-                    android:textColor="@android:color/white"
-                    android:textSize="16dp" />
-
-
-            </LinearLayout>
-
-
-        </RelativeLayout>
+        android:background="@android:color/holo_blue_dark">
 
 
         <LinearLayout
@@ -53,54 +20,93 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
+            <ImageButton
+                android:id="@+id/icone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:background="@drawable/button_logout"
+                android:backgroundTint="@color/white"
+                android:clickable="true"
+                android:src="@mipmap/aviso" />
+
             <TextView
-                android:id="@+id/mensagem"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="8dp"
-                android:text="Mensagem"
-                android:textSize="18dp"
-                android:textStyle="bold" />
+                android:id="@+id/titulo"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:color/holo_blue_dark"
+                android:padding="10dp"
+                android:shadowColor="@android:color/holo_blue_light"
+                android:text="TITULO"
+                android:textColor="@android:color/white"
+                android:textSize="16dp" />
 
 
         </LinearLayout>
 
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="right"
-
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/negativo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:background="@drawable/button_logout"
-                android:clickable="true"
-                android:text="Não"
-                android:textAlignment="center"
-                android:textColor="@color/estoque_baixo" />
-
-            <Button
-                android:id="@+id/positivo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:background="@drawable/button_logout"
-                android:clickable="true"
-                android:text="Sim"
-                android:textAlignment="center"
-
-                android:textColor="@color/sincronizado" />
+    </RelativeLayout>
 
 
-        </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/mensagem"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="8dp"
+            android:text="Mensagem"
+            android:textSize="18dp"
+            android:textStyle="bold" />
 
 
     </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+
+        android:orientation="horizontal">
+
+        <Button
+
+            android:id="@+id/negativo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/button_logout"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:text="Não"
+            android:textAlignment="center"
+            android:textColor="@color/estoque_baixo" />
+
+        <Button
+            android:id="@+id/positivo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/button_logout"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:text="Sim"
+            android:textAlignment="center"
+
+            android:textColor="@color/sincronizado" />
+
+
+    </LinearLayout>
+
+
+</LinearLayout>
 
 
 

@@ -65,6 +65,7 @@ public class EntradaProdutoDAO {
         Cursor cursor = db.rawQuery(existe, new String[]{entradaProduto.getId()});
         //Log.e("verificando nome_>",cursor.getString(cursor.getColumnIndex("id")));
         int quantidade = cursor.getCount();
+        cursor.close();
         return quantidade > 0;
     }
 

@@ -13,27 +13,29 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import de.greenrobot.event.Subscribe;
+import de.greenrobot.event.ThreadMode;
 import pitstop.com.br.pitstop.R;
 import pitstop.com.br.pitstop.Util;
-import pitstop.com.br.pitstop.adapter.LstViewTabelaCarinhoFuro;
 import pitstop.com.br.pitstop.adapter.LstViewTabelaCarrinhoAvaria;
 import pitstop.com.br.pitstop.adapter.NonScrollListView;
+import pitstop.com.br.pitstop.assyncTask.CarregarListaDeProdutoTask;
 import pitstop.com.br.pitstop.dao.AvariaDAO;
 import pitstop.com.br.pitstop.event.AtualizaListaLojasEvent;
 import pitstop.com.br.pitstop.event.AtualizaListaProdutoEvent;
 import pitstop.com.br.pitstop.event.AtualizarGraficos;
+import pitstop.com.br.pitstop.event.CarregaListaDeProduto;
 import pitstop.com.br.pitstop.model.Avaria;
-import pitstop.com.br.pitstop.model.Furo;
 import pitstop.com.br.pitstop.model.ItemAvaria;
 import pitstop.com.br.pitstop.model.EntradaProduto;
 import pitstop.com.br.pitstop.model.Loja;
@@ -44,6 +46,7 @@ public class CadastroAvariaActivity extends BaseCadastroDeTransacaoDeProdutoActi
 
 
     Spinner spinnerLoja;
+    ProgressBar progressBarProduto;
     List<Avaria> carrinho = new ArrayList<>();
     List<String> labelsLoja = new ArrayList<>();
     List<Loja> lojas = new ArrayList<>();
@@ -53,11 +56,11 @@ public class CadastroAvariaActivity extends BaseCadastroDeTransacaoDeProdutoActi
     private NonScrollListView listaViewDeAvariasCarrinho;
     LstViewTabelaCarrinhoAvaria adapterTableCarrinho;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cadastro_avaria);
+
         loadView();
         lojas = lojaDAO.listarLojas();
         lojaDAO.close();
@@ -69,14 +72,17 @@ public class CadastroAvariaActivity extends BaseCadastroDeTransacaoDeProdutoActi
         for (Loja loja : lojas) {
             labelsLoja.add(loja.getNome());
         }
-        todoProdutos = produtoDAO.listarProdutos();
-        produtoDAO.close();
-        if (todoProdutos.size() == 0) {
-            Toast.makeText(getApplicationContext(), "Não existe Produtos cadastrados", Toast.LENGTH_LONG).show();
-            finish();
-            return;
-        }
-        setupView();
+
+        CarregarListaDeProdutoTask carregarListaDeProdutoTask = new CarregarListaDeProdutoTask(this, null, todoProdutos);
+        carregarListaDeProdutoTask.execute();
+        //        todoProdutos = produtoDAO.listarProdutos();
+//        produtoDAO.close();
+//        if (todoProdutos.size() == 0) {
+//            Toast.makeText(getApplicationContext(), "Não existe Produtos cadastrados", Toast.LENGTH_LONG).show();
+//            finish();
+//            return;
+//        }
+        //setupView();
     }
 
     public void setupView() {
@@ -162,14 +168,18 @@ public class CadastroAvariaActivity extends BaseCadastroDeTransacaoDeProdutoActi
     }
 
     public void loadView() {
+        bus.register(this);
         spinnerLoja = (Spinner) findViewById(R.id.spinner);
         usuarioPreferences = new UsuarioPreferences(this);
-        adicionarAvaria = (Button)findViewById(R.id.adicionar);
+        adicionarAvaria = (Button) findViewById(R.id.adicionar);
         listaViewDeAvariasCarrinho = (NonScrollListView) findViewById(R.id.lista_de_avaria);
         adapterTableCarrinho = new LstViewTabelaCarrinhoAvaria(this, R.layout.tabela_carrinho_avaria, R.id.produto, carrinho);
-
         super.loadView();
+    }
 
+    @Subscribe(threadMode = ThreadMode.MainThread)
+    public void chamarSetupView(CarregaListaDeProduto event) {
+        setupView();
     }
 
 
@@ -205,6 +215,7 @@ public class CadastroAvariaActivity extends BaseCadastroDeTransacaoDeProdutoActi
 
         return true;
     }
+
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v,
                                     final ContextMenu.ContextMenuInfo menuInfo) {
@@ -308,7 +319,7 @@ public class CadastroAvariaActivity extends BaseCadastroDeTransacaoDeProdutoActi
                     public void onClick(View v) {
 
                         String dataAtual = Util.dataNoformatoDoSQLite(new Date());
-                        for (Avaria avaria: carrinho){
+                        for (Avaria avaria : carrinho) {
                             avaria.setData(dataAtual);
                             Produto produto = produtoDAO.procuraPorId(avaria.getIdProduto());
                             produtoDAO.close();
@@ -424,6 +435,13 @@ public class CadastroAvariaActivity extends BaseCadastroDeTransacaoDeProdutoActi
     protected void onPause() {
         super.onPause();
 
+    }
+
+    @Override
+    public void onDestroy() {
+        // Unregister
+        bus.unregister(this);
+        super.onDestroy();
     }
 
 

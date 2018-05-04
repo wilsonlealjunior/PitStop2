@@ -81,6 +81,7 @@
                         android:layout_weight="0.5"
                         android:background="@android:color/holo_blue_dark"
                         android:clickable="true"
+                        android:foreground="?android:attr/selectableItemBackground"
                         android:shadowColor="@android:color/holo_blue_light"
                         android:text="@string/gerar_relatorio"
                         android:textColor="@android:color/white" />
@@ -95,6 +96,7 @@
                         android:layout_weight="0.5"
                         android:background="@android:color/holo_red_light"
                         android:clickable="true"
+                        android:foreground="?android:attr/selectableItemBackground"
                         android:shadowColor="@android:color/holo_blue_light"
                         android:text="@string/gerar_pdf"
                         android:textColor="@android:color/white" />

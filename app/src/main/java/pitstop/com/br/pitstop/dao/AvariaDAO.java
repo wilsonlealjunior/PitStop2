@@ -186,7 +186,6 @@ public class AvariaDAO {
 
 
             avarias.add(avaria);
-
         }
         c.close();
         return avarias;
@@ -221,6 +220,7 @@ public class AvariaDAO {
         String existe = "SELECT id FROM Avaria WHERE id=? LIMIT 1";
         Cursor cursor = db.rawQuery(existe, new String[]{avaria.getId()});
         int quantidade = cursor.getCount();
+        cursor.close();
         return quantidade > 0;
     }
 

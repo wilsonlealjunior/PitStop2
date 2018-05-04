@@ -124,6 +124,7 @@ public class CadastroEntradaProdutoActivity extends BaseCadastroDeTransacaoDePro
                 entradaProdutoCar.setProduto(produto);
                 carinho.add(entradaProdutoCar);
                 adapterTable.notifyDataSetChanged();
+                hideKeyboard(CadastroEntradaProdutoActivity.this,getCurrentFocus());
                 snackbar.setText("Produto " + produto.getNome() + " adicionado ao carrinho");
                 snackbar.show();
 //                Toast toast = Toast.makeText(CadastroEntradaProdutoActivity.this, "Produto " + produto.getNome() + " adicionado ao carrinho", Toast.LENGTH_SHORT);
@@ -138,7 +139,7 @@ public class CadastroEntradaProdutoActivity extends BaseCadastroDeTransacaoDePro
     }
 
     public void loadView() {
-        ;
+
         listaViewDeEntradaDeProdutos = (NonScrollListView) findViewById(R.id.lista_de_produto);
         spinnerLoja = (Spinner) findViewById(R.id.spinner);
         precoDeCompra = (EditText) findViewById(R.id.preco_de_compra);

@@ -16,9 +16,10 @@ import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.ContextMenu;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -31,7 +32,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -50,18 +50,20 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import de.greenrobot.event.EventBus;
 import okhttp3.ResponseBody;
 
 import pitstop.com.br.pitstop.R;
 import pitstop.com.br.pitstop.Util;
 import pitstop.com.br.pitstop.activity.DataHoraView;
-import pitstop.com.br.pitstop.adapter.LstViewTabelaDescricaoVendaAdapter;
-import pitstop.com.br.pitstop.adapter.LstViewTabelaRelatorioVendas;
+import pitstop.com.br.pitstop.adapter.TabelaDescricaoVendaRecicleViewAdapter;
+import pitstop.com.br.pitstop.adapter.TabelaRelatorioVendasReyclerViewAdapter;
 import pitstop.com.br.pitstop.dao.EntradaProdutoDAO;
 import pitstop.com.br.pitstop.dao.LojaDAO;
 import pitstop.com.br.pitstop.dao.ProdutoDAO;
 import pitstop.com.br.pitstop.dao.UsuarioDAO;
 import pitstop.com.br.pitstop.dao.VendaDAO;
+import pitstop.com.br.pitstop.event.AtualizaListaProdutoEvent;
 import pitstop.com.br.pitstop.model.EntradaProduto;
 import pitstop.com.br.pitstop.model.ItemVenda;
 import pitstop.com.br.pitstop.model.Loja;
@@ -77,17 +79,19 @@ import retrofit2.Response;
 
 public class RelatorioVendasActivity extends AppCompatActivity {
 
-    static final long TREZE_HORAS_EM_MILISSEGUNDOS = 46800000;
     static final long TEMPO_EM_MINUTO_PARA_FUNCIONARIO_DELETAR_VENDA = 10;
 
+    private EventBus bus = EventBus.getDefault();
     Date de;
     Date ate;
     Venda vendaClicada;
-    boolean deletarVenda = true;
+    boolean PodeDeletarVenda = true;
+    boolean vendaDeletada = false;
     SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 
 
     private Toolbar toolbar;
+    private RecyclerView listaDeVendasRecycleView;
     private Snackbar snackbar;
     private LinearLayout linearLayoutRootRelatorioVendas;
     List<Venda> relatorioVendas = new ArrayList<>();
@@ -95,8 +99,10 @@ public class RelatorioVendasActivity extends AppCompatActivity {
     double auxLucro = 0.0;
 
 
-    LstViewTabelaRelatorioVendas adapterTable;
-    private ListView listaViewDeVendas;
+    //    LstViewTabelaRelatorioVendas adapterTable;
+    TabelaRelatorioVendasReyclerViewAdapter vendasReyclerViewAdapter;
+    //    private ListView listaViewDeVendas;
+    private RecyclerView RecyclerViewDeVendas;
 
     String[] formaDePagamento = new String[]{"Todas", "dinheiro", "cartao"};
     String formaDePagamentoEscolhido;
@@ -114,6 +120,8 @@ public class RelatorioVendasActivity extends AppCompatActivity {
     VendaDAO vendaDAO = new VendaDAO(this);
     UsuarioDAO usuarioDAO = new UsuarioDAO(this);
     UsuarioPreferences up = new UsuarioPreferences(this);
+    EntradaProdutoDAO entradaProdutoDAO = new EntradaProdutoDAO(this);
+    ProdutoDAO produtoDAO = new ProdutoDAO(this);
     TextView tvResumeCardLucro;
     TextView tvResumeCardTotal;
     TextView textViewLoja;
@@ -126,6 +134,8 @@ public class RelatorioVendasActivity extends AppCompatActivity {
     private Button btnGerarRelatorio;
     CardView cardViewFiltros;
     LinearLayout llProgressBar;
+
+
 
 
     @Override
@@ -199,14 +209,18 @@ public class RelatorioVendasActivity extends AppCompatActivity {
         cardViewResumo.setVisibility(View.GONE);
 
 
-        listaViewDeVendas = (ListView) findViewById(R.id.lista_de_vendas);
-        ViewGroup headerView = (ViewGroup) getLayoutInflater().inflate(R.layout.header_relatorio_vendas, listaViewDeVendas, false);
-        TextView lucro = headerView.findViewById(R.id.lucro);
-        listaViewDeVendas.addHeaderView(headerView);
 
-        adapterTable = new LstViewTabelaRelatorioVendas(this, R.layout.tabela_relatorio_vendas, R.id.quantidade, relatorioVendas);
-        registerForContextMenu(listaViewDeVendas);
 
+        listaDeVendasRecycleView = (RecyclerView) findViewById(R.id.lista_de_vendas);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+        listaDeVendasRecycleView.setLayoutManager(layoutManager);
+        listaDeVendasRecycleView.setHasFixedSize(true);
+        listaDeVendasRecycleView.setNestedScrollingEnabled(true);
+
+
+        vendasReyclerViewAdapter = new TabelaRelatorioVendasReyclerViewAdapter(relatorioVendas, this);
+
+        listaDeVendasRecycleView.setAdapter(vendasReyclerViewAdapter);
         formaDePagamentoSpinnner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
@@ -360,16 +374,24 @@ public class RelatorioVendasActivity extends AppCompatActivity {
             }
         });
 
-
-        listaViewDeVendas.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            //
+        vendasReyclerViewAdapter.setOnItemClickListener(new TabelaRelatorioVendasReyclerViewAdapter.ItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> lista, View item, int position, long id) {
+            public void onItemClick(int position) {
                 if (position != 0) {
-                    vendaClicada = (Venda) listaViewDeVendas.getItemAtPosition(position);
-                    Log.e("Venda clicada", String.valueOf(position));
-
+                    vendaClicada = (Venda) relatorioVendas.get(position - 1);
+                    Log.e("Venda clicada", String.valueOf(position - 1));
                     ShowCustomDialogwithList();
+                }
+            }
+        });
+        vendasReyclerViewAdapter.setOnItemDeleteListener(new TabelaRelatorioVendasReyclerViewAdapter.ItemDeleteListener() {
+            @Override
+            public void onItemDelete(int position) {
+                if (position != 0) {
+                    PodeDeletarVenda = true;
+                    Venda venda = (Venda) relatorioVendas.get(position - 1);
+                    DeletarVenda(venda);
+
                 }
             }
         });
@@ -378,7 +400,7 @@ public class RelatorioVendasActivity extends AppCompatActivity {
             if (up.getUsuario().getRole().equals("Funcionario")) {
                 lojaSpinner.setVisibility(View.GONE);
                 funcionarioSpinner.setVisibility(View.GONE);
-                lucro.setVisibility(View.GONE);
+//                lucro.setVisibility(View.GONE);
                 textViewFuncionario.setVisibility(View.GONE);
                 textViewLoja.setVisibility(View.GONE);
                 tvResumeCardLucro.setVisibility(View.GONE);
@@ -389,6 +411,87 @@ public class RelatorioVendasActivity extends AppCompatActivity {
         }
 
 
+    }
+
+    private void DeletarVenda(Venda venda) {
+        for (Venda v : relatorioVendas) {
+            if (v.getId().equals(venda.getId())) {
+                verificarSeFuncionarioPodeDeletarVenda(v);
+                if (PodeDeletarVenda) {
+                    vendaDeletada = true;
+                    v.desativar();
+                    v.desincroniza();
+                    deletaItensDaVenda(v);
+                    if (relatorioVendas.remove(venda)) {
+                        vendasReyclerViewAdapter.notifyDataSetChanged();
+                    }
+                    vendasReyclerViewAdapter.notifyDataSetChanged();
+                    VendaDAO vendaDAO = new VendaDAO(RelatorioVendasActivity.this);
+                    vendaDAO.altera(v);
+                    vendaDAO.close();
+                    aviso("Alerta", "Venda deletada com sucesso");
+                    break;
+                } else {
+                    aviso("Alerta", "Voce não pode fazer a exclusão pois ja se passaram mais de 10 minutos");
+
+                }
+
+            }
+
+
+        }
+    }
+
+    private void deletaItensDaVenda(Venda v) {
+
+        if ((v.getItemVendas() != null) && (!v.getItemVendas().isEmpty())) {
+            for (ItemVenda itemVenda : v.getItemVendas()) {
+                int quantidade = itemVenda.getQuantidadeVendida();
+                EntradaProduto entradaProduto = entradaProdutoDAO.procuraPorId(itemVenda.getIdEntradaProduto());
+                entradaProdutoDAO.close();
+                entradaProduto.setQuantidadeVendidaMovimentada(entradaProduto.getQuantidadeVendidaMovimentada() - quantidade);
+                Produto produto = entradaProduto.getProduto();
+
+                ajustaVinculosDoProduto(quantidade, produto);
+
+                produto.setQuantidade(produto.getQuantidade() + quantidade);
+                entradaProduto.desincroniza();
+                produto.desincroniza();
+                entradaProdutoDAO.altera(entradaProduto);
+                entradaProdutoDAO.close();
+                produtoDAO.altera(produto);
+                produtoDAO.close();
+
+
+            }
+        }
+    }
+
+    private void ajustaVinculosDoProduto(int quantidade, Produto produto) {
+        for (String produtoVinculoId : produto.getIdProdutoVinculado()) {
+            Produto p = produtoDAO.procuraPorId(produtoVinculoId);
+            produtoDAO.close();
+            p.setQuantidade(p.getQuantidade() + quantidade);
+            p.desincroniza();
+            produtoDAO.altera(p);
+            produtoDAO.close();
+        }
+    }
+
+    private void verificarSeFuncionarioPodeDeletarVenda(Venda v) {
+        Date dataDaVenda = Util.converteDoFormatoSQLParaDate(v.getDataDaVenda());
+        Date agora = new Date();
+        long ldt1 = dataDaVenda.getTime();
+        long ldt2 = agora.getTime();
+        long res = (ldt2 - ldt1) / (1000 * 60);
+        if (res > TEMPO_EM_MINUTO_PARA_FUNCIONARIO_DELETAR_VENDA) {
+            if (up.temUsuario()) {
+                if (up.getUsuario().getRole().equals("Funcionario")) {
+                    PodeDeletarVenda = false;
+
+                }
+            }
+        }
     }
 
     public void views() {
@@ -450,29 +553,21 @@ public class RelatorioVendasActivity extends AppCompatActivity {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(RelatorioVendasActivity.this, R.style.DialogTheme);
         LayoutInflater inflater = RelatorioVendasActivity.this.getLayoutInflater();
 
-        View dialogView = inflater.inflate(R.layout.alert_dialog_personalizado_lstview, null);
+        View dialogView = inflater.inflate(R.layout.alert_dialog_recycler_view, null);
         dialogBuilder.setView(dialogView);
 
-        final ListView listView = (ListView) dialogView.findViewById(R.id.listview);
+        RecyclerView recyclerView;
+        TabelaDescricaoVendaRecicleViewAdapter tabelaDescricaoVendaRecicleViewAdapter;
+        recyclerView = (RecyclerView) dialogView.findViewById(R.id.listview);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+        tabelaDescricaoVendaRecicleViewAdapter = new TabelaDescricaoVendaRecicleViewAdapter(vendaClicada.getItemVendas(), this);
+        recyclerView.setAdapter(tabelaDescricaoVendaRecicleViewAdapter);
         SearchView pesquisaDialog = (SearchView) dialogView.findViewById(R.id.pesquisa);
         pesquisaDialog.setVisibility(View.INVISIBLE);
         TextView title = (TextView) dialogView.findViewById(R.id.title);
         title.setVisibility(View.VISIBLE);
         title.setText("Descrição da Venda");
-        ViewGroup headerView = (ViewGroup) getLayoutInflater().inflate(R.layout.header_descricao_venda, listView, false);
-        TextView lucro = headerView.findViewById(R.id.lucro);
-        if (up.temUsuario()) {
-            if (up.getUsuario().getRole().equals("Funcionario")) {
-                lucro.setText("Total");
-            }
-        }
-
-        listView.addHeaderView(headerView);
-
-        // Defined Array values to show in ListView
-
-        LstViewTabelaDescricaoVendaAdapter adapterp = new LstViewTabelaDescricaoVendaAdapter(this, R.layout.tabela_descricao_venda, R.id.quantidade, vendaClicada.getItemVendas());
-        listView.setAdapter(adapterp);
 
 
         final AlertDialog alertDialog = dialogBuilder.create();
@@ -504,15 +599,7 @@ public class RelatorioVendasActivity extends AppCompatActivity {
             return;
         }
 
-//        try {
-//            de = formatter.parse(dataHoraView.getEditTextDataInicio().getText().toString());
-//            ate = formatter.parse(dataHoraView.getEditTextDataFim().getText().toString());
-//        } catch (ParseException e) {
-//            e.printStackTrace();
-//        }
-//        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//        final String stringDe = formatter.format(de);
-//        final String stringAte = formatter.format(ate);
+
         relatorioVendas.clear();
 
         if (up.temUsuario()) {
@@ -524,74 +611,6 @@ public class RelatorioVendasActivity extends AppCompatActivity {
         }
         CarregadorDeRelatorio carregadorDeRelatorio = new CarregadorDeRelatorio();
         carregadorDeRelatorio.execute();
-
-//        new AsyncTask<Void, Void, String>() {
-//            @Override
-//            protected void onPreExecute() {
-//                llProgressBar.setVisibility(View.VISIBLE);
-//            }
-//
-//            @Override
-//            protected String doInBackground(Void... params) {
-//                List<Venda> vendas = new ArrayList<>();
-//                vendas = vendaDAO.relatorio(stringDe, stringAte, formaDePagamentoEscolhido, lojaEscolhida, usuarioEscolhido);
-//                vendaDAO.close();
-//                auxTotal=0.0;
-//                auxLucro=0.0;
-//                for (Venda venda : vendas) {
-//                    if (venda.getFormaDePagamento().equals("dinheiro e cartao")) {
-//                        if (formaDePagamentoEscolhido == null) {
-//                            auxTotal = auxTotal + venda.getTotalDinheiro() + venda.getTotalCartao();
-//                            auxLucro = auxLucro + venda.getLucro();
-//                        } else if (formaDePagamento.equals("dinheiro")) {
-//                            auxTotal = auxTotal + venda.getTotalDinheiro();
-//                            auxLucro = auxLucro + venda.getLucro();
-//                        } else {
-//                            auxTotal = auxTotal + venda.getTotalCartao();
-//                            auxLucro = auxLucro + venda.getLucro();
-//                        }
-//                    } else {
-//                        auxTotal = auxTotal + venda.getTotalDinheiro();
-//                        auxLucro = auxLucro + venda.getLucro();
-//                    }
-//                    relatorioVendas.add(venda);
-//
-//                }
-//
-//                return "";
-//            }
-//
-//            @Override
-//            protected void onPostExecute(String t) {
-//                cardViewResumo.setVisibility(View.VISIBLE);
-//                llProgressBar.setVisibility(View.GONE);
-//                if (up.temUsuario()) {
-//                    if (up.getUsuario().getRole().equals("Funcionario")) {
-//                        final NumberFormat formatoBrasileiro = DecimalFormat.getCurrencyInstance(new Locale("pt", "br"));
-//                        tvResumeCardTotal.setText(formatoBrasileiro.format(auxTotal).
-//                                replace("R$", "R$ ").
-//                                replace("-R$", "R$ -"));
-//
-//                    } else {
-////                total.setText("O total das vendas é R$ " + auxTotal + " reais\n" + "O lucro é R$ " + auxLucro + " reais");
-//                        BigDecimal totalBigDecimaal = new BigDecimal(auxTotal);
-//                        final NumberFormat formatoBrasileiro = DecimalFormat.getCurrencyInstance(new Locale("pt", "br"));
-//                        tvResumeCardTotal.setText(formatoBrasileiro.format(totalBigDecimaal).
-//                                replace("R$", "R$ ").
-//                                replace("-R$", "R$ -"));
-//                        BigDecimal lucroBigDecimal = new BigDecimal(auxLucro);
-//                        tvResumeCardLucro.setText(formatoBrasileiro.format(lucroBigDecimal).
-//                                replace("R$", "R$ ").
-//                                replace("-R$", "R$ -"));
-//                    }
-//                }
-//
-//
-//                listaViewDeVendas.setAdapter(adapterTable);
-//                adapterTable.notifyDataSetChanged();
-//            }
-//        }.execute();
-
 
     }
 
@@ -661,6 +680,9 @@ public class RelatorioVendasActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
+                if (vendaDeletada) {
+                    bus.post(new AtualizaListaProdutoEvent());
+                }
                 finish();
                 break;
             case R.id.filtro:
@@ -709,106 +731,16 @@ public class RelatorioVendasActivity extends AppCompatActivity {
         alertDialog.show();
     }
 
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v,
-                                    final ContextMenu.ContextMenuInfo menuInfo) {
-        final MenuItem deletar = menu.add("Deletar");
-        deletar.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
-                Venda venda = (Venda) listaViewDeVendas.getItemAtPosition(info.position);
-                if (info.position != 0) {
-                    for (Venda v : relatorioVendas) {
-                        if (v.getId().equals(venda.getId())) {
-                            SimpleDateFormat formatterData = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                            Date dataDaVenda = null;
-                            try {
-                                dataDaVenda = formatterData.parse(v.getDataDaVenda());
-                            } catch (ParseException e) {
-                                e.printStackTrace();
-                            }
-                            Date agora = new Date();
-
-                            long ldt1 = dataDaVenda.getTime();
-                            long ldt2 = agora.getTime();
-                            long res = (ldt2 - ldt1) / (1000 * 60);
-                            if (res > TEMPO_EM_MINUTO_PARA_FUNCIONARIO_DELETAR_VENDA) {
-                                if (up.temUsuario()) {
-                                    if (up.getUsuario().getRole().equals("Funcionario")) {
-                                        deletarVenda = false;
-
-                                    }
-                                }
-                            }
-
-                            if (deletarVenda) {
-                                v.desativar();
-                                v.desincroniza();
-                                EntradaProdutoDAO entradaProdutoDAO = new EntradaProdutoDAO(getApplicationContext());
-                                ProdutoDAO produtoDAO = new ProdutoDAO(getApplicationContext());
-                                if ((v.getItemVendas() != null) && (!v.getItemVendas().isEmpty())) {
-                                    for (ItemVenda itemVenda : v.getItemVendas()) {
-                                        int quantidade = itemVenda.getQuantidadeVendida();
-                                        EntradaProduto entradaProduto = entradaProdutoDAO.procuraPorId(itemVenda.getIdEntradaProduto());
-                                        entradaProdutoDAO.close();
-                                        entradaProduto.setQuantidadeVendidaMovimentada(entradaProduto.getQuantidadeVendidaMovimentada() - quantidade);
-                                        Produto produto = entradaProduto.getProduto();
-
-                                        for (String produtoVinculoId : produto.getIdProdutoVinculado()) {
-                                            Produto p = produtoDAO.procuraPorId(produtoVinculoId);
-                                            produtoDAO.close();
-                                            p.setQuantidade(p.getQuantidade() + quantidade);
-                                            p.desincroniza();
-                                            produtoDAO.altera(p);
-                                            produtoDAO.close();
-                                        }
-
-                                        produto.setQuantidade(produto.getQuantidade() + quantidade);
-                                        entradaProduto.desincroniza();
-                                        produto.desincroniza();
-                                        entradaProdutoDAO.altera(entradaProduto);
-                                        entradaProdutoDAO.close();
-                                        produtoDAO.altera(produto);
-                                        produtoDAO.close();
-
-
-                                    }
-                                }
-                                if (relatorioVendas.remove(venda)) {
-//                                    Toast.makeText(RelatorioVendasActivity.this, "Venda deletada", Toast.LENGTH_SHORT).show();
-                                    listaViewDeVendas.setAdapter(adapterTable);
-                                    adapterTable.notifyDataSetChanged();
-                                }
-
-                                adapterTable.notifyDataSetChanged();
-                                vendaDAO.altera(v);
-                                vendaDAO.close();
-                                aviso("Aviso", "Venda deletada com sucesso");
-                                break;
-                            } else {
-                                aviso("Aviso", "Voce não pode fazer a exclusão pois ja se passaram mais de 10 minutos");
-
-                            }
-
-                        }
-
-
-                    }
-
-                }
-
-
-                return false;
-            }
-        });
-    }
 
     private class CarregadorDeRelatorio extends AsyncTask<Void, Void, String> {
 
         @Override
         protected void onPreExecute() {
             llProgressBar.setVisibility(View.VISIBLE);
+            relatorioVendas.clear();
+            vendasReyclerViewAdapter.notifyDataSetChanged();
+            cardViewResumo.setVisibility(View.GONE);
+
 
         }
 
@@ -868,8 +800,8 @@ public class RelatorioVendasActivity extends AppCompatActivity {
             }
 
 
-            listaViewDeVendas.setAdapter(adapterTable);
-            adapterTable.notifyDataSetChanged();
+//            listaViewDeVendas.setAdapter(adapterTable);
+            vendasReyclerViewAdapter.notifyDataSetChanged();
             cardViewResumo.setVisibility(View.VISIBLE);
             llProgressBar.setVisibility(View.GONE);
 
@@ -877,6 +809,14 @@ public class RelatorioVendasActivity extends AppCompatActivity {
         }
 
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (vendaDeletada) {
+            bus.post(new AtualizaListaProdutoEvent());
+        }
+        super.onBackPressed();
     }
 
 

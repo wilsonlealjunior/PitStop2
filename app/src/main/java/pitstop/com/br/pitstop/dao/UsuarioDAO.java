@@ -117,6 +117,7 @@ public class UsuarioDAO {
         String existe = "SELECT nome FROM Usuarios WHERE nome=? LIMIT 1";
         Cursor cursor = db.rawQuery(existe, new String[]{usuario.getNome()});
         int quantidade = cursor.getCount();
+        cursor.close();
         return quantidade > 0;
     }
 

@@ -2,12 +2,14 @@ package pitstop.com.br.pitstop.activity;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.CardView;
@@ -25,7 +27,9 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -34,6 +38,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import de.greenrobot.event.EventBus;
@@ -42,15 +47,21 @@ import de.greenrobot.event.ThreadMode;
 import dmax.dialog.SpotsDialog;
 import okhttp3.ResponseBody;
 import pitstop.com.br.pitstop.R;
+import pitstop.com.br.pitstop.Util;
 import pitstop.com.br.pitstop.activity.cadastro.CadastroProdutoActivity;
 import pitstop.com.br.pitstop.activity.relatorio.RelatorioFuroActivity;
 import pitstop.com.br.pitstop.adapter.ProdutoRecicleViewAdapter;
+import pitstop.com.br.pitstop.assyncTask.CarregarListaDeProdutoTask;
+import pitstop.com.br.pitstop.dao.EntradaProdutoDAO;
 import pitstop.com.br.pitstop.dao.LojaDAO;
 import pitstop.com.br.pitstop.dao.ProdutoDAO;
 import pitstop.com.br.pitstop.event.AtualizaListaProdutoEvent;
+import pitstop.com.br.pitstop.event.CarregaListaDeProduto;
+import pitstop.com.br.pitstop.model.EntradaProduto;
 import pitstop.com.br.pitstop.model.Loja;
 import pitstop.com.br.pitstop.model.Produto;
 import pitstop.com.br.pitstop.model.Usuario;
+import pitstop.com.br.pitstop.preferences.ObjetosSinkPreferences;
 import pitstop.com.br.pitstop.preferences.UsuarioPreferences;
 import pitstop.com.br.pitstop.retrofit.RetrofitInializador;
 import pitstop.com.br.pitstop.sic.ObjetosSinkSincronizador;
@@ -67,6 +78,7 @@ public class ListarProdutoFragment extends Fragment implements SearchView.OnQuer
     private ProdutoRecicleViewAdapter produtoRecicleViewAdapter;
     private SwipeRefreshLayout swipe;
     Context context;
+    ImageView icLoja;
     List<Produto> produtos = new ArrayList<>();
     ProdutoRecicleViewAdapter adapterPesquisa;
     Button novoProduto;
@@ -76,11 +88,15 @@ public class ListarProdutoFragment extends Fragment implements SearchView.OnQuer
     Toolbar toolbar;
     SearchView searchView;
     ProdutoDAO produtoDAO;
+    EntradaProdutoDAO entradaProdutoDAO;
     List<String> labelsLojas = new ArrayList<>();
     List<Loja> lojas = new ArrayList<>();
     LojaDAO lojaDAO;
     ObjetosSinkSincronizador objetosSinkSincronizador;
     EventBus bus = EventBus.getDefault();
+    AlertDialog mensagens;
+    ObjetosSinkPreferences objetosSinkPreferences;
+    TextView tvUltimaSincronizacao;
 
 
     public ListarProdutoFragment() {
@@ -170,10 +186,15 @@ public class ListarProdutoFragment extends Fragment implements SearchView.OnQuer
         } else {
             lojaEscolhida = lojas.get(posicao - 1).getId();
         }
+        mensagens.setCancelable(false);
+        mensagens.show();
+        mensagens.setMessage("Gerando PDF");
         Call<ResponseBody> call = new RetrofitInializador().getRelatorioService().estoqueAtual(lojaEscolhida);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                mensagens.hide();
+                mensagens.dismiss();
                 if (response.isSuccessful()) {
                     Log.d("TAG", "server contacted and has file");
 
@@ -198,6 +219,8 @@ public class ListarProdutoFragment extends Fragment implements SearchView.OnQuer
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 Log.e("onFailure chamado", t.getMessage());
+                mensagens.hide();
+                mensagens.dismiss();
 
 //                        Toast.makeText(getApplicationContext(), "Verifique a conexao com a internet", Toast.LENGTH_SHORT).show();
 
@@ -219,9 +242,9 @@ public class ListarProdutoFragment extends Fragment implements SearchView.OnQuer
 //                        bus.post(new AtualizaListaProdutoEvent());
 //                        bus.post(new AtualizaListaLojasEvent());
 //                        spinnerLoja.setSelection(0);
+                        break;
                     case R.id.gerar_pdf:
                         gerarPdf();
-
                         break;
                 }
                 return false;
@@ -253,12 +276,16 @@ public class ListarProdutoFragment extends Fragment implements SearchView.OnQuer
         bus.register(this);
         View rootView = inflater.inflate(R.layout.fragment_list_produto, container, false);
         recyclerView = (RecyclerView) rootView.findViewById(R.id.card_recycler_produo_view);
+        icLoja = (ImageView) rootView.findViewById(R.id.ic_loja);
+        tvUltimaSincronizacao = (TextView) rootView.findViewById(R.id.tv_data_ultima_sincronizacao);
+        objetosSinkPreferences = new ObjetosSinkPreferences(getContext());
         recyclerView.setHasFixedSize(true);
         produtoRecicleViewAdapter = new ProdutoRecicleViewAdapter(produtos, context);
         adapterPesquisa = new ProdutoRecicleViewAdapter(pesquisa, context);
         recyclerView.setAdapter(produtoRecicleViewAdapter);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(layoutManager);
+        mensagens =  new ProgressDialog(context);
         swipe = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_lista_produto);
         swipe.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -278,6 +305,8 @@ public class ListarProdutoFragment extends Fragment implements SearchView.OnQuer
                 Log.d("teste para pegar", "Elemento " + position + " clicado.");
             }
         });
+        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+        StrictMode.setVmPolicy(builder.build());
 
 
         // Inflate the layout for this fragment
@@ -297,6 +326,7 @@ public class ListarProdutoFragment extends Fragment implements SearchView.OnQuer
         objetosSinkSincronizador = new ObjetosSinkSincronizador(context);
         cardViewSpinerLoja = view.findViewById(R.id.card_view_do_spinner_loja);
         produtoDAO = new ProdutoDAO(context);
+        entradaProdutoDAO = new EntradaProdutoDAO(context);
         lojaDAO = new LojaDAO(context);
         spinnerLoja = (Spinner) view.findViewById(R.id.spinner_loja);
         novoProduto = (Button) view.findViewById(R.id.novo_produto);
@@ -329,11 +359,16 @@ public class ListarProdutoFragment extends Fragment implements SearchView.OnQuer
                 if (lojaVindaDaTelaListaLoja == null) {
                     if (i == 0) {
                         produtos.clear();
-                        produtos.addAll(produtoDAO.listarProdutos());
+                        CarregarListaDeProdutoTask carregarListaDeProdutoTask = new CarregarListaDeProdutoTask(context, null, produtos);
+                        carregarListaDeProdutoTask.execute();
+//                        produtos.addAll(produtoDAO.listarProdutos());
                         recyclerView.setAdapter(produtoRecicleViewAdapter);
                     } else {
                         produtos.clear();
-                        produtos.addAll(produtoDAO.procuraPorLoja(lojas.get(i - 1)));
+
+                        CarregarListaDeProdutoTask carregarListaDeProdutoTask = new CarregarListaDeProdutoTask(context, lojas.get(i - 1), produtos);
+                        carregarListaDeProdutoTask.execute();
+//                        produtos.addAll(produtoDAO.procuraPorLoja(lojas.get(i - 1)));
                         recyclerView.setAdapter(produtoRecicleViewAdapter);
                     }
                 } else {
@@ -346,11 +381,13 @@ public class ListarProdutoFragment extends Fragment implements SearchView.OnQuer
                         k++;
                     }
                     produtos.clear();
-                    produtos.addAll(produtoDAO.procuraPorLoja(lojaVindaDaTelaListaLoja));
+                    CarregarListaDeProdutoTask carregarListaDeProdutoTask = new CarregarListaDeProdutoTask(context, lojaVindaDaTelaListaLoja, produtos);
+                    carregarListaDeProdutoTask.execute();
+//                    produtos.addAll(produtoDAO.procuraPorLoja(lojaVindaDaTelaListaLoja));
                     lojaVindaDaTelaListaLoja = null;
                 }
                 produtoDAO.close();
-                produtoRecicleViewAdapter.notifyDataSetChanged();
+//                produtoRecicleViewAdapter.notifyDataSetChanged();
                 //recyclerView.getRecycledViewPool().clear();
 
 
@@ -363,8 +400,52 @@ public class ListarProdutoFragment extends Fragment implements SearchView.OnQuer
         });
 
 //
+        icLoja.setOnLongClickListener(new View.OnLongClickListener() {
 
+            @Override
+            public boolean onLongClick(View v) {
+                int quantidadeProdutosIncosistentes=0;
+                for (Produto p: produtos) {
+                    Produto produtoPrincipal = new Produto();
+                    if (p.vinculado()) {
+                        for (Produto produtosDaListView : produtos) {
+                            if (p.getIdProdutoPrincipal().equals(produtosDaListView.getId())) {
+                                produtoPrincipal = produtosDaListView;
+                                break;
+                            }
+                        }
+                    } else {
+                        produtoPrincipal = p;
+                    }
+                    produtoPrincipal.setEntradaProdutos(entradaProdutoDAO.procuraTodosDeUmProduto(produtoPrincipal));
+                    entradaProdutoDAO.close();
+                    int quantidade=0;
+                    for (EntradaProduto entradaProduto: produtoPrincipal.getEntradaProdutos()) {
+                        quantidade+=(entradaProduto.getQuantidade()-entradaProduto.getQuantidadeVendidaMovimentada());
 
+                    }
+                    if(produtoPrincipal.getQuantidade()!=quantidade){
+                        quantidadeProdutosIncosistentes++;
+                        produtoPrincipal.setQuantidade(quantidade);
+                        for (String produtoVinculoId : produtoPrincipal.getIdProdutoVinculado()) {
+                            Produto produtoVinculo = produtoDAO.procuraPorId(produtoVinculoId);
+                            produtoDAO.close();
+                            produtoVinculo.setQuantidade(quantidade);
+                            produtoVinculo.desincroniza();
+                            produtoDAO.altera(produtoVinculo);
+                            produtoDAO.close();
+                        }
+                        produtoPrincipal.desincroniza();
+                        produtoDAO.altera(produtoPrincipal);
+                        produtoDAO.close();
+
+                    }
+
+                }
+                Toast.makeText(context, quantidadeProdutosIncosistentes+" Produtos inconsistestes corrigidos com sucesso ", Toast.LENGTH_LONG).show();
+                return true;
+            }
+        });
         novoProduto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -381,6 +462,12 @@ public class ListarProdutoFragment extends Fragment implements SearchView.OnQuer
     }
 
 
+    private void verificaUltimaSincronizacao() {
+        if (objetosSinkPreferences.temVersao()) {
+            Date data = Util.converteDoFormatoSQLParaDate(objetosSinkPreferences.getVersao());
+            tvUltimaSincronizacao.setText("Última sincronização: " + Util.dataComDiaEHoraPorExtenso(data.getTime()));
+        }
+    }
     public void pesquisar(String txtPesquisa) {
         int textlength = txtPesquisa.length();
         pesquisa.clear();
@@ -403,6 +490,7 @@ public class ListarProdutoFragment extends Fragment implements SearchView.OnQuer
     @Subscribe(threadMode = ThreadMode.MainThread)
     public void atualizaListaProdutoEvent(AtualizaListaProdutoEvent event) {
         carregaLista();
+        verificaUltimaSincronizacao();
     }
 
     private void carregaLista() {
@@ -479,5 +567,10 @@ public class ListarProdutoFragment extends Fragment implements SearchView.OnQuer
 //            recyclerView.getRecycledViewPool().clear();
 
         }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MainThread)
+    public void carregaListaDeProduto(CarregaListaDeProduto event) {
+        produtoRecicleViewAdapter.notifyDataSetChanged();
     }
 }

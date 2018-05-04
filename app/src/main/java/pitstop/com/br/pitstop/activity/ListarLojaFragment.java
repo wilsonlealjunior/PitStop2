@@ -24,11 +24,13 @@ import de.greenrobot.event.Subscribe;
 import de.greenrobot.event.ThreadMode;
 import dmax.dialog.SpotsDialog;
 import pitstop.com.br.pitstop.R;
+import pitstop.com.br.pitstop.Util;
 import pitstop.com.br.pitstop.activity.cadastro.CadastroLojaActivity;
 import pitstop.com.br.pitstop.adapter.LojaRecicleViewAdpater;
 import pitstop.com.br.pitstop.dao.LojaDAO;
 import pitstop.com.br.pitstop.event.AtualizaListaLojasEvent;
 import pitstop.com.br.pitstop.model.Loja;
+import pitstop.com.br.pitstop.preferences.ObjetosSinkPreferences;
 import pitstop.com.br.pitstop.sic.ObjetosSinkSincronizador;
 
 
@@ -37,10 +39,12 @@ import android.app.Activity;
 import android.widget.Button;
 
 import android.support.v7.widget.SearchView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
@@ -54,6 +58,8 @@ public class ListarLojaFragment extends Fragment implements SearchView.OnQueryTe
     SearchView searchView;
     ObjetosSinkSincronizador objetosSinkSincronizador;
     EventBus bus = EventBus.getDefault();
+    ObjetosSinkPreferences objetosSinkPreferences;
+    TextView tvUltimaSincronizacao;
 
 
     List<Loja> lojas = new ArrayList<>();
@@ -120,6 +126,8 @@ public class ListarLojaFragment extends Fragment implements SearchView.OnQueryTe
         bus.register(this);
         View rootView = inflater.inflate(R.layout.fragment_list_loja, container, false);
         recyclerView = (RecyclerView) rootView.findViewById(R.id.card_recycler_loja_view);
+        tvUltimaSincronizacao = (TextView) rootView.findViewById(R.id.tv_data_ultima_sincronizacao);
+        objetosSinkPreferences = new ObjetosSinkPreferences(getContext());
         recyclerView.setHasFixedSize(true);
         lojaRecicleViewAdpater = new LojaRecicleViewAdpater(lojas, context);
         adapterPesquisa = new LojaRecicleViewAdpater(pesquisa, context);
@@ -219,6 +227,7 @@ public class ListarLojaFragment extends Fragment implements SearchView.OnQueryTe
     @Subscribe(threadMode = ThreadMode.MainThread)
     public void atualizaListaLojaEvent(AtualizaListaLojasEvent event) {
         carregaLista();
+        verificaUltimaSincronizacao();
     }
 
 
@@ -232,7 +241,12 @@ public class ListarLojaFragment extends Fragment implements SearchView.OnQueryTe
 //        lojaRecicleViewAdpater.notifyDataSetChanged();
 //        swipe.setRefreshing(false);
     }
-
+    private void verificaUltimaSincronizacao() {
+        if (objetosSinkPreferences.temVersao()) {
+            Date data = Util.converteDoFormatoSQLParaDate(objetosSinkPreferences.getVersao());
+            tvUltimaSincronizacao.setText("Última sincronização: " + Util.dataComDiaEHoraPorExtenso(data.getTime()));
+        }
+    }
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);

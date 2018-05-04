@@ -120,6 +120,7 @@ public class ItemFuroDAO {
         String existe = "SELECT id FROM Item_Furo WHERE id=? LIMIT 1";
         Cursor cursor = db.rawQuery(existe, new String[]{itemFuro.getId()});
         int quantidade = cursor.getCount();
+        cursor.close();
         return quantidade > 0;
     }
 
