@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin: 'realm-android'
+
 
 android {
     compileSdkVersion 26
@@ -46,6 +48,7 @@ dependencies {
     compile 'com.github.d-max:spots-dialog:0.7@aar'
     compile 'com.jjoe64:graphview:4.2.1'
     compile 'joda-time:joda-time:2.6'
+
     testCompile 'junit:junit:4.12'
 
 

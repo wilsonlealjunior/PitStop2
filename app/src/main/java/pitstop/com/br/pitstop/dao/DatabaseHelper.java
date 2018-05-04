@@ -61,7 +61,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         sql = "CREATE TABLE Furo (id CHAR(36) PRIMARY KEY,quantidade INTEGER NOT NULL,desativado INT DEFAULT 0,id_produto CHAR(36),precoDeVenda REAL NOT NULL,valor REAL NOT NULL,id_loja CHAR(36),id_usuario CHAR(36),data TEXT NOT NULL,sincronizado INT DEFAULT 0);";
         db.execSQL(sql);
 
-        
+
         //tabela ItemFuro
         sql = "CREATE TABLE Item_Furo (id CHAR(36) PRIMARY KEY,precoDeVenda REAL NOT NULL,id_entradaProduto CHAR(36),id_furo CHAR(36),quantidade INTEGER NOT NULL,sincronizado INT DEFAULT 0);";
         db.execSQL(sql);

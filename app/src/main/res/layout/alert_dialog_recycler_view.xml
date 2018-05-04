@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#FFFFFF"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#283593"
+        android:gravity="center_horizontal"
+        android:paddingBottom="15dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:paddingTop="15dp"
+        android:text="Custom Dialog With List"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textColor="#FFFFFF"
+        android:visibility="invisible"
+
+        />
+
+
+    <SearchView
+        android:id="@+id/pesquisa"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:background="#D3D3D3"
+        android:focusable="true"
+        android:focusedByDefault="true"
+        android:gravity="center_horizontal"
+        android:padding="8dp"
+        android:queryHint="pesquise aqui"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+
+
+        android:tooltipText="adsas" />
+
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/listview"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_above="@id/buttoncancellist"
+        android:layout_below="@+id/pesquisa">
+
+    </android.support.v7.widget.RecyclerView>
+
+
+    <Button
+        android:id="@+id/buttoncancellist"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:layout_alignParentBottom="true"
+        android:background="#283593"
+        android:text="CANCEL"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="#FFFFFF" />
+
+</RelativeLayout>
