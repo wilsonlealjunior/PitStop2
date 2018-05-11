@@ -30,7 +30,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@android:color/holo_blue_dark"
+                    android:background="@color/colorPrimary"
                     android:orientation="horizontal">
 
                     <ImageView
@@ -39,7 +39,7 @@
                         android:layout_gravity="center_vertical"
                         android:layout_marginLeft="8dp"
                         android:adjustViewBounds="false"
-                        android:src="@mipmap/filtro" />
+                        android:src="@drawable/ic_filter" />
 
                     <TextView
                         android:layout_width="match_parent"
@@ -91,8 +91,11 @@
                         android:layout_gravity="center"
                         android:layout_margin="8dp"
                         android:layout_weight="0.5"
+                        android:padding="8dp"
+                        android:drawableLeft="@drawable/ic_confirmar"
+                        android:drawableStart="@drawable/ic_confirmar"
                         android:foreground="?android:attr/selectableItemBackground"
-                        android:background="@android:color/holo_blue_dark"
+                        android:background="@color/colorPrimary"
                         android:clickable="true"
                         android:shadowColor="@android:color/holo_blue_light"
                         android:text="Gerar Relatório"
@@ -106,6 +109,9 @@
                         android:layout_gravity="center"
                         android:layout_margin="8dp"
                         android:layout_weight="0.5"
+                        android:padding="8dp"
+                        android:drawableLeft="@drawable/ic_pdf"
+                        android:drawableStart="@drawable/ic_pdf"
                         android:foreground="?android:attr/selectableItemBackground"
                         android:background="@android:color/holo_red_light"
                         android:clickable="true"
@@ -137,7 +143,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@android:color/holo_blue_dark"
+                    android:background="@color/colorPrimary"
                     android:orientation="horizontal">
 
                     <ImageView

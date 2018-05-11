@@ -7,7 +7,6 @@
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="#F5C116"
         android:fitsSystemWindows="false">
         <!-- Header View -->
         <ImageView
@@ -18,39 +17,41 @@
 
             android:adjustViewBounds="true"
             android:scaleType="fitStart"
-            android:src="@drawable/pitstop" />
+            android:src="@drawable/logo_pitstop" />
 
         <View
             android:id="@+id/linha"
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_below="@id/logo_pitstop"
-            android:background="@android:color/background_light" />
+            android:background="@android:color/darker_gray" />
 
         <LinearLayout
             android:layout_below="@id/linha"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-          android:layout_margin="8dp"
+            android:background="@color/colorPrimary"
             android:orientation="horizontal">
 
             <ImageButton
                 android:id="@+id/logout"
                 android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_gravity="center_vertical|center_horizontal"
                 android:layout_height="wrap_content"
-                android:background="@drawable/button_logout"
-                android:clickable="true"
-                android:src="@mipmap/logout"
-                android:paddingRight="8dp"/>
+                android:layout_gravity="center_vertical|center_horizontal"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:src="@mipmap/logout" />
 
             <LinearLayout
                 android:id="@+id/inf"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#F5C116"
+                android:background="@color/colorPrimary"
                 android:orientation="vertical"
+
 
              >
 

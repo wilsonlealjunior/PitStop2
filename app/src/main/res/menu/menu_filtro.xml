@@ -16,7 +16,7 @@
 
     <item android:id="@+id/filtro"
     android:title="Filtro"
-    android:icon="@mipmap/filtro"
+    android:icon="@drawable/ic_filter"
     app:showAsAction="always"/>
 
 </menu>

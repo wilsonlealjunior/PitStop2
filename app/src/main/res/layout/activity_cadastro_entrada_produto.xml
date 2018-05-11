@@ -31,7 +31,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@android:color/holo_blue_dark"
+                    android:background="@color/colorPrimary"
                     android:orientation="horizontal">
 
 
@@ -115,22 +115,20 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_margin="8dp"
-                    android:background="@android:color/holo_blue_dark"
+                    android:background="@color/colorPrimary"
                     android:orientation="horizontal">
 
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:src="@drawable/ic_action_add" />
 
                     <Button
                         android:id="@+id/adicionar"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:padding="8dp"
+                        android:drawableLeft="@drawable/ic_confirmar"
+                        android:drawableStart="@drawable/ic_confirmar"
                         android:layout_gravity="center"
                         android:foreground="?android:attr/selectableItemBackground"
-                        android:background="@android:color/holo_blue_dark"
+                        android:background="@color/colorPrimary"
                         android:text="@string/adicionar"
                         android:textColor="@android:color/white" />
                 </LinearLayout>
@@ -154,7 +152,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@android:color/holo_blue_dark"
+                    android:background="@color/colorPrimary"
                     android:orientation="horizontal">
 
                     <ImageView
@@ -186,7 +184,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:background="@android:color/holo_blue_dark"
+                android:background="@color/colorPrimary"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
                 android:shadowColor="@android:color/holo_blue_light"

@@ -64,7 +64,7 @@ public class SignupActivity extends AppCompatActivity {
         objetosSinkPreferences = new ObjetosSinkPreferences(this);
 
         Intent intent = getIntent();
-        usuarioEditar = (Usuario) intent.getSerializableExtra("usuario");
+        usuarioEditar = (Usuario) intent.getParcelableExtra("usuario");
 
 
         ArrayAdapter<String> spinnerAdapterRoles = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, roles);

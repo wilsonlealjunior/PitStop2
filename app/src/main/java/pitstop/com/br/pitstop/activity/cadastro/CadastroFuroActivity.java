@@ -353,7 +353,7 @@ public class CadastroFuroActivity extends BaseCadastroDeTransacaoDeProdutoActivi
                         String dataAtual = Util.dataNoformatoDoSQLite(new Date());
 
                         for (Furo furo : carrinho) {
-                            furo.setData(dataAtual);
+                            furo.setData(new Date());
 
                             Produto produto = produtoDAO.procuraPorId(furo.getIdProduto());
                             produtoDAO.close();
@@ -365,7 +365,7 @@ public class CadastroFuroActivity extends BaseCadastroDeTransacaoDeProdutoActivi
                                 produtoPrincipal = produtoDAO.procuraPorId(produto.getId());
                                 produtoDAO.close();
                             }
-                            produtoPrincipal.setEntradaProdutos(entradaProdutoDAO.procuraTodosDeUmProduto(produtoPrincipal));
+                            produtoPrincipal.getEntradaProdutos().addAll(entradaProdutoDAO.procuraTodosDeUmProduto(produtoPrincipal));
                             entradaProdutoDAO.close();
                             int saida = Integer.valueOf(furo.getQuantidade());
                             for (EntradaProduto entradaProduto : produtoPrincipal.getEntradaProdutos()) {

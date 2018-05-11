@@ -9,10 +9,14 @@ import android.util.Log;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import io.realm.Realm;
+import pitstop.com.br.pitstop.Util;
 import pitstop.com.br.pitstop.model.Avaria;
 import pitstop.com.br.pitstop.model.EntradaProduto;
+import pitstop.com.br.pitstop.model.ItemAvaria;
 import pitstop.com.br.pitstop.model.Produto;
 
 /**
@@ -20,19 +24,31 @@ import pitstop.com.br.pitstop.model.Produto;
  */
 
 public class EntradaProdutoDAO {
-    private DatabaseHelper databaseHelper;
-    private SQLiteDatabase database;
-    Context context;
+    private Realm realm;
+    public Context context;
+
+    private void verificaSeRealmEstaFechado() {
+        if (realm.isClosed()) {
+            realm = Realm.getDefaultInstance();
+        }
+    }
 
     public EntradaProdutoDAO(Context context) {
-        databaseHelper = new DatabaseHelper(context);
+        realm = Realm.getDefaultInstance();
         this.context = context;
     }
-    public void deleta(EntradaProduto entradaProduto) {
-        SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
-        String[] params = {entradaProduto.getId().toString()};
-        db.delete("EntradaProduto", "id = ?", params);
+    public void deleta(EntradaProduto entradaProduto) {
+        verificaSeRealmEstaFechado();
+        realm.beginTransaction();
+        EntradaProduto entradaProdutoRealm = realm.where(EntradaProduto.class)
+                .equalTo("id", entradaProduto.getId())
+                .findFirst();
+        if (entradaProdutoRealm == null)
+            return;
+        entradaProdutoRealm.deleteFromRealm();
+        realm.commitTransaction();
+
     }
 
     public void sincroniza(List<EntradaProduto> entradaProdutos) {
@@ -44,14 +60,14 @@ public class EntradaProdutoDAO {
             //Log.e("EntradaProduto-1 - sinc", String.valueOf(entradaProduto.getSincronizado()));
             if (existe(entradaProduto)) {
                 close();
-                if(entradaProduto.estaDesativado()){
+                if (entradaProduto.estaDesativado()) {
                     deleta(entradaProduto);
                     close();
                 } else {
                     altera(entradaProduto);
                     close();
                 }
-            } else if (!entradaProduto.estaDesativado()){
+            } else if (!entradaProduto.estaDesativado()) {
                 insere(entradaProduto);
                 close();
             }
@@ -60,202 +76,124 @@ public class EntradaProdutoDAO {
     }
 
     private boolean existe(EntradaProduto entradaProduto) {
-        SQLiteDatabase db = databaseHelper.getReadableDatabase();
-        String existe = "SELECT id FROM EntradaProduto WHERE id=? LIMIT 1";
-        Cursor cursor = db.rawQuery(existe, new String[]{entradaProduto.getId()});
-        //Log.e("verificando nome_>",cursor.getString(cursor.getColumnIndex("id")));
-        int quantidade = cursor.getCount();
-        cursor.close();
-        return quantidade > 0;
+        verificaSeRealmEstaFechado();
+        Number n = realm.where(EntradaProduto.class).equalTo("id", entradaProduto.getId()).count();
+        return (n.intValue() > 0);
+    }
+
+    private void pegarDados(EntradaProduto entradaProduto, EntradaProduto entradaProdutoRealm) {
+        verificaSeRealmEstaFechado();
+        Produto produtoRealm = realm.where(Produto.class)
+                .equalTo("id", entradaProduto.getProduto().getId())
+                .findFirst();
+        entradaProdutoRealm.setPrecoDeCompra(entradaProduto.getPrecoDeCompra());
+        entradaProdutoRealm.setQuantidade(entradaProduto.getQuantidade());
+        entradaProdutoRealm.setData(entradaProduto.getData());
+        entradaProdutoRealm.setProduto(produtoRealm);
+        entradaProdutoRealm.setSincronizado(entradaProduto.getSincronizado());
+        entradaProdutoRealm.setMomentoDaUltimaAtualizacao(entradaProduto.getMomentoDaUltimaAtualizacao());
+        entradaProdutoRealm.setQuantidadeVendidaMovimentada(entradaProduto.getQuantidadeVendidaMovimentada());
+        entradaProdutoRealm.setDesativado(entradaProduto.getDesativado());
+
     }
 
     public void altera(EntradaProduto entradaProduto) {
-        SQLiteDatabase db = databaseHelper.getWritableDatabase();
-
-        ContentValues dados = new ContentValues();
-        dados.put("id", entradaProduto.getId());
-        dados.put("precoDeCompra", entradaProduto.getPrecoDeCompra());
-        dados.put("quantidade", entradaProduto.getQuantidade());
-        dados.put("data", entradaProduto.getData());
-        dados.put("produto_id", entradaProduto.getProduto().getId());
-        dados.put("sincronizado", entradaProduto.getSincronizado());
-        dados.put("desativado", entradaProduto.getDesativado());
-        dados.put("quantidadeVendidaMovimentada", entradaProduto.getQuantidadeVendidaMovimentada());
-
-        String[] params = {entradaProduto.getId().toString()};
-        db.update("EntradaProduto", dados, "id = ?", params);
+        verificaSeRealmEstaFechado();
+        realm.beginTransaction();
+        EntradaProduto entradaProdutoRealm = realm.where(EntradaProduto.class).equalTo("id", entradaProduto.getId()).findFirst();
+        pegarDados(entradaProduto, entradaProdutoRealm);
+        realm.commitTransaction();
     }
 
     public void insere(EntradaProduto entradaProduto) {
-        SQLiteDatabase db = databaseHelper.getWritableDatabase();
-
-        ContentValues dados = new ContentValues();
-        dados.put("id", entradaProduto.getId());
-        dados.put("precoDeCompra", entradaProduto.getPrecoDeCompra());
-        dados.put("quantidade", entradaProduto.getQuantidade());
-        dados.put("data", entradaProduto.getData());
-        dados.put("produto_id", entradaProduto.getProduto().getId());
-        dados.put("sincronizado", entradaProduto.getSincronizado());
-        dados.put("desativado", entradaProduto.getDesativado());
-        dados.put("quantidadeVendidaMovimentada", entradaProduto.getQuantidadeVendidaMovimentada());
-
-
-        db.insert("EntradaProduto", null, dados);
+        verificaSeRealmEstaFechado();
+        realm.beginTransaction();
+        EntradaProduto entradaProdutoRealm = realm.createObject(EntradaProduto.class, entradaProduto.getId());
+        pegarDados(entradaProduto, entradaProdutoRealm);
+        realm.commitTransaction();
     }
 
     public void insereLista(List<EntradaProduto> entradaProdutos) {
-        SQLiteDatabase db = databaseHelper.getWritableDatabase();
-
+        verificaSeRealmEstaFechado();
         for (EntradaProduto entradaProduto : entradaProdutos) {
-            ContentValues dados = new ContentValues();
-            dados.put("id", entradaProduto.getId());
-            dados.put("precoDeCompra", entradaProduto.getPrecoDeCompra());
-            dados.put("quantidade", entradaProduto.getQuantidade());
-            dados.put("data", entradaProduto.getData());
-            dados.put("produto_id", entradaProduto.getProduto().getId());
-            dados.put("sincronizado", entradaProduto.getSincronizado());
-            dados.put("desativado", entradaProduto.getDesativado());
-            dados.put("quantidadeVendidaMovimentada", entradaProduto.getQuantidadeVendidaMovimentada());
+            realm.beginTransaction();
+            EntradaProduto entradaProdutoRealm = realm.createObject(EntradaProduto.class);
+            pegarDados(entradaProduto, entradaProdutoRealm);
+            realm.commitTransaction();
 
-
-            db.insert("EntradaProduto", null, dados);
 
         }
-
     }
 
     public List<EntradaProduto> listaNaoSincronizados() {
-        SQLiteDatabase db = databaseHelper.getReadableDatabase();
-        String sql = "SELECT * FROM EntradaProduto WHERE sincronizado = 0";
-        Cursor c = db.rawQuery(sql, null);
-        List<EntradaProduto> entradaProdutos = new ArrayList<EntradaProduto>();
-        while (c.moveToNext()) {
-            EntradaProduto entradaProduto = new EntradaProduto();
-            entradaProduto.setId(c.getString(c.getColumnIndex("id")));
-            entradaProduto.setDesativado(Integer.parseInt(c.getString(c.getColumnIndex("desativado"))));
-            entradaProduto.setPrecoDeCompra(Double.valueOf(c.getString(c.getColumnIndex("precoDeCompra"))));
-            entradaProduto.setQuantidade(Integer.parseInt(c.getString(c.getColumnIndex("quantidade"))));
-            entradaProduto.setData(c.getString(c.getColumnIndex("data")));
-
-            entradaProduto.setQuantidadeVendidaMovimentada(Integer.parseInt(c.getString(c.getColumnIndex("quantidadeVendidaMovimentada"))));
-            ProdutoDAO produtoDAO = new ProdutoDAO(context);
-            entradaProduto.setProduto(produtoDAO.procuraPorId(c.getString(c.getColumnIndex("produto_id"))));
-            produtoDAO.close();
-            entradaProduto.setSincronizado(Integer.parseInt(c.getString(c.getColumnIndex("sincronizado"))));
-
-            entradaProdutos.add(entradaProduto);
-
-        }
-        c.close();
-        return entradaProdutos;
-
+        verificaSeRealmEstaFechado();
+        List<EntradaProduto> entradaProdutos = new ArrayList<>();
+        entradaProdutos.addAll(realm.where(EntradaProduto.class)
+                .equalTo("sincronizado", 0)
+                .findAll());
+        return realm.copyFromRealm(entradaProdutos);
     }
 
     public List<EntradaProduto> listarEntradaProduto() {
-        String sql = "SELECT * FROM EntradaProduto;";
-        SQLiteDatabase db = databaseHelper.getReadableDatabase();
-        Cursor c = db.rawQuery(sql, null);
-        List<EntradaProduto> entradaProdutos = new ArrayList<EntradaProduto>();
-        while (c.moveToNext()) {
-            EntradaProduto entradaProduto = new EntradaProduto();
-            entradaProduto.setId(c.getString(c.getColumnIndex("id")));
-            entradaProduto.setDesativado(Integer.parseInt(c.getString(c.getColumnIndex("desativado"))));
-            entradaProduto.setPrecoDeCompra(Double.valueOf(c.getString(c.getColumnIndex("precoDeCompra"))));
-            entradaProduto.setQuantidade(Integer.parseInt(c.getString(c.getColumnIndex("quantidade"))));
-            entradaProduto.setQuantidadeVendidaMovimentada(Integer.parseInt(c.getString(c.getColumnIndex("quantidadeVendidaMovimentada"))));
+        verificaSeRealmEstaFechado();
+        List<EntradaProduto> entradaProdutos = new ArrayList<>();
+        entradaProdutos.addAll(realm.where(EntradaProduto.class)
+                .equalTo("sincronizado", 0)
+                .equalTo("desativado", 0)
+                .findAll());
+        return realm.copyFromRealm(entradaProdutos);
 
-            entradaProduto.setData(c.getString(c.getColumnIndex("data")));
 
-            ProdutoDAO produtoDAO = new ProdutoDAO(context);
-            entradaProduto.setProduto(produtoDAO.procuraPorId(c.getString(c.getColumnIndex("produto_id"))));
-            entradaProduto.setSincronizado(Integer.parseInt(c.getString(c.getColumnIndex("sincronizado"))));
-            produtoDAO.close();
-            entradaProdutos.add(entradaProduto);
-
-        }
-        c.close();
-        return entradaProdutos;
     }
 
-    public List<EntradaProduto> relatorio(String lojaEscolhida, String de, String ate) {
-        String sql = "SELECT ep.desativado,ep.id,ep.data,ep.precoDeCompra,ep.quantidade,ep.quantidadeVendidaMovimentada,ep.sincronizado,ep.produto_id  FROM EntradaProduto ep inner join Produtos p on ep.produto_id=p.id inner join Lojas l on p.loja_id=l.id where ep.desativado=0 and ep.data between '" + de + "' and '" + ate + "' and l.id like '" + lojaEscolhida + "' order by ep.data desc ;";
-        Log.e("sql", sql);
-        SQLiteDatabase db = databaseHelper.getReadableDatabase();
-        Cursor c = db.rawQuery(sql, null);
-
-        List<EntradaProduto> entradaProdutos = new ArrayList<EntradaProduto>();
-        while (c.moveToNext()) {
-            EntradaProduto entradaProduto = new EntradaProduto();
-            entradaProduto.setId(c.getString(c.getColumnIndex("id")));
-            entradaProduto.setDesativado(Integer.parseInt(c.getString(c.getColumnIndex("desativado"))));
-            entradaProduto.setPrecoDeCompra(Double.valueOf(c.getString(c.getColumnIndex("precoDeCompra"))));
-            entradaProduto.setQuantidade(Integer.parseInt(c.getString(c.getColumnIndex("quantidade"))));
-            entradaProduto.setQuantidadeVendidaMovimentada(Integer.parseInt(c.getString(c.getColumnIndex("quantidadeVendidaMovimentada"))));
-            entradaProduto.setData(c.getString(c.getColumnIndex("data")));
-            ProdutoDAO produtoDAO = new ProdutoDAO(context);
-            entradaProduto.setProduto(produtoDAO.procuraPorId(c.getString(c.getColumnIndex("produto_id"))));
-            entradaProduto.setSincronizado(Integer.parseInt(c.getString(c.getColumnIndex("sincronizado"))));
-            produtoDAO.close();
-            entradaProdutos.add(entradaProduto);
+    public List<EntradaProduto> relatorio(String lojaEscolhidaId, String de, String ate) {
+        verificaSeRealmEstaFechado();
+        Date dateOrigem = Util.converteDoFormatoSQLParaDate(de);
+        Date dateFim = Util.converteDoFormatoSQLParaDate(ate);
+        List<EntradaProduto> EntradaProduto = new ArrayList<>();
+        if (lojaEscolhidaId.equals("%")) {
+            EntradaProduto.addAll(realm.where(EntradaProduto.class)
+                    .between("data", dateOrigem, dateFim)
+                    .equalTo("desativado", 0)
+                    .findAll());
+            return realm.copyFromRealm(EntradaProduto);
+        } else {
+            EntradaProduto.addAll(realm.where(EntradaProduto.class)
+                    .between("data", dateOrigem, dateFim)
+                    .equalTo("produto.loja.id", lojaEscolhidaId)
+                    .equalTo("desativado", 0)
+                    .findAll());
+            return realm.copyFromRealm(EntradaProduto);
 
         }
-        c.close();
-        return entradaProdutos;
+
     }
 
     public void close() {
-        databaseHelper.close();
-        database = null;
+        realm.close();
     }
 
     public List<EntradaProduto> procuraTodosDeUmProduto(Produto produto) {
-        SQLiteDatabase db = databaseHelper.getReadableDatabase();
-        String existe = "SELECT * FROM EntradaProduto WHERE desativado=0 and produto_id=? and (quantidade-quantidadeVendidaMovimentada)!=0  order by data asc";
-        Cursor c = db.rawQuery(existe, new String[]{produto.getId()});
-        List<EntradaProduto> entradaProdutos = new ArrayList<EntradaProduto>();
-        while (c.moveToNext()) {
-            EntradaProduto entradaProduto = new EntradaProduto();
-            entradaProduto.setId(c.getString(c.getColumnIndex("id")));
-            entradaProduto.setDesativado(Integer.parseInt(c.getString(c.getColumnIndex("desativado"))));
-            entradaProduto.setPrecoDeCompra(Double.valueOf(c.getString(c.getColumnIndex("precoDeCompra"))));
-            entradaProduto.setQuantidade(Integer.parseInt(c.getString(c.getColumnIndex("quantidade"))));
-            entradaProduto.setQuantidadeVendidaMovimentada(Integer.parseInt(c.getString(c.getColumnIndex("quantidadeVendidaMovimentada"))));
-            entradaProduto.setData(c.getString(c.getColumnIndex("data")));
-            ProdutoDAO produtoDAO = new ProdutoDAO(context);
-            entradaProduto.setProduto(produtoDAO.procuraPorId(c.getString(c.getColumnIndex("produto_id"))));
-            entradaProduto.setSincronizado(Integer.parseInt(c.getString(c.getColumnIndex("sincronizado"))));
-            entradaProdutos.add(entradaProduto);
-            produtoDAO.close();
-
-
-        }
-        c.close();
-        return entradaProdutos;
-
+        verificaSeRealmEstaFechado();
+        List<EntradaProduto> entradaProdutos = new ArrayList<>();
+        entradaProdutos.addAll(realm.where(EntradaProduto.class)
+                .equalTo("sincronizado", 0)
+                .equalTo("desativado", 0)
+                .equalTo("produto.id", produto.getId())
+                .notEqualTo("quantidade-quantidadeVendidaMovimentada", 0)
+                .findAll());
+        return realm.copyFromRealm(entradaProdutos);
     }
 
     public EntradaProduto procuraPorId(String id) {
-        SQLiteDatabase db = databaseHelper.getReadableDatabase();
-        String existe = "SELECT * FROM EntradaProduto WHERE id=?";
-        Cursor c = db.rawQuery(existe, new String[]{id});
-        EntradaProduto entradaProduto = null;
-        while (c.moveToNext()) {
-            entradaProduto = new EntradaProduto();
-            entradaProduto.setId(c.getString(c.getColumnIndex("id")));
-            entradaProduto.setDesativado(Integer.parseInt(c.getString(c.getColumnIndex("desativado"))));
-            entradaProduto.setPrecoDeCompra(Double.valueOf(c.getString(c.getColumnIndex("precoDeCompra"))));
-            entradaProduto.setQuantidade(Integer.parseInt(c.getString(c.getColumnIndex("quantidade"))));
-            entradaProduto.setQuantidadeVendidaMovimentada(Integer.parseInt(c.getString(c.getColumnIndex("quantidadeVendidaMovimentada"))));
-            entradaProduto.setData(c.getString(c.getColumnIndex("data")));
-            ProdutoDAO produtoDAO = new ProdutoDAO(context);
-            entradaProduto.setProduto(produtoDAO.procuraPorId(c.getString(c.getColumnIndex("produto_id"))));
-            entradaProduto.setSincronizado(Integer.parseInt(c.getString(c.getColumnIndex("sincronizado"))));
-            produtoDAO.close();
-
-
-        }
-        c.close();
-        return entradaProduto;
+        verificaSeRealmEstaFechado();
+        EntradaProduto entradaProdutoRealm = realm.where(EntradaProduto.class)
+                .equalTo("id", id)
+                .equalTo("desativado", 0)
+                .findFirst();
+        if (entradaProdutoRealm == null)
+            return null;
+        return realm.copyFromRealm(entradaProdutoRealm);
 
     }
 

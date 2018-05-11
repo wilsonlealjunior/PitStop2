@@ -43,6 +43,7 @@ public class CarregarListaDeProdutoTask extends AsyncTask<Void, Void, String> {
     @Override
     protected String doInBackground(Void... params) {
         produtos.clear();
+        produtoDAO = new ProdutoDAO(context);
         if (loja == null) {
             produtos.addAll(produtoDAO.listarProdutos());
         } else {

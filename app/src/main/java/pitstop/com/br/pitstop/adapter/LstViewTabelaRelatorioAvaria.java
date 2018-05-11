@@ -70,7 +70,7 @@ public class LstViewTabelaRelatorioAvaria extends ArrayAdapter<Avaria> {
             LojaDAO lojaDAO = new LojaDAO(context);
             ProdutoDAO produtoDAO = new ProdutoDAO(context);
 
-            holder.data.setText(Util.dataNoformatoBrasileiro(Util.converteDoFormatoSQLParaDate(items.getData())));
+            holder.data.setText(Util.dataNoformatoBrasileiro(items.getData()));
             holder.prejuizo.setText(Util.moedaNoFormatoBrasileiro(items.getPrejuizo()));
             holder.produto.setText(produtoDAO.procuraPorId(items.getIdProduto()).getNome());
             produtoDAO.close();

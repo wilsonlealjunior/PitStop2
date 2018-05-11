@@ -41,8 +41,7 @@ public class CadastroEntradaProdutoHelper {
             return null;
         }
         entradaProduto.setQuantidade(Integer.valueOf(campoquantidade.getText().toString()));
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        entradaProduto.setData(formatter.format(new Date()));
+        entradaProduto.setData((new Date()));
         return entradaProduto;
     }
 

@@ -1,18 +1,24 @@
 package pitstop.com.br.pitstop.model;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+
+import io.realm.RealmList;
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by wilso on 10/10/2017.
  */
 
-public class Venda {
+public class Venda extends RealmObject{
+    @PrimaryKey
     String id;
     String idLoja;
-    List<ItemVenda> itemVendas;
+    RealmList<ItemVenda> itemVendas = new RealmList<>();
     String nomeVendedor;
-    String dataDaVenda;
+    Date dataDaVenda;
     String formaDePagamento;
     String MomentoDaUltimaAtualizacao;
     int sincronizado;
@@ -81,6 +87,14 @@ public class Venda {
         MomentoDaUltimaAtualizacao = momentoDaUltimaAtualizacao;
     }
 
+    public void setItemVendas(RealmList<ItemVenda> itemVendas) {
+        this.itemVendas = itemVendas;
+
+    }
+
+    public RealmList<ItemVenda> getItemVendas() {
+        return itemVendas;
+    }
 
     public void setSincronizado(int sincronizado) {
         this.sincronizado = sincronizado;
@@ -94,13 +108,6 @@ public class Venda {
         this.idLoja = idLoja;
     }
 
-    public List<ItemVenda> getItemVendas() {
-        return itemVendas;
-    }
-
-    public void setItemVendas(List<ItemVenda> itemVendas) {
-        this.itemVendas = itemVendas;
-    }
 
     public String getFormaDePagamento() {
         return formaDePagamento;
@@ -111,8 +118,7 @@ public class Venda {
     }
 
 
-    public Venda() {
-        itemVendas = new ArrayList<>();
+    public Venda(){
     }
 
 
@@ -134,11 +140,11 @@ public class Venda {
         this.nomeVendedor = nomeVendedor;
     }
 
-    public String getDataDaVenda() {
+    public Date getDataDaVenda() {
         return dataDaVenda;
     }
 
-    public void setDataDaVenda(String dataDaVenda) {
+    public void setDataDaVenda(Date dataDaVenda) {
         this.dataDaVenda = dataDaVenda;
     }
 }

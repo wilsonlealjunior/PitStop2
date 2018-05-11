@@ -21,20 +21,12 @@
 
 
         <ImageView
-            android:layout_width="@dimen/logo_w_h"
+            android:layout_width="match_parent"
             android:layout_height="@dimen/logo_w_h"
             android:layout_gravity="center_horizontal"
 
-            android:src="@mipmap/laucher" />
+            android:src="@drawable/logo_pitstop" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="PitStop"
-            android:textAlignment="center"
-
-            android:textColor="@color/black"
-            android:textSize="50dp" />
     </LinearLayout>
 
     <android.support.v7.widget.AppCompatSpinner

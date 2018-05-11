@@ -22,7 +22,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@android:color/holo_blue_dark"
+                android:background="@color/colorPrimary"
                 android:orientation="horizontal">
 
                 <ImageView
@@ -37,7 +37,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="8dp"
-                    android:background="@android:color/holo_blue_dark"
+                    android:background="@color/colorPrimary"
                     android:shadowColor="@android:color/holo_blue_light"
                     android:text="@string/total_das_vendas_de_cada_loja"
                     android:textColor="@android:color/white"
@@ -54,14 +54,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
                 android:layout_gravity="center"
-                android:layout_margin="8dp"
                 android:layout_weight="0.5"
-                android:background="@android:color/holo_blue_dark"
                 android:padding="8dp"
+                android:drawableLeft="@drawable/ic_confirmar"
+                android:drawableStart="@drawable/ic_confirmar"
+                android:background="@color/colorPrimary"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:shadowColor="@android:color/holo_blue_light"
                 android:text="@string/gerar_grafico"
-                android:textColor="@android:color/white" />
+                android:textColor="@android:color/white"
+               />
 
 
             <LinearLayout

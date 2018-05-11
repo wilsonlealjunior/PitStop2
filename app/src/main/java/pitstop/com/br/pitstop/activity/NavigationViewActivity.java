@@ -76,7 +76,7 @@ public class NavigationViewActivity extends AppCompatActivity {
         objetosSinkSincronizador = new ObjetosSinkSincronizador(this);
 
         Intent intent = getIntent();
-        lojaVindaDaTelaDeListarProduto = (Loja) intent.getSerializableExtra("loja");
+        lojaVindaDaTelaDeListarProduto = (Loja) intent.getParcelableExtra("loja");
 
         initViews();
         setUpHeaderView();

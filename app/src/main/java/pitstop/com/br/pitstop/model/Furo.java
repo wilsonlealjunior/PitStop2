@@ -1,20 +1,26 @@
 package pitstop.com.br.pitstop.model;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+
+import io.realm.RealmList;
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by wilso on 15/12/2017.
  */
 
-public class Furo {
+public class Furo extends RealmObject {
+    @PrimaryKey
     String id;
-    List<ItemFuro> furoEntradeProdutos;
+    RealmList<ItemFuro> furoEntradeProdutos = new RealmList<>();
     String idLoja;
     String idUsuario;
     String idProduto;
     int sincronizado;
-    String data;
+    Date data;
     double valor;
     double precoDeVenda;
     int quantidade;
@@ -54,7 +60,7 @@ public class Furo {
 
 
     public Furo(){
-        furoEntradeProdutos = new ArrayList<>();
+
     }
 
     public double getPrecoDeVenda() {
@@ -80,11 +86,11 @@ public class Furo {
         this.id = id;
     }
 
-    public List<ItemFuro> getFuroEntradeProdutos() {
+    public RealmList<ItemFuro> getFuroEntradeProdutos() {
         return furoEntradeProdutos;
     }
 
-    public void setFuroEntradeProdutos(List<ItemFuro> furoEntradeProdutos) {
+    public void setFuroEntradeProdutos(RealmList<ItemFuro> furoEntradeProdutos) {
         this.furoEntradeProdutos = furoEntradeProdutos;
     }
 
@@ -120,11 +126,11 @@ public class Furo {
         this.sincronizado = sincronizado;
     }
 
-    public String getData() {
+    public Date getData() {
         return data;
     }
 
-    public void setData(String data) {
+    public void setData(Date data) {
         this.data = data;
     }
 

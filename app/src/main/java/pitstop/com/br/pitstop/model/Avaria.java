@@ -1,23 +1,32 @@
 package pitstop.com.br.pitstop.model;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+
+import io.realm.RealmList;
+import io.realm.RealmObject;
+import io.realm.annotations.Ignore;
+import io.realm.annotations.PrimaryKey;
+import pitstop.com.br.pitstop.Util;
 
 /**
  * Created by wilso on 27/11/2017.
  */
 
-public class Avaria {
+public class Avaria extends RealmObject {
+    @PrimaryKey
     String id;
-    List<ItemAvaria> avariaEntradeProdutos;
+    RealmList<ItemAvaria> avariaEntradeProdutos = new RealmList<>();
     String idLoja;
     String idProduto;
     int quantidade;
     int sincronizado;
-    String data;
+    private Date data;
     String momentoDaUltimaAtualizacao;
     double prejuizo;
-    private int desativado=0;
+    private int desativado = 0;
 
     public String getIdProduto() {
         return idProduto;
@@ -35,9 +44,11 @@ public class Avaria {
         this.quantidade = quantidade;
     }
 
-    public void desativar(){
-        desativado=1;
+    public void desativar() {
+        desativado = 1;
     }
+
+
 
     public int getDesativado() {
         return desativado;
@@ -48,8 +59,8 @@ public class Avaria {
     }
 
 
-    public Avaria(){
-        avariaEntradeProdutos = new ArrayList<>();
+    public Avaria() {
+        avariaEntradeProdutos = new RealmList<>();
 
     }
 
@@ -76,16 +87,17 @@ public class Avaria {
     public void sincroniza() {
         this.sincronizado = 1;
     }
+
     public void desincroniza() {
         this.sincronizado = 0;
     }
 
 
-    public String getData() {
+    public Date getData() {
         return data;
     }
 
-    public void setData(String data) {
+    public void setData(Date data) {
         this.data = data;
     }
 
@@ -97,11 +109,11 @@ public class Avaria {
         this.id = id;
     }
 
-    public List<ItemAvaria>  getAvariaEntradeProdutos() {
+    public RealmList<ItemAvaria> getAvariaEntradeProdutos() {
         return avariaEntradeProdutos;
     }
 
-    public void setAvariaEntradeProdutos(List<ItemAvaria>  avariaEntradeProdutos) {
+    public void setAvariaEntradeProdutos(RealmList<ItemAvaria> avariaEntradeProdutos) {
         this.avariaEntradeProdutos = avariaEntradeProdutos;
     }
 

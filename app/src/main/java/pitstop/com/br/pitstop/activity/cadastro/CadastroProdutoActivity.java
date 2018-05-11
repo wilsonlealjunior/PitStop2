@@ -88,7 +88,7 @@ public class CadastroProdutoActivity extends AppCompatActivity {
             return;
         }
         Intent intent = getIntent();
-        Produto produto = (Produto) intent.getSerializableExtra("produto");
+        Produto produto = (Produto) intent.getParcelableExtra("produto");
         if (produto != null) {
             cadastroProdutoHelper.preencheFormulario(produto);
             cardViewVinculacao.setVisibility(View.GONE);

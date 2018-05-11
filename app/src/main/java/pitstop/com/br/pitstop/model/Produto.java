@@ -1,29 +1,85 @@
 package pitstop.com.br.pitstop.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+
+import io.realm.RealmList;
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
+import io.realm.annotations.Required;
 
 /**
  * Created by wilso on 20/09/2017.
  */
 
-public class Produto implements Serializable, Comparable<Produto> {
+public class Produto extends RealmObject implements Parcelable, Comparable<Produto> {
+    @PrimaryKey
     private String id;
     private String nome;
     private int estoqueMinimo;
     private int quantidade = 0;
     private double preco;
     private Loja loja;
-    private List<EntradaProduto> entradaProdutos;
+    private RealmList<EntradaProduto> entradaProdutos = new RealmList<>();
     private int sincronizado;
     private String momentoDaUltimaAtualizacao;
-    private List<String> idProdutoVinculado;
+    @Required
+    private RealmList<String> idProdutoVinculado = new RealmList<>();
     private String idProdutoPrincipal;
     private int vinculo;
 
+
+    protected Produto(Parcel in) {
+        id = in.readString();
+        nome = in.readString();
+        estoqueMinimo = in.readInt();
+        quantidade = in.readInt();
+        preco = in.readDouble();
+        loja = in.readParcelable(Loja.class.getClassLoader());
+        sincronizado = in.readInt();
+        momentoDaUltimaAtualizacao = in.readString();
+        idProdutoPrincipal = in.readString();
+        vinculo = in.readInt();
+        entradaProdutos.addAll(in.createTypedArrayList(EntradaProduto.CREATOR));
+        idProdutoVinculado.addAll(in.createTypedArrayList(in.STRING_CREATOR));
+
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(nome);
+        dest.writeInt(estoqueMinimo);
+        dest.writeInt(quantidade);
+        dest.writeDouble(preco);
+        dest.writeParcelable(loja, flags);
+        dest.writeInt(sincronizado);
+        dest.writeString(momentoDaUltimaAtualizacao);
+        dest.writeString(idProdutoPrincipal);
+        dest.writeInt(vinculo);
+        dest.writeTypedList(entradaProdutos);
+        dest.writeStringList(idProdutoVinculado);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<Produto> CREATOR = new Creator<Produto>() {
+        @Override
+        public Produto createFromParcel(Parcel in) {
+            return new Produto(in);
+        }
+
+        @Override
+        public Produto[] newArray(int size) {
+            return new Produto[size];
+        }
+    };
 
     public String getIdProdutoPrincipal() {
         return idProdutoPrincipal;
@@ -41,13 +97,10 @@ public class Produto implements Serializable, Comparable<Produto> {
         this.momentoDaUltimaAtualizacao = momentoDaUltimaAtualizacao;
     }
 
-    public List<String> getIdProdutoVinculado() {
+    public RealmList<String> getIdProdutoVinculado() {
         return idProdutoVinculado;
     }
 
-    public void setIdProdutoVinculado(List<String> idProdutoVinculado) {
-        this.idProdutoVinculado = idProdutoVinculado;
-    }
 
     public int getVinculo() {
         return vinculo;
@@ -56,12 +109,14 @@ public class Produto implements Serializable, Comparable<Produto> {
     public void setVinculo(int vinculo) {
         this.vinculo = vinculo;
     }
-    public boolean vinculado(){
-        return vinculo ==1;
+
+    public boolean vinculado() {
+        return vinculo == 1;
     }
-    public void vincular(String idProdutoPrincipal){
+
+    public void vincular(String idProdutoPrincipal) {
         this.idProdutoPrincipal = idProdutoPrincipal;
-        vinculo=1;
+        vinculo = 1;
     }
 
     public void setSincronizado(int sincronizado) {
@@ -73,11 +128,17 @@ public class Produto implements Serializable, Comparable<Produto> {
     }
 
     public Produto() {
-        this.idProdutoVinculado = new ArrayList<>();
-        this.entradaProdutos = new ArrayList<EntradaProduto>();
 
     }
 
+
+    public void setEntradaProdutos(RealmList<EntradaProduto> entradaProdutos) {
+        this.entradaProdutos = entradaProdutos;
+    }
+
+    public void setIdProdutoVinculado(RealmList<String> idProdutoVinculado) {
+        this.idProdutoVinculado = idProdutoVinculado;
+    }
 
     public int getEstoqueMinimo() {
         return estoqueMinimo;
@@ -92,7 +153,6 @@ public class Produto implements Serializable, Comparable<Produto> {
         this.nome = nome;
         this.preco = preco;
         this.quantidade = quantidade;
-        this.entradaProdutos = new ArrayList<EntradaProduto>();
     }
 
 
@@ -112,13 +172,10 @@ public class Produto implements Serializable, Comparable<Produto> {
         this.loja = loja;
     }
 
-    public List<EntradaProduto> getEntradaProdutos() {
+    public RealmList<EntradaProduto> getEntradaProdutos() {
         return entradaProdutos;
     }
 
-    public void setEntradaProdutos(List<EntradaProduto> entradaProdutos) {
-        this.entradaProdutos = entradaProdutos;
-    }
 
     public double getPreco() {
         return preco;
@@ -194,4 +251,7 @@ public class Produto implements Serializable, Comparable<Produto> {
         return nome.compareTo(produto.getNome());
 
     }
+
 }
+
+

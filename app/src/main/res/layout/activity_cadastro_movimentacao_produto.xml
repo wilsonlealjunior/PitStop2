@@ -30,7 +30,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@android:color/holo_blue_dark"
+                    android:background="@color/colorPrimary"
                     android:orientation="horizontal">
 
 
@@ -115,9 +115,10 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_margin="8dp"
-                    android:background="@android:color/holo_blue_dark"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp"
+                    android:background="@color/colorPrimary"
+                    android:padding="8dp"
+                    android:drawableLeft="@drawable/ic_action_add"
+                    android:drawableStart="@drawable/ic_action_add"
                     android:foreground="?android:attr/selectableItemBackground"
                     android:shadowColor="@android:color/holo_blue_light"
                     android:text="@string/adicionar"
@@ -140,7 +141,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@android:color/holo_blue_dark"
+                    android:background="@color/colorPrimary"
                     android:orientation="horizontal">
 
                     <ImageView

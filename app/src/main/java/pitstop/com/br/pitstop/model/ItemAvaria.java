@@ -1,10 +1,14 @@
 package pitstop.com.br.pitstop.model;
 
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
+
 /**
  * Created by wilso on 27/11/2017.
  */
 
-public class ItemAvaria {
+public class ItemAvaria extends RealmObject {
+    @PrimaryKey
     String id;
     String idAvaria;
     String idEntradaProduto;
@@ -14,6 +18,7 @@ public class ItemAvaria {
     public void sincroniza() {
         this.sincronizado = 1;
     }
+
     public void desincroniza() {
         this.sincronizado = 0;
     }

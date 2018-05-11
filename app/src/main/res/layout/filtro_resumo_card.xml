@@ -17,7 +17,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@android:color/holo_blue_dark"
+            android:background="@color/colorPrimary"
             android:orientation="horizontal">
 
             <ImageView
@@ -26,13 +26,13 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="8dp"
                 android:adjustViewBounds="false"
-                android:src="@mipmap/filtro" />
+                android:src="@drawable/ic_filter" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
-                android:background="@android:color/holo_blue_dark"
+                android:background="@color/colorPrimary"
                 android:shadowColor="@android:color/holo_blue_light"
                 android:text="Resumo das vendas"
                 android:textColor="@android:color/white"
@@ -103,12 +103,14 @@
         <Button
             android:id="@+id/gerar_relatorio"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_gravity="center"
-            android:layout_margin="8dp"
             android:layout_weight="0.5"
+            android:padding="8dp"
+            android:drawableLeft="@drawable/ic_sincronizacao"
+            android:drawableStart="@drawable/ic_sincronizacao"
             android:foreground="?android:attr/selectableItemBackground"
-            android:background="@android:color/holo_blue_dark"
+            android:background="@color/colorPrimary"
             android:shadowColor="@android:color/holo_blue_light"
             android:text="Atualizar"
             android:textColor="@android:color/white" />

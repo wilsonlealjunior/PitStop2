@@ -4,6 +4,9 @@ package pitstop.com.br.pitstop.retrofit;
  * Created by wilso on 18/10/2017.
  */
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
@@ -32,6 +35,7 @@ public class RetrofitInializador {
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 
+
         OkHttpClient.Builder client = new OkHttpClient.Builder().
                 connectTimeout(8, TimeUnit.SECONDS).
                 readTimeout(15, TimeUnit.MINUTES).
@@ -39,10 +43,13 @@ public class RetrofitInializador {
 
         client.addInterceptor(interceptor);
         //Gson gson = new GsonBuilder().setLenient().create();
+        Gson gson = new GsonBuilder()
+                .setDateFormat("yyyy-MM-dd HH:mm:ss")
+                .create();
 
 
-        retrofit = new Retrofit.Builder().baseUrl("http://10.0.0.11:8080/webServiceEstoque/")
-                .addConverterFactory(GsonConverterFactory.create()).client(client.build()).build();
+        retrofit = new Retrofit.Builder().baseUrl("http://50.30.43.161:8080/webServiceEstoque/")
+                .addConverterFactory(GsonConverterFactory.create(gson)).client(client.build()).build();
 
 
     }

@@ -7,7 +7,6 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.v4.app.Fragment;
@@ -44,14 +43,11 @@ import java.util.List;
 import de.greenrobot.event.EventBus;
 import de.greenrobot.event.Subscribe;
 import de.greenrobot.event.ThreadMode;
-import dmax.dialog.SpotsDialog;
 import okhttp3.ResponseBody;
 import pitstop.com.br.pitstop.R;
 import pitstop.com.br.pitstop.Util;
 import pitstop.com.br.pitstop.activity.cadastro.CadastroProdutoActivity;
-import pitstop.com.br.pitstop.activity.relatorio.RelatorioFuroActivity;
 import pitstop.com.br.pitstop.adapter.ProdutoRecicleViewAdapter;
-import pitstop.com.br.pitstop.assyncTask.CarregarListaDeProdutoTask;
 import pitstop.com.br.pitstop.dao.EntradaProdutoDAO;
 import pitstop.com.br.pitstop.dao.LojaDAO;
 import pitstop.com.br.pitstop.dao.ProdutoDAO;
@@ -285,12 +281,12 @@ public class ListarProdutoFragment extends Fragment implements SearchView.OnQuer
         recyclerView.setAdapter(produtoRecicleViewAdapter);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(layoutManager);
-        mensagens =  new ProgressDialog(context);
+        mensagens = new ProgressDialog(context);
         swipe = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_lista_produto);
         swipe.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                carregaLista();
+                spinnerLoja.setSelection(0);
             }
         });
         toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
@@ -347,7 +343,7 @@ public class ListarProdutoFragment extends Fragment implements SearchView.OnQuer
             labelsLojas.add(loja.getNome());
         }
         Intent intent = getActivity().getIntent();
-        lojaVindaDaTelaListaLoja = (Loja) intent.getSerializableExtra("loja");
+        lojaVindaDaTelaListaLoja = (Loja) intent.getParcelableExtra("loja");
         intent.removeExtra("loja");
         ArrayAdapter<String> spinnerAdapterDe = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, labelsLojas);
         spinnerAdapterDe.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -358,18 +354,9 @@ public class ListarProdutoFragment extends Fragment implements SearchView.OnQuer
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 if (lojaVindaDaTelaListaLoja == null) {
                     if (i == 0) {
-                        produtos.clear();
-                        CarregarListaDeProdutoTask carregarListaDeProdutoTask = new CarregarListaDeProdutoTask(context, null, produtos);
-                        carregarListaDeProdutoTask.execute();
-//                        produtos.addAll(produtoDAO.listarProdutos());
-                        recyclerView.setAdapter(produtoRecicleViewAdapter);
+                        carregaLista(null);
                     } else {
-                        produtos.clear();
-
-                        CarregarListaDeProdutoTask carregarListaDeProdutoTask = new CarregarListaDeProdutoTask(context, lojas.get(i - 1), produtos);
-                        carregarListaDeProdutoTask.execute();
-//                        produtos.addAll(produtoDAO.procuraPorLoja(lojas.get(i - 1)));
-                        recyclerView.setAdapter(produtoRecicleViewAdapter);
+                        carregaLista(lojas.get(i - 1));
                     }
                 } else {
                     int k = 1;
@@ -380,17 +367,9 @@ public class ListarProdutoFragment extends Fragment implements SearchView.OnQuer
                         }
                         k++;
                     }
-                    produtos.clear();
-                    CarregarListaDeProdutoTask carregarListaDeProdutoTask = new CarregarListaDeProdutoTask(context, lojaVindaDaTelaListaLoja, produtos);
-                    carregarListaDeProdutoTask.execute();
-//                    produtos.addAll(produtoDAO.procuraPorLoja(lojaVindaDaTelaListaLoja));
+                    carregaLista(lojaVindaDaTelaListaLoja);
                     lojaVindaDaTelaListaLoja = null;
                 }
-                produtoDAO.close();
-//                produtoRecicleViewAdapter.notifyDataSetChanged();
-                //recyclerView.getRecycledViewPool().clear();
-
-
             }
 
             @Override
@@ -404,8 +383,8 @@ public class ListarProdutoFragment extends Fragment implements SearchView.OnQuer
 
             @Override
             public boolean onLongClick(View v) {
-                int quantidadeProdutosIncosistentes=0;
-                for (Produto p: produtos) {
+                int quantidadeProdutosIncosistentes = 0;
+                for (Produto p : produtos) {
                     Produto produtoPrincipal = new Produto();
                     if (p.vinculado()) {
                         for (Produto produtosDaListView : produtos) {
@@ -417,14 +396,14 @@ public class ListarProdutoFragment extends Fragment implements SearchView.OnQuer
                     } else {
                         produtoPrincipal = p;
                     }
-                    produtoPrincipal.setEntradaProdutos(entradaProdutoDAO.procuraTodosDeUmProduto(produtoPrincipal));
+                    produtoPrincipal.getEntradaProdutos().addAll(entradaProdutoDAO.procuraTodosDeUmProduto(produtoPrincipal));
                     entradaProdutoDAO.close();
-                    int quantidade=0;
-                    for (EntradaProduto entradaProduto: produtoPrincipal.getEntradaProdutos()) {
-                        quantidade+=(entradaProduto.getQuantidade()-entradaProduto.getQuantidadeVendidaMovimentada());
+                    int quantidade = 0;
+                    for (EntradaProduto entradaProduto : produtoPrincipal.getEntradaProdutos()) {
+                        quantidade += (entradaProduto.getQuantidade() - entradaProduto.getQuantidadeVendidaMovimentada());
 
                     }
-                    if(produtoPrincipal.getQuantidade()!=quantidade){
+                    if (produtoPrincipal.getQuantidade() != quantidade) {
                         quantidadeProdutosIncosistentes++;
                         produtoPrincipal.setQuantidade(quantidade);
                         for (String produtoVinculoId : produtoPrincipal.getIdProdutoVinculado()) {
@@ -442,7 +421,7 @@ public class ListarProdutoFragment extends Fragment implements SearchView.OnQuer
                     }
 
                 }
-                Toast.makeText(context, quantidadeProdutosIncosistentes+" Produtos inconsistestes corrigidos com sucesso ", Toast.LENGTH_LONG).show();
+                Toast.makeText(context, quantidadeProdutosIncosistentes + " Produtos inconsistestes corrigidos com sucesso ", Toast.LENGTH_LONG).show();
                 return true;
             }
         });
@@ -468,6 +447,7 @@ public class ListarProdutoFragment extends Fragment implements SearchView.OnQuer
             tvUltimaSincronizacao.setText("Última sincronização: " + Util.dataComDiaEHoraPorExtenso(data.getTime()));
         }
     }
+
     public void pesquisar(String txtPesquisa) {
         int textlength = txtPesquisa.length();
         pesquisa.clear();
@@ -489,13 +469,27 @@ public class ListarProdutoFragment extends Fragment implements SearchView.OnQuer
 
     @Subscribe(threadMode = ThreadMode.MainThread)
     public void atualizaListaProdutoEvent(AtualizaListaProdutoEvent event) {
-        carregaLista();
+        spinnerLoja.setSelection(0);
         verificaUltimaSincronizacao();
     }
 
-    private void carregaLista() {
-        CarregandoListaDeProduto carregandoListaDeProduto = new CarregandoListaDeProduto(context);
-        carregandoListaDeProduto.execute();
+    private void carregaLista(Loja loja) {
+        produtos.clear();
+        Usuario user = usuarioPreferences.getUsuario();
+        if (usuarioPreferences.getUsuario().getRole().equals("Administrador")) {
+            if (loja == null) {
+                produtos.addAll(produtoDAO.listarProdutos());
+            } else {
+                produtos.addAll(produtoDAO.procuraPorLoja(loja));
+            }
+        } else {
+            produtos.addAll(produtoDAO.procuraPorLoja(usuarioPreferences.getLoja()));
+        }
+        produtoDAO.close();
+        swipe.setRefreshing(false);
+        produtoRecicleViewAdapter.notifyDataSetChanged();
+        verificaUltimaSincronizacao();
+
 
     }
 
@@ -524,7 +518,7 @@ public class ListarProdutoFragment extends Fragment implements SearchView.OnQuer
 
         return false;
     }
-
+/*
     private class CarregandoListaDeProduto extends AsyncTask<Void, Void, String> {
         private Context context;
         AlertDialog dialog;
@@ -544,6 +538,7 @@ public class ListarProdutoFragment extends Fragment implements SearchView.OnQuer
         @Override
         protected String doInBackground(Void... params) {
             produtos.clear();
+            produtoDAO = new ProdutoDAO(context);
             Usuario user = usuarioPreferences.getUsuario();
             if (usuarioPreferences.getUsuario().getRole().equals("Administrador")) {
                 produtos.addAll(produtoDAO.listarProdutos());
@@ -565,9 +560,10 @@ public class ListarProdutoFragment extends Fragment implements SearchView.OnQuer
             recyclerView.setAdapter(produtoRecicleViewAdapter);
             produtoRecicleViewAdapter.notifyDataSetChanged();
 //            recyclerView.getRecycledViewPool().clear();
+            verificaUltimaSincronizacao();
 
         }
-    }
+    }*/
 
     @Subscribe(threadMode = ThreadMode.MainThread)
     public void carregaListaDeProduto(CarregaListaDeProduto event) {

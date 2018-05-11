@@ -320,7 +320,7 @@ public class CadastroAvariaActivity extends BaseCadastroDeTransacaoDeProdutoActi
 
                         String dataAtual = Util.dataNoformatoDoSQLite(new Date());
                         for (Avaria avaria : carrinho) {
-                            avaria.setData(dataAtual);
+                            avaria.setData(new Date());
                             Produto produto = produtoDAO.procuraPorId(avaria.getIdProduto());
                             produtoDAO.close();
                             if (produto.vinculado()) {
@@ -332,7 +332,8 @@ public class CadastroAvariaActivity extends BaseCadastroDeTransacaoDeProdutoActi
                             }
 
                             int saida = Integer.valueOf(avaria.getQuantidade());
-                            produtoPrincipal.setEntradaProdutos(entradaProdutoDAO.procuraTodosDeUmProduto(produtoPrincipal));
+
+                            produtoPrincipal.getEntradaProdutos().addAll(entradaProdutoDAO.procuraTodosDeUmProduto(produtoPrincipal));
                             entradaProdutoDAO.close();
                             for (EntradaProduto entradaProduto : produtoPrincipal.getEntradaProdutos()) {
                                 int quantidadeDisponivel = (entradaProduto.getQuantidade() - entradaProduto.getQuantidadeVendidaMovimentada());

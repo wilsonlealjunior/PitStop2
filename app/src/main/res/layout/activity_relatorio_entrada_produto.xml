@@ -30,7 +30,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@android:color/holo_blue_dark"
+                    android:background="@color/colorPrimary"
                     android:orientation="horizontal">
 
                     <ImageView
@@ -39,13 +39,13 @@
                         android:layout_gravity="center_vertical"
                         android:layout_marginLeft="8dp"
                         android:adjustViewBounds="false"
-                        android:src="@mipmap/filtro" />
+                        android:src="@drawable/ic_filter" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_margin="8dp"
-                        android:background="@android:color/holo_blue_dark"
+                        android:background="@color/colorPrimary"
                         android:shadowColor="@android:color/holo_blue_light"
                         android:text="@string/filtro_do_relatorio"
                         android:textColor="@android:color/white"
@@ -81,8 +81,11 @@
                         android:layout_gravity="center"
                         android:layout_margin="8dp"
                         android:layout_weight="0.5"
-                        android:background="@android:color/holo_blue_dark"
+                        android:background="@color/colorPrimary"
                         android:clickable="true"
+                        android:padding="8dp"
+                        android:drawableLeft="@drawable/ic_confirmar"
+                        android:drawableStart="@drawable/ic_confirmar"
                         android:foreground="?android:attr/selectableItemBackground"
                         android:shadowColor="@android:color/holo_blue_light"
                         android:text="@string/gerar_relatorio"
@@ -96,6 +99,9 @@
                         android:layout_gravity="center"
                         android:layout_margin="8dp"
                         android:layout_weight="0.5"
+                        android:padding="8dp"
+                        android:drawableLeft="@drawable/ic_pdf"
+                        android:drawableStart="@drawable/ic_pdf"
                         android:background="@android:color/holo_red_light"
                         android:clickable="true"
                         android:foreground="?android:attr/selectableItemBackground"
@@ -124,7 +130,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@android:color/holo_blue_dark"
+                    android:background="@color/colorPrimary"
                     android:orientation="horizontal">
 
                     <ImageView

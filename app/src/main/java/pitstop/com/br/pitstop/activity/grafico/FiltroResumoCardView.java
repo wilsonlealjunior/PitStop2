@@ -125,8 +125,8 @@ public class FiltroResumoCardView {
         lojaDAO = new LojaDAO(context);
         vendaDAO = new VendaDAO(context);
         usuarioDAO = new UsuarioDAO(context);
-        furoDAO = new FuroDAO(context);
         avariaDAO = new AvariaDAO(context);
+        furoDAO = new FuroDAO(context);
         buttonGerar = (Button) view.findViewById(R.id.gerar_relatorio);
         lojaSpinner = (Spinner) view.findViewById(R.id.spinner_loja);
         formaDePagamentoSpinnner = (Spinner) view.findViewById(R.id.spinner_forma_pagamento);

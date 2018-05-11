@@ -73,7 +73,7 @@ public class SmartPost {
 			lsContent.close();
 			baos.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 		}
 		return baos.toByteArray();
@@ -121,7 +121,7 @@ public class SmartPost {
 			lsContent.close();
 			baos.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 		}
 		return baos.toByteArray();
@@ -144,7 +144,7 @@ public class SmartPost {
 			}
 			baos.write(PostDefine.END);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 		}
 		return baos.toByteArray();

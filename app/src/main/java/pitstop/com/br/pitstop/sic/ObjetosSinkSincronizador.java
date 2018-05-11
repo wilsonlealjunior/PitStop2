@@ -72,16 +72,16 @@ public class ObjetosSinkSincronizador {
         dialog.setCancelable(false);
         produtoDAO = new ProdutoDAO(context);
         lojaDAO = new LojaDAO(context);
-        avariaDAO = new AvariaDAO(context);
         entradaProdutoDAO = new EntradaProdutoDAO(context);
         movimentacaoProdutoDAO = new MovimentacaoProdutoDAO(context);
         vendaDAO = new VendaDAO(context);
         usuarioDAO = new UsuarioDAO(context);
         furoDAO = new FuroDAO(context);
+        avariaDAO = new AvariaDAO(context);
     }
 
     public void buscaTodos() {
-        if (sincronizacaoAtiva == false) {
+        if (!sincronizacaoAtiva) {
             sincronizacaoAtiva = true;
             if (objetosSinkPreferences.temVersao()) {
                 buscaNovos();
@@ -95,12 +95,7 @@ public class ObjetosSinkSincronizador {
         Call<ObjetosSink> call = new RetrofitInializador().getObjetosSinkService().novos(objetosSinkPreferences.getVersao());
         Log.e("log2versao.", String.valueOf(objetosSinkPreferences.getVersao()));
         dialog.setCancelable(false);
-
-//        dialog.setMessage("Sincronizando Dados");
         dialog.show();
-//        progressDialog.setCancelable(false);
-//        progressDialog.setMessage("Sincronizando dados");
-//        progressDialog.show();
         call.enqueue(buscaObjetosSinkCallback());
     }
 
@@ -109,11 +104,8 @@ public class ObjetosSinkSincronizador {
         Call<ObjetosSink> call = new RetrofitInializador().getObjetosSinkService().listarObjetosSink();
         Log.e("log2versaotodos", String.valueOf(objetosSinkPreferences.getVersao()));
         dialog.setCancelable(false);
-//        dialog.setMessage("Sincronizando Dados");
         dialog.show();
-//        progressDialog.setCancelable(false);
-//        progressDialog.setMessage("Sincronizando dados");
-//        progressDialog.show();
+
         call.enqueue(buscaObjetosSinkCallback());
     }
 
@@ -122,108 +114,10 @@ public class ObjetosSinkSincronizador {
         return new Callback<ObjetosSink>() {
             @Override
             public void onResponse(Call<ObjetosSink> call, Response<ObjetosSink> response) {
-                dialog.setMessage("Salvando Dados");
                 final ObjetosSink objetosSink = response.body();
+                dialog.setMessage("Salvando Dados");
                 PersistirEntidadades persistirEntidadades = new PersistirEntidadades(objetosSink);
                 persistirEntidadades.execute();
-
-     /*           new AsyncTask<Void, Void, String>() {
-
-                    // atributo que guarda excecao lancada
-
-
-                    @Override
-                    protected String doInBackground(Void... params) {
-                        usuarioDAO.sincroniza(objetosSink.getUsuarios());
-                        usuarioDAO.close();
-                        lojaDAO.sincroniza(objetosSink.getLojas());
-                        lojaDAO.close();
-                        avariaDAO.sincroniza(objetosSink.getAvarias());
-                        avariaDAO.close();
-                        entradaProdutoDAO.sincroniza(objetosSink.getEntradaProdutos());
-                        entradaProdutoDAO.close();
-                        movimentacaoProdutoDAO.sincroniza(objetosSink.getMovimentacaoProdutos());
-                        movimentacaoProdutoDAO.close();
-                        vendaDAO.sincroniza(objetosSink.getVendas());
-                        vendaDAO.close();
-                        furoDAO.sincroniza(objetosSink.getFuros());
-                        furoDAO.close();
-                        //esse trecho de codigo serve para
-                        // deixar a quantidade consistente
-                        // se o produto for alterado no
-                        // servidor e localmente então receberemos
-                        // todas as entidades principalmente entrada
-                        // produto que tem as informações da quantidade,
-                        // os outros dados como nome preço vai ser sempre dando prioridade para o servidor
-                        List<Produto> produtosAlteradosLocalmente = produtoDAO.listaNaoSincronizados();
-                        produtoDAO.close();
-                        Produto produtoPrincipal;
-                        List<Produto> produtosIncosistente = new ArrayList<>();
-                        for (Produto produtoLocalAlterado : produtosAlteradosLocalmente) {
-                            for (Produto produtoVindoServidor : objetosSink.getProdutos()) {
-                                if (produtoLocalAlterado.getId().equals(produtoVindoServidor.getId())) {
-                                    if (produtoVindoServidor.vinculado()) {
-                                        produtoPrincipal = produtoDAO.procuraPorId(produtoVindoServidor.getIdProdutoPrincipal());
-                                        produtoDAO.close();
-                                        produtoPrincipal.setEntradaProdutos(entradaProdutoDAO.procuraTodosDeUmProduto(produtoPrincipal));
-                                        entradaProdutoDAO.close();
-                                        produtoPrincipal.calcularQuantidade();
-                                    } else {
-                                        produtoPrincipal = produtoDAO.procuraPorId(produtoVindoServidor.getId());
-                                        produtoDAO.close();
-                                        produtoPrincipal.setEntradaProdutos(entradaProdutoDAO.procuraTodosDeUmProduto(produtoPrincipal));
-                                        entradaProdutoDAO.close();
-                                        produtoPrincipal.calcularQuantidade();
-                                    }
-                                    produtosIncosistente.add(produtoPrincipal);
-                                }
-
-                            }
-
-                        }
-                        produtoDAO.sincroniza(objetosSink.getProdutos());
-                        produtoDAO.close();
-
-
-                        for (Produto p : produtosIncosistente) {
-                            for (String produtoVinculoId : p.getIdProdutoVinculado()) {
-                                Produto produtoVinculo = produtoDAO.procuraPorId(produtoVinculoId);
-                                produtoDAO.close();
-                                produtoVinculo.setQuantidade(p.getQuantidade());
-                                produtoVinculo.desincroniza();
-                                produtoDAO.altera(produtoVinculo);
-                                produtoDAO.close();
-                            }
-                            p.desincroniza();
-                            produtoDAO.altera(p);
-                            produtoDAO.close();
-                        }
-                        sincronizaObjetosSinkInternos();
-
-                        //TENHO QUE PEGAR A DATA MAIS RECENTES DOS OBJETOS por que no pior caso ele vai pegar a data mais antiga
-                        //ate acabar os elementos, pega um atuliza, pega outro, atualiza
-                        String versao = objetosSink.getMomentoDaUltimaAtualizacao();
-
-                        if (versao != null) {
-                            objetosSinkPreferences.salvarVersao(versao);
-
-                        }
-                        Log.e("VERSAOproduto", objetosSinkPreferences.getVersao());
-//                Toast.makeText(getActivity(), localizacoes.size() + "hj", Toast.LENGTH_SHORT).show();
-                        //Toast.makeText(getActivity(), g.toJson(response.body()) , Toast.LENGTH_SHORT).show();
-
-
-                        return "";
-                    }
-
-                    @Override
-                    protected void onPostExecute(String t) {
-
-
-                    }
-                }.execute();*/
-
-
             }
 
             @Override
@@ -250,20 +144,29 @@ public class ObjetosSinkSincronizador {
 
 
     private void sincronizaObjetosSinkInternos() {
+        Log.e("Recuperando nao Sinc","Produtos");
         final List<Produto> produtos = produtoDAO.listaNaoSincronizados();
         produtoDAO.close();
+        Log.e("Recuperando nao Sinc","Lojas");
         final List<Loja> lojas = lojaDAO.listaNaoSincronizados();
         lojaDAO.close();
+        Log.e("Recuperando nao Sinc","Avarias");
         final List<Avaria> avarias = avariaDAO.listaNaoSincronizados();
         avariaDAO.close();
+        Log.e("Recuperando nao Sinc","Entrada de Produto");
         final List<EntradaProduto> entradaProdutos = entradaProdutoDAO.listaNaoSincronizados();
         entradaProdutoDAO.close();
+        Log.e("Recuperando nao Sinc","Movimentacao de produto");
         final List<MovimentacaoProduto> movimentacaoProdutos = movimentacaoProdutoDAO.listaNaoSincronizados();
         movimentacaoProdutoDAO.close();
+        Log.e("Recuperando nao Sinc","Venda");
+        vendaDAO = new VendaDAO(context);
         final List<Venda> vendas = vendaDAO.listaNaoSincronizados();
         vendaDAO.close();
+        Log.e("Recuperando nao Sinc","Usuarios");
         final List<Usuario> usuarios = usuarioDAO.listaNaoSincronizados();
         usuarioDAO.close();
+        Log.e("Recuperando nao Sinc","Furos");
         final List<Furo> furos = furoDAO.listaNaoSincronizados();
         furoDAO.close();
 
@@ -284,20 +187,35 @@ public class ObjetosSinkSincronizador {
                 dialog.setMessage("Sincronizando Servidor");
                 final ObjetosSink objetosSink = response.body();
 
+                Log.e("Sincronizando","Lojas");
+                lojaDAO = new LojaDAO(context);
                 lojaDAO.sincroniza(objetosSink.getLojas());
                 lojaDAO.close();
+                Log.e("Sincronizando","Produtos");
+                produtoDAO = new ProdutoDAO(context);
                 produtoDAO.sincroniza(objetosSink.getProdutos());
                 produtoDAO.close();
+                Log.e("Sincronizando","Avaria");
+                avariaDAO = new AvariaDAO(context);
                 avariaDAO.sincroniza(objetosSink.getAvarias());
                 avariaDAO.close();
+                Log.e("Sincronizando","Movimentacao e produto");
+                movimentacaoProdutoDAO = new MovimentacaoProdutoDAO(context);
                 movimentacaoProdutoDAO.sincroniza(objetosSink.getMovimentacaoProdutos());
                 movimentacaoProdutoDAO.close();
+                Log.e("Sincronizando","Vendas");
+                vendaDAO = new VendaDAO(context);
                 vendaDAO.sincroniza(objetosSink.getVendas());
                 vendaDAO.close();
+                Log.e("Sincronizando","Entrada de Produtos");
+                entradaProdutoDAO = new EntradaProdutoDAO(context);
                 entradaProdutoDAO.sincroniza(objetosSink.getEntradaProdutos());
                 entradaProdutoDAO.close();
+                Log.e("Sincronizando","Usurios");
                 usuarioDAO.sincroniza(objetosSink.getUsuarios());
                 usuarioDAO.close();
+                Log.e("Sincronizando","Furos");
+                furoDAO = new FuroDAO(context);
                 furoDAO.sincroniza(objetosSink.getFuros());
                 furoDAO.close();
 
@@ -353,18 +271,27 @@ public class ObjetosSinkSincronizador {
 
         @Override
         protected String doInBackground(Void... params) {
+            Log.e("Persistindo","Usuario");
             usuarioDAO.sincroniza(objetosSink.getUsuarios());
             usuarioDAO.close();
+            Log.e("Persistindo","Loja");
+            lojaDAO = new LojaDAO(context);
             lojaDAO.sincroniza(objetosSink.getLojas());
             lojaDAO.close();
+            Log.e("Persistindo","Avaria");
+            avariaDAO = new AvariaDAO(context);
             avariaDAO.sincroniza(objetosSink.getAvarias());
             avariaDAO.close();
-            entradaProdutoDAO.sincroniza(objetosSink.getEntradaProdutos());
-            entradaProdutoDAO.close();
+            Log.e("Persistindo","Movimentacao de produto");
+            movimentacaoProdutoDAO = new MovimentacaoProdutoDAO(context);
             movimentacaoProdutoDAO.sincroniza(objetosSink.getMovimentacaoProdutos());
             movimentacaoProdutoDAO.close();
+            Log.e("Persistindo","Venda");
+            vendaDAO = new VendaDAO(context);
             vendaDAO.sincroniza(objetosSink.getVendas());
             vendaDAO.close();
+            Log.e("Persistindo","Furo");
+            furoDAO = new FuroDAO(context);
             furoDAO.sincroniza(objetosSink.getFuros());
             furoDAO.close();
             //esse trecho de codigo serve para
@@ -374,9 +301,19 @@ public class ObjetosSinkSincronizador {
             // todas as entidades principalmente entrada
             // produto que tem as informações da quantidade,
             // os outros dados como nome preço vai ser sempre dando prioridade para o servidor
-            List<Produto> produtosAlteradosLocalmente = produtoDAO.listaNaoSincronizados();
+            Log.e("Persistindo","Produto");
+            produtoDAO = new ProdutoDAO(context);
+            List<Produto> produtosAlteradosLocalmente = new ArrayList<>();
+            produtosAlteradosLocalmente.addAll(produtoDAO.listaNaoSincronizados());
             produtoDAO.close();
+            produtoDAO.sincroniza(objetosSink.getProdutos());
+            produtoDAO.close();
+            Log.e("Persistindo","Entrada de produto");
+            entradaProdutoDAO = new EntradaProdutoDAO(context);
+            entradaProdutoDAO.sincroniza(objetosSink.getEntradaProdutos());
+            entradaProdutoDAO.close();
             Produto produtoPrincipal;
+            //TODO fazer testes testando esse algoritmo
             List<Produto> produtosIncosistente = new ArrayList<>();
             for (Produto produtoLocalAlterado : produtosAlteradosLocalmente) {
                 for (Produto produtoVindoServidor : objetosSink.getProdutos()) {
@@ -384,13 +321,13 @@ public class ObjetosSinkSincronizador {
                         if (produtoVindoServidor.vinculado()) {
                             produtoPrincipal = produtoDAO.procuraPorId(produtoVindoServidor.getIdProdutoPrincipal());
                             produtoDAO.close();
-                            produtoPrincipal.setEntradaProdutos(entradaProdutoDAO.procuraTodosDeUmProduto(produtoPrincipal));
+                            produtoPrincipal.getEntradaProdutos().addAll(entradaProdutoDAO.procuraTodosDeUmProduto(produtoPrincipal));
                             entradaProdutoDAO.close();
                             produtoPrincipal.calcularQuantidade();
                         } else {
                             produtoPrincipal = produtoDAO.procuraPorId(produtoVindoServidor.getId());
                             produtoDAO.close();
-                            produtoPrincipal.setEntradaProdutos(entradaProdutoDAO.procuraTodosDeUmProduto(produtoPrincipal));
+                            produtoPrincipal.getEntradaProdutos().addAll(entradaProdutoDAO.procuraTodosDeUmProduto(produtoPrincipal));
                             entradaProdutoDAO.close();
                             produtoPrincipal.calcularQuantidade();
                         }
@@ -400,9 +337,6 @@ public class ObjetosSinkSincronizador {
                 }
 
             }
-            produtoDAO.sincroniza(objetosSink.getProdutos());
-            produtoDAO.close();
-
 
             for (Produto p : produtosIncosistente) {
                 for (String produtoVinculoId : p.getIdProdutoVinculado()) {

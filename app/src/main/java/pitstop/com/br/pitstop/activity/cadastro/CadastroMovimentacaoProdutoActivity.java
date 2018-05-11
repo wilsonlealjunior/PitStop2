@@ -181,7 +181,7 @@ public class CadastroMovimentacaoProdutoActivity extends BaseCadastroDeTransacao
                 movProd.setQuantidade(quantidademovimentada);
                 movProd.setIdProduto(produtoPrincipal.getId());
                 SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                movProd.setData(formatter.format(new Date()));
+                movProd.setData((new Date()));
 
                 carinho.add(movProd);
                 hideKeyboard(CadastroMovimentacaoProdutoActivity.this,getCurrentFocus());
@@ -391,7 +391,7 @@ public class CadastroMovimentacaoProdutoActivity extends BaseCadastroDeTransacao
                                 produtoDAO.insere(produtoPara);
                                 produtoDAO.close();
                             }
-                            produto.setEntradaProdutos(entradaProdutoDAO.procuraTodosDeUmProduto(produto));
+                            produto.getEntradaProdutos().addAll(entradaProdutoDAO.procuraTodosDeUmProduto(produto));
                             entradaProdutoDAO.close();
                             //produto.calcularQuantidade();
 
@@ -407,8 +407,7 @@ public class CadastroMovimentacaoProdutoActivity extends BaseCadastroDeTransacao
 
                                     EntradaProduto entradaProduto = new EntradaProduto();
                                     entradaProduto.setId(UUID.randomUUID().toString());
-                                    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                                    entradaProduto.setData(formatter.format(new Date()));
+                                    entradaProduto.setData((new Date()));
                                     entradaProduto.setProduto(produtoPara);
                                     entradaProduto.setPrecoDeCompra(ep.getPrecoDeCompra());
                                     entradaProduto.setQuantidade(saida);
@@ -430,8 +429,7 @@ public class CadastroMovimentacaoProdutoActivity extends BaseCadastroDeTransacao
                                         entradaProdutoDAO.close();
                                         EntradaProduto entradaProduto = new EntradaProduto();
                                         entradaProduto.setId(UUID.randomUUID().toString());
-                                        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                                        entradaProduto.setData(formatter.format(new Date()));
+                                        entradaProduto.setData((new Date()));
                                         entradaProduto.setProduto(produtoPara);
                                         entradaProduto.setPrecoDeCompra(ep.getPrecoDeCompra());
                                         entradaProduto.setQuantidade(quantidadeDisponivel);

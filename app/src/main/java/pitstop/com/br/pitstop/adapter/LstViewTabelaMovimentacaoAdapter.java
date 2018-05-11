@@ -76,7 +76,7 @@ public class LstViewTabelaMovimentacaoAdapter extends ArrayAdapter<MovimentacaoP
             holder.quantidade.setText(String.valueOf(items.getQuantidade()));
             holder.nome.setText(String.valueOf(produtoDAO.procuraPorId(items.getIdProduto()).getNome()));
             produtoDAO.close();
-            String data = Util.dataNoformatoBrasileiro(Util.converteDoFormatoSQLParaDate(items.getData()));
+            String data = Util.dataNoformatoBrasileiro((items.getData()));
             holder.data.setText(String.valueOf(data));
 
         }

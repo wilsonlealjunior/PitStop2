@@ -89,13 +89,14 @@ public class TabelaRelatorioVendasReyclerViewAdapter extends RecyclerView.Adapte
                 }
                 ((ViewHolder) holder).lucro.setText((Util.moedaNoFormatoBrasileiro(items.getLucro())));
                 Date d = null;
-                d = Util.converteDoFormatoSQLParaDate(items.getDataDaVenda());
+                d = items.getDataDaVenda();
                 ((ViewHolder) holder).data.setText(Util.dataNoformatoBrasileiro(d));
                 ((ViewHolder) holder).totalDinheiro.setText(Util.moedaNoFormatoBrasileiro(items.getTotalDinheiro()));
                 ((ViewHolder) holder).totalCartao.setText(Util.moedaNoFormatoBrasileiro((items.getTotalCartao())));
             }
         }
     }
+
 
     @Override
     public int getItemViewType(int position) {

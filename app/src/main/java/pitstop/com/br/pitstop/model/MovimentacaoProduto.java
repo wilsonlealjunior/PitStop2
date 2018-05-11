@@ -1,28 +1,34 @@
 package pitstop.com.br.pitstop.model;
 
+import java.util.Date;
+
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
+
 /**
  * Created by wilso on 14/11/2017.
  */
 
-public class MovimentacaoProduto {
-
+public class MovimentacaoProduto extends RealmObject {
+    @PrimaryKey
     String id;
     String idLojaDe;
     String idLojaPara;
     String idProduto;
     int quantidade;
     int sincronizado;
-    String data;
+    Date data;
     String momentoDaUltimaAtualizacao;
-    private int desativado=0;
+    private int desativado = 0;
 
-    public void desativar(){
-        desativado=1;
+    public void desativar() {
+        desativado = 1;
     }
 
     public int getDesativado() {
         return desativado;
     }
+
     public boolean estaDesativado() {
         return desativado == 1;
     }
@@ -40,11 +46,11 @@ public class MovimentacaoProduto {
         this.idProduto = idProduto;
     }
 
-    public String getData() {
+    public Date getData() {
         return data;
     }
 
-    public void setData(String data) {
+    public void setData(Date data) {
         this.data = data;
     }
 
@@ -63,7 +69,6 @@ public class MovimentacaoProduto {
     public void setSincronizado(int sincronizado) {
         this.sincronizado = sincronizado;
     }
-
 
 
     public String getMomentoDaUltimaAtualizacao() {

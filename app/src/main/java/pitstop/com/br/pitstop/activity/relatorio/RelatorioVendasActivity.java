@@ -51,6 +51,7 @@ import java.util.Date;
 import java.util.List;
 
 import de.greenrobot.event.EventBus;
+import io.realm.Realm;
 import okhttp3.ResponseBody;
 
 import pitstop.com.br.pitstop.R;
@@ -136,8 +137,6 @@ public class RelatorioVendasActivity extends AppCompatActivity {
     LinearLayout llProgressBar;
 
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -207,8 +206,6 @@ public class RelatorioVendasActivity extends AppCompatActivity {
         progressDialog.setCancelable(false);
 
         cardViewResumo.setVisibility(View.GONE);
-
-
 
 
         listaDeVendasRecycleView = (RecyclerView) findViewById(R.id.lista_de_vendas);
@@ -479,7 +476,7 @@ public class RelatorioVendasActivity extends AppCompatActivity {
     }
 
     private void verificarSeFuncionarioPodeDeletarVenda(Venda v) {
-        Date dataDaVenda = Util.converteDoFormatoSQLParaDate(v.getDataDaVenda());
+        Date dataDaVenda = v.getDataDaVenda();
         Date agora = new Date();
         long ldt1 = dataDaVenda.getTime();
         long ldt2 = agora.getTime();
@@ -751,7 +748,8 @@ public class RelatorioVendasActivity extends AppCompatActivity {
             ate = Util.converteDoFormatoBrasileitoParaDate(dataHoraView.getEditTextDataFim().getText().toString());
             String stringDe = Util.dataNoformatoDoSQLite(de);
             String stringAte = Util.dataNoformatoDoSQLite(ate);
-            vendas = vendaDAO.relatorio(stringDe, stringAte, formaDePagamentoEscolhido, lojaEscolhida, usuarioEscolhido);
+            vendaDAO = new VendaDAO(RelatorioVendasActivity.this);
+            vendas.addAll((vendaDAO.relatorio(stringDe, stringAte, formaDePagamentoEscolhido, lojaEscolhida, usuarioEscolhido)));
             vendaDAO.close();
             auxTotal = 0.0;
             auxLucro = 0.0;

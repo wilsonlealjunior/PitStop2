@@ -28,7 +28,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@android:color/holo_blue_dark"
+                    android:background="@color/colorPrimary"
                     android:padding="5dp"
                     android:shadowColor="@android:color/holo_blue_light"
                     android:text="Informações do produto"
@@ -114,7 +114,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@android:color/holo_blue_dark"
+                    android:background="@color/colorPrimary"
                     android:padding="5dp"
                     android:shadowColor="@android:color/holo_blue_light"
                     android:text="Vinculação"

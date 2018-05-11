@@ -1,10 +1,14 @@
 package pitstop.com.br.pitstop.model;
 
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
+
 /**
  * Created by wilso on 15/12/2017.
  */
 
-public class ItemFuro {
+public class ItemFuro extends RealmObject {
+    @PrimaryKey
     String id;
     String idFuro;
     String idEntradaProduto;

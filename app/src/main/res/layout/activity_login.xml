@@ -18,7 +18,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:adjustViewBounds="true"
-            android:src="@drawable/pitstop" />
+            android:src="@drawable/logo_pitstop" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -56,6 +56,7 @@
                 android:padding="10dp" />
 
             <android.support.design.widget.TextInputLayout
+                style="@style/StyledTilEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
@@ -65,18 +66,21 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="10dp"
                     android:hint="@string/usuario"
-                    android:inputType="text" />
+                    android:inputType="text"
+                    android:textColorHint="#F5C116" />
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
+                style="@style/StyledTilEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
                 <EditText
                     android:id="@+id/password"
-                    android:layout_width="fill_parent"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="10dp"
+
+                    android:layout_marginBottom="16dp"
                     android:hint="@string/hint_password"
                     android:inputType="textPassword" />
             </android.support.design.widget.TextInputLayout>
@@ -90,10 +94,10 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dip"
-                android:background="#F5C116"
+                android:background="@color/colorPrimary"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:text="@string/btn_login"
-                android:textColor="@android:color/black" />
+                android:textColor="@android:color/white" />
 
         </LinearLayout>
     </LinearLayout>

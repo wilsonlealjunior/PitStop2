@@ -239,7 +239,7 @@ public class CadastrarVendasActivity extends BaseCadastroDeTransacaoDeProdutoAct
                 prodCarinho.setQuantidade(quantidadeComprada);
                 prodCarinho.setNome(produto.getNome());
                 prodCarinho.setPreco(produto.getPreco());
-                prodCarinho.setEntradaProdutos(entradaProdutoDAO.procuraTodosDeUmProduto(prodCarinho));
+                prodCarinho.getEntradaProdutos().addAll(entradaProdutoDAO.procuraTodosDeUmProduto(prodCarinho));
                 entradaProdutoDAO.close();
                 carrinho.add(prodCarinho);
                 total += prodCarinho.getQuantidade() * prodCarinho.getPreco();
@@ -428,9 +428,7 @@ public class CadastrarVendasActivity extends BaseCadastroDeTransacaoDeProdutoAct
                         venda.setNomeVendedor(usuarioPreferences.getUsuario().getNome());
                         venda.setIdLoja(usuarioPreferences.getLoja().getId());
 
-
-                        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                        venda.setDataDaVenda(formatter.format(new Date()));
+                        venda.setDataDaVenda(new Date());
 
                         venda.desincroniza();
                         if (venda.getFormaDePagamento().equals("dinheiro")) {
@@ -458,7 +456,7 @@ public class CadastrarVendasActivity extends BaseCadastroDeTransacaoDeProdutoAct
                                 produtoPrincipal = produto;
                             }
 
-                            produtoPrincipal.setEntradaProdutos(entradaProdutoDAO.procuraTodosDeUmProduto(produtoPrincipal));
+                            produtoPrincipal.getEntradaProdutos().addAll(entradaProdutoDAO.procuraTodosDeUmProduto(produtoPrincipal));
                             entradaProdutoDAO.close();
                             int saida = p.getQuantidade();
                             for (EntradaProduto l : produtoPrincipal.getEntradaProdutos()) {

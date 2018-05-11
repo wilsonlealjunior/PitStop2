@@ -75,7 +75,7 @@ public class LstViewTabelaRelatorioVendas extends ArrayAdapter<Venda> {
             }
             holder.lucro.setText((Util.moedaNoFormatoBrasileiro(items.getLucro())));
             Date d = null;
-            d = Util.converteDoFormatoSQLParaDate(items.getDataDaVenda());
+            d = items.getDataDaVenda();
             holder.data.setText(Util.dataNoformatoBrasileiro(d));
             holder.totalDinheiro.setText(Util.moedaNoFormatoBrasileiro(items.getTotalDinheiro()));
             holder.totalCartao.setText(Util.moedaNoFormatoBrasileiro((items.getTotalCartao())));

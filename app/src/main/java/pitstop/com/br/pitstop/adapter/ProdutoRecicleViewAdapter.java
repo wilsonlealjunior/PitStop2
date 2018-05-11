@@ -62,8 +62,8 @@ public class ProdutoRecicleViewAdapter extends RecyclerView.Adapter<ProdutoRecic
                 viewHolder.produto_nome.setBackgroundResource((android.R.color.holo_red_light));
                 viewHolder.ll_nome_produto.setBackgroundResource((android.R.color.holo_red_light));
             } else {
-                viewHolder.produto_nome.setBackgroundResource((android.R.color.holo_blue_dark));
-                viewHolder.ll_nome_produto.setBackgroundResource((android.R.color.holo_blue_dark));
+                viewHolder.produto_nome.setBackgroundResource((R.color.colorPrimary));
+                viewHolder.ll_nome_produto.setBackgroundResource((R.color.colorPrimary));
             }
             viewHolder.produto_nome.setText(produtos.get(i).getNome());
             viewHolder.produto_preco.setText(String.valueOf(produtos.get(i).getPreco()));

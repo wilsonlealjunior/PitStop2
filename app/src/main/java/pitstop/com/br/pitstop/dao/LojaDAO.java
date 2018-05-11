@@ -10,7 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import io.realm.Realm;
 import pitstop.com.br.pitstop.model.Loja;
+import pitstop.com.br.pitstop.model.Produto;
 
 
 /**
@@ -18,22 +20,17 @@ import pitstop.com.br.pitstop.model.Loja;
  */
 
 public class LojaDAO {
-    private DatabaseHelper databaseHelper;
-    private SQLiteDatabase database;
+    Realm realm;
 
     public LojaDAO(Context context) {
-        databaseHelper = new DatabaseHelper(context);
+        realm = Realm.getDefaultInstance();
     }
-
 
 
     public void sincroniza(List<Loja> Lojas) {
         for (Loja loja :
                 Lojas) {
             loja.sincroniza();
-
-            Log.e("loja-1", loja.getId());
-            Log.e("loja-1", loja.getNome());
 
             if (existe(loja)) {
                 close();
@@ -47,130 +44,99 @@ public class LojaDAO {
         }
     }
 
+    private void verificaSeRealmEstaFechado() {
+        if (realm.isClosed()) {
+            realm = Realm.getDefaultInstance();
+        }
+    }
+
     private boolean existe(Loja loja) {
-        SQLiteDatabase db = databaseHelper.getReadableDatabase();
-        String existe = "SELECT id FROM Lojas WHERE id=? LIMIT 1";
-        Cursor cursor = db.rawQuery(existe, new String[]{loja.getId()});
-        //Log.e("verificando nome_>",cursor.getString(cursor.getColumnIndex("id")));
-        int quantidade = cursor.getCount();
-        cursor.close();
-        return quantidade > 0;
+        verificaSeRealmEstaFechado();
+        Number n = realm.where(Loja.class)
+                .equalTo("id", loja.getId())
+                .count();
+        return n.intValue() > 0;
     }
 
     public Loja procuraPorId(String id) {
-        SQLiteDatabase db = databaseHelper.getReadableDatabase();
-        String existe = "SELECT * FROM Lojas WHERE id=?";
-        Cursor c = db.rawQuery(existe, new String[]{id});
-        Loja loja =null;
-        while (c.moveToNext()) {
-            loja = new Loja();
-            loja.setId(c.getString(c.getColumnIndex("id")));
-            loja.setNome(c.getString(c.getColumnIndex("nome")));
-            loja.setEndereco(c.getString(c.getColumnIndex("endereco")));
-            loja.setSincronizado(Integer.parseInt(c.getString(c.getColumnIndex("sincronizado"))));
-
-        }
-        c.close();
-        return loja;
+        verificaSeRealmEstaFechado();
+        Loja lojaRealm = (realm.where(Loja.class)
+                .equalTo("id", id)
+                .findFirst());
+        return realm.copyFromRealm(lojaRealm);
 
     }
-
-
-
 
 
     public void insere(Loja loja) {
-        if(loja.getId()==null){
-            loja.setId(UUID.randomUUID().toString());
+        verificaSeRealmEstaFechado();
+        realm.beginTransaction();
+        Loja lojaRealm;
+        if (loja.getId() == null) {
+            lojaRealm = realm.createObject(Loja.class, UUID.randomUUID().toString());
+        } else {
+            lojaRealm = realm.createObject(Loja.class, loja.getId());
         }
-        SQLiteDatabase db = databaseHelper.getWritableDatabase();
+        pegarDados(loja, lojaRealm);
+        realm.commitTransaction();
+    }
 
-        ContentValues dados = new ContentValues();
-
-        dados.put("id", loja.getId());
-        dados.put("nome", loja.getNome());
-        dados.put("endereco", loja.getEndereco());
-        dados.put("sincronizado", loja.getSincronizado());
-
-        db.insert("Lojas", null, dados);
+    private void pegarDados(Loja loja, Loja lojaRealm) {
+        verificaSeRealmEstaFechado();
+        loja.setId(loja.getId());
+        lojaRealm.setNome(loja.getNome());
+        lojaRealm.setEndereco(loja.getEndereco());
+        lojaRealm.setSincronizado(loja.getSincronizado());
     }
 
     public void insereLista(List<Loja> Lojas) {
-        SQLiteDatabase db = databaseHelper.getWritableDatabase();
-
+        verificaSeRealmEstaFechado();
         for (Loja loja : Lojas) {
-            ContentValues dados = new ContentValues();
-            dados.put("id", loja.getId());
-            dados.put("nome", loja.getNome());
-            dados.put("endereco", loja.getEndereco());
-            dados.put("sincronizado", loja.getSincronizado());
-
-            db.insert("Lojas", null, dados);
-
+            insere(loja);
         }
 
     }
 
     public List<Loja> listarLojas() {
-        String sql = "SELECT * FROM Lojas;";
-        SQLiteDatabase db = databaseHelper.getReadableDatabase();
-        Cursor c = db.rawQuery(sql, null);
-
-        List<Loja> Lojas = new ArrayList<Loja>();
-        while (c.moveToNext()) {
-            Loja loja = new Loja();
-            loja.setId(c.getString(c.getColumnIndex("id")));
-            loja.setNome(c.getString(c.getColumnIndex("nome")));
-            loja.setEndereco(c.getString(c.getColumnIndex("endereco")));
-            loja.setSincronizado(Integer.parseInt(c.getString(c.getColumnIndex("sincronizado"))));
-            Lojas.add(loja);
-
-        }
-        c.close();
-        return Lojas;
+        verificaSeRealmEstaFechado();
+        List<Loja> lojas = new ArrayList<>();
+        lojas.addAll(realm.where(Loja.class)
+                .findAll()
+                .sort("nome"));
+        return realm.copyFromRealm(lojas);
     }
 
     public void deleta(Loja loja) {
-        SQLiteDatabase db = databaseHelper.getWritableDatabase();
-
-        String[] params = {loja.getId().toString()};
-        db.delete("Lojas", "id = ?", params);
+        realm.beginTransaction();
+        verificaSeRealmEstaFechado();
+        Loja lojaRealm = realm.where(Loja.class)
+                .equalTo("id",loja.getId())
+                .findFirst();
+        lojaRealm.deleteFromRealm();
+        realm.commitTransaction();
     }
-    public void close(){
-        databaseHelper.close();
-        database = null;
+
+    public void close() {realm.close();
     }
 
-    public List<Loja> listaNaoSincronizados(){
-        SQLiteDatabase db = databaseHelper.getReadableDatabase();
-        String sql = "SELECT * FROM Lojas WHERE sincronizado = 0";
-        Cursor c = db.rawQuery(sql, null);
-        List<Loja> Lojas = new ArrayList<Loja>();
-        while (c.moveToNext()) {
-            Loja loja = new Loja();
-            loja.setId(c.getString(c.getColumnIndex("id")));
-            loja.setNome(c.getString(c.getColumnIndex("nome")));
-            loja.setEndereco(c.getString(c.getColumnIndex("endereco")));
-            loja.setSincronizado(Integer.parseInt(c.getString(c.getColumnIndex("sincronizado"))));
-            Lojas.add(loja);
-        }
-        c.close();
-        return Lojas;
+    public List<Loja> listaNaoSincronizados() {
+        verificaSeRealmEstaFechado();
+        List<Loja> lojas = new ArrayList<>();
 
+        lojas.addAll(realm.where(Loja.class)
+                .equalTo("sincronizado",0)
+                .findAll());
+        return realm.copyFromRealm(lojas);
     }
 
     public void altera(Loja loja) {
-        SQLiteDatabase db = databaseHelper.getWritableDatabase();
-
-        ContentValues dados = new ContentValues();
-        dados.put("id", loja.getId());
-        dados.put("nome", loja.getNome());
-        dados.put("endereco", loja.getEndereco());
-        dados.put("sincronizado", loja.getSincronizado());
-
-
-        String[] params = {loja.getId().toString()};
-        db.update("Lojas", dados, "id = ?", params);
+        verificaSeRealmEstaFechado();
+        realm.beginTransaction();
+        Loja lojaRealm = realm.where(Loja.class)
+                .equalTo("id", loja.getId())
+                .findFirst();
+        pegarDados(loja, lojaRealm);
+        realm.commitTransaction();
     }
 
 }

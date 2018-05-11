@@ -96,6 +96,7 @@ public class GraficoDeLinhaVendaPorDiaLojaView extends AppCompatActivity {
     private DataSetGraficoDeLinha recuperandoValoresParaOBarChartTotalVendaUsuario(List<String> datas, Loja loja) {
         List<Double> somaDoTotalDasVendasPorLojaETempo = new ArrayList<>();
         for (int i = 0; i < datas.size(); i = i + 2) {
+            vendaDAO = new VendaDAO(context);
             somaDoTotalDasVendasPorLojaETempo.add(vendaDAO.somaDoTotalPor(loja, datas.get(i), datas.get(i + 1)));
             vendaDAO.close();
         }

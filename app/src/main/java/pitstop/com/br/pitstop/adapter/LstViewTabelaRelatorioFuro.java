@@ -67,7 +67,7 @@ public class LstViewTabelaRelatorioFuro extends ArrayAdapter<Furo> {
             LstViewTabelaRelatorioFuro.ViewHolder holder = (LstViewTabelaRelatorioFuro.ViewHolder) rowView.getTag();
             ProdutoDAO produtoDAO = new ProdutoDAO(context);
 
-            holder.data.setText(Util.dataNoformatoBrasileiro(Util.converteDoFormatoSQLParaDate(items.getData())));
+            holder.data.setText(Util.dataNoformatoBrasileiro((items.getData())));
             holder.usuario.setText(items.getIdUsuario());
 
             holder.valor.setText(Util.moedaNoFormatoBrasileiro(items.getValor()));

@@ -71,7 +71,7 @@ public class RelatorioEntradaProdutoActivity extends AppCompatActivity {
 
     LstViewTabelaRelatorioEntradaProduto adapterTable;
     private ListView listaViewDeEntradaProduto;
-    List<EntradaProduto> entradaDeProdutos;
+    List<EntradaProduto> entradaDeProdutos = new ArrayList<>();
     ProgressDialog progressDialog;
     Button btnGerarRelatorioPDF;
     EntradaProdutoDAO entradaProdutoDAO = new EntradaProdutoDAO(this);
@@ -132,6 +132,8 @@ public class RelatorioEntradaProdutoActivity extends AppCompatActivity {
         listaViewDeEntradaProduto = (ListView) findViewById(R.id.lista_de_entradaProduto);
         ViewGroup headerView = (ViewGroup) getLayoutInflater().inflate(R.layout.header_relatorio_entrada_produto, listaViewDeEntradaProduto, false);
         listaViewDeEntradaProduto.addHeaderView(headerView);
+        adapterTable = new LstViewTabelaRelatorioEntradaProduto(this, R.layout.tabela_relatorio_entrada_produto, R.id.quantidade, entradaDeProdutos);
+        listaViewDeEntradaProduto.setAdapter(adapterTable);
         registerForContextMenu(listaViewDeEntradaProduto);
 
 
@@ -288,34 +290,10 @@ public class RelatorioEntradaProdutoActivity extends AppCompatActivity {
         String ateString = format1.format(ate);
 
 
-//        entradaDeProdutos.clear();
-        entradaDeProdutos = entradaProdutoDAO.relatorio(lojaEscolhidaId, deString, ateString);
+        entradaDeProdutos.clear();
+        entradaDeProdutos.addAll(entradaProdutoDAO.relatorio(lojaEscolhidaId, deString, ateString));
         entradaProdutoDAO.close();
-//
-//        for (EntradaProduto entradaProduto : entradaProdutoDAO.relatorio(lojaEscolhidaId, deString, ateString)) {
-//            Date d = null;
-//            try {
-//                d = formatter.parse(entradaProduto.getData());
-//            } catch (ParseException e) {
-//                e.printStackTrace();
-//            }
-//            if (d.after(de) && d.before(ate)) {
-//                //  TODO: 12/12/2017 verificar como otimizar essa parte do codigo, não dá para ficar trazendo todos os registros
-//                if (!lojaEscolhidaId.equals("%")) {
-//                    if (entradaProduto.getProduto().getLoja().getId().equals(lojaEscolhidaId))
-//                        entradaDeProdutos.add(entradaProduto);
-//                }else{
-//                    entradaDeProdutos.add(entradaProduto);
-//                }
-//            }
-//
-//
-//        }
 
-        adapterTable = new LstViewTabelaRelatorioEntradaProduto(this, R.layout.tabela_relatorio_entrada_produto, R.id.quantidade, entradaDeProdutos);
-
-
-        listaViewDeEntradaProduto.setAdapter(adapterTable);
         adapterTable.notifyDataSetChanged();
 
 
@@ -484,7 +462,6 @@ public class RelatorioEntradaProdutoActivity extends AppCompatActivity {
                         entradaprodutoDeletada = true;
                         snackbar.show();
 //                        Toast.makeText(RelatorioEntradaProdutoActivity.this, "Entrada de Produto deletada", Toast.LENGTH_SHORT).show();
-                        listaViewDeEntradaProduto.setAdapter(adapterTable);
                         adapterTable.notifyDataSetChanged();
                     }
                 }
