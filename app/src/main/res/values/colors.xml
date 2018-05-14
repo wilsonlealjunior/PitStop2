@@ -21,5 +21,6 @@
     <color name="estoque_baixo">#ff0b00</color>
     <color name="sincronizado">#34af23</color>
     <color name="holo_blue_dark">#ff0099cc</color>
+    <color name="cinza_linha">#e8e8e8</color>
 
 </resources>
