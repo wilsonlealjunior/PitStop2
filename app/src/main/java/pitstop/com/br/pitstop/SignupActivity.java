@@ -41,6 +41,7 @@ public class SignupActivity extends AppCompatActivity {
     ObjetosSinkPreferences objetosSinkPreferences;
     ObjetosSinkSincronizador objetosSinkSincronizador;
     Usuario usuarioEditar;
+    UsuarioDAO usuarioDAO = new UsuarioDAO(getApplicationContext());
 
 
     @Override
@@ -64,8 +65,10 @@ public class SignupActivity extends AppCompatActivity {
         objetosSinkPreferences = new ObjetosSinkPreferences(this);
 
         Intent intent = getIntent();
-        usuarioEditar = (Usuario) intent.getParcelableExtra("usuario");
-
+        String usuarioId = intent.getStringExtra("usuarioNome");
+        if (usuarioId != null) {
+            usuarioEditar = usuarioDAO.procuraPorNome(usuarioId);
+        }
 
         ArrayAdapter<String> spinnerAdapterRoles = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, roles);
 
@@ -165,7 +168,7 @@ public class SignupActivity extends AppCompatActivity {
                                 usuarioDAO.close();
                             }
                             Intent intentVaiProNavigation = new Intent(getApplicationContext(), LoginActivity.class);
-                            intentVaiProNavigation.putExtra("usuario", usuario);
+                            intentVaiProNavigation.putExtra("usuarioNome", usuario.getNome());
                             startActivity(intentVaiProNavigation);
 
                         }

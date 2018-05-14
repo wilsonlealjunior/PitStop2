@@ -18,7 +18,6 @@ public class MovimentacaoProduto extends RealmObject {
     int quantidade;
     int sincronizado;
     Date data;
-    String momentoDaUltimaAtualizacao;
     private int desativado = 0;
 
     public void desativar() {
@@ -70,14 +69,6 @@ public class MovimentacaoProduto extends RealmObject {
         this.sincronizado = sincronizado;
     }
 
-
-    public String getMomentoDaUltimaAtualizacao() {
-        return momentoDaUltimaAtualizacao;
-    }
-
-    public void setMomentoDaUltimaAtualizacao(String momentoDaUltimaAtualizacao) {
-        this.momentoDaUltimaAtualizacao = momentoDaUltimaAtualizacao;
-    }
 
     public String getIdLojaDe() {
         return idLojaDe;

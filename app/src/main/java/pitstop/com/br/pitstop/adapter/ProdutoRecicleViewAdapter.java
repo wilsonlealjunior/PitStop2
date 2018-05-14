@@ -78,7 +78,7 @@ public class ProdutoRecicleViewAdapter extends RecyclerView.Adapter<ProdutoRecic
                     if (usuarioPreferences.temUsuario()) {
                         if (usuarioPreferences.getUsuario().getRole().equals("Administrador")) {
                             Intent intentVaiProFormulario = new Intent(contexto, CadastroProdutoActivity.class);
-                            intentVaiProFormulario.putExtra("produto", p);
+                            intentVaiProFormulario.putExtra("produtoId", p.getId());
                             contexto.startActivity(intentVaiProFormulario);
                         }
                     }

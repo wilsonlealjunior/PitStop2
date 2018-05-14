@@ -24,7 +24,6 @@ public class Furo extends RealmObject {
     double valor;
     double precoDeVenda;
     int quantidade;
-    String momentoDaUltimaAtualizacao;
     private int desativado=0;
 
     public int getQuantidade() {
@@ -94,13 +93,7 @@ public class Furo extends RealmObject {
         this.furoEntradeProdutos = furoEntradeProdutos;
     }
 
-    public String getMomentoDaUltimaAtualizacao() {
-        return momentoDaUltimaAtualizacao;
-    }
 
-    public void setMomentoDaUltimaAtualizacao(String momentoDaUltimaAtualizacao) {
-        this.momentoDaUltimaAtualizacao = momentoDaUltimaAtualizacao;
-    }
 
     public String getIdLoja() {
         return idLoja;

@@ -24,7 +24,6 @@ public class Avaria extends RealmObject {
     int quantidade;
     int sincronizado;
     private Date data;
-    String momentoDaUltimaAtualizacao;
     double prejuizo;
     private int desativado = 0;
 
@@ -76,13 +75,6 @@ public class Avaria extends RealmObject {
         this.prejuizo = prejuizo;
     }
 
-    public String getMomentoDaUltimaAtualizacao() {
-        return momentoDaUltimaAtualizacao;
-    }
-
-    public void setMomentoDaUltimaAtualizacao(String momentoDaUltimaAtualizacao) {
-        this.momentoDaUltimaAtualizacao = momentoDaUltimaAtualizacao;
-    }
 
     public void sincroniza() {
         this.sincronizado = 1;

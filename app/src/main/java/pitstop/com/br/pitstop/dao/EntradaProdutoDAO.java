@@ -81,49 +81,23 @@ public class EntradaProdutoDAO {
         return (n.intValue() > 0);
     }
 
-    private void pegarDados(EntradaProduto entradaProduto, EntradaProduto entradaProdutoRealm) {
-        verificaSeRealmEstaFechado();
-        Produto produtoRealm = realm.where(Produto.class)
-                .equalTo("id", entradaProduto.getProduto().getId())
-                .findFirst();
-        entradaProdutoRealm.setPrecoDeCompra(entradaProduto.getPrecoDeCompra());
-        entradaProdutoRealm.setQuantidade(entradaProduto.getQuantidade());
-        entradaProdutoRealm.setData(entradaProduto.getData());
-        entradaProdutoRealm.setProduto(produtoRealm);
-        entradaProdutoRealm.setSincronizado(entradaProduto.getSincronizado());
-        entradaProdutoRealm.setMomentoDaUltimaAtualizacao(entradaProduto.getMomentoDaUltimaAtualizacao());
-        entradaProdutoRealm.setQuantidadeVendidaMovimentada(entradaProduto.getQuantidadeVendidaMovimentada());
-        entradaProdutoRealm.setDesativado(entradaProduto.getDesativado());
 
-    }
+
 
     public void altera(EntradaProduto entradaProduto) {
         verificaSeRealmEstaFechado();
         realm.beginTransaction();
-        EntradaProduto entradaProdutoRealm = realm.where(EntradaProduto.class).equalTo("id", entradaProduto.getId()).findFirst();
-        pegarDados(entradaProduto, entradaProdutoRealm);
+        realm.insertOrUpdate(entradaProduto);
         realm.commitTransaction();
     }
 
     public void insere(EntradaProduto entradaProduto) {
         verificaSeRealmEstaFechado();
         realm.beginTransaction();
-        EntradaProduto entradaProdutoRealm = realm.createObject(EntradaProduto.class, entradaProduto.getId());
-        pegarDados(entradaProduto, entradaProdutoRealm);
+        realm.insertOrUpdate(entradaProduto);
         realm.commitTransaction();
     }
 
-    public void insereLista(List<EntradaProduto> entradaProdutos) {
-        verificaSeRealmEstaFechado();
-        for (EntradaProduto entradaProduto : entradaProdutos) {
-            realm.beginTransaction();
-            EntradaProduto entradaProdutoRealm = realm.createObject(EntradaProduto.class);
-            pegarDados(entradaProduto, entradaProdutoRealm);
-            realm.commitTransaction();
-
-
-        }
-    }
 
     public List<EntradaProduto> listaNaoSincronizados() {
         verificaSeRealmEstaFechado();

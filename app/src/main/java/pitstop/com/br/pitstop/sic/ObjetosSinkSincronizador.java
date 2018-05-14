@@ -212,6 +212,7 @@ public class ObjetosSinkSincronizador {
                 entradaProdutoDAO.sincroniza(objetosSink.getEntradaProdutos());
                 entradaProdutoDAO.close();
                 Log.e("Sincronizando","Usurios");
+                usuarioDAO = new UsuarioDAO(context);
                 usuarioDAO.sincroniza(objetosSink.getUsuarios());
                 usuarioDAO.close();
                 Log.e("Sincronizando","Furos");
@@ -272,6 +273,7 @@ public class ObjetosSinkSincronizador {
         @Override
         protected String doInBackground(Void... params) {
             Log.e("Persistindo","Usuario");
+            usuarioDAO = new UsuarioDAO(context);
             usuarioDAO.sincroniza(objetosSink.getUsuarios());
             usuarioDAO.close();
             Log.e("Persistindo","Loja");

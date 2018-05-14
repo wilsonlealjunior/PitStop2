@@ -62,7 +62,7 @@ public class LojaRecicleViewAdpater extends RecyclerView.Adapter<LojaRecicleView
             public void onClick(View v) {
 //                Log.e("Produto", l.getNome());
                 Intent intentVaiProFormulario = new Intent(contexto, CadastroLojaActivity.class);
-                intentVaiProFormulario.putExtra("loja", l);
+                intentVaiProFormulario.putExtra("lojaId", l.getId());
                 contexto.startActivity(intentVaiProFormulario);
             }
         }) ;

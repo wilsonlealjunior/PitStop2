@@ -29,8 +29,6 @@ import pitstop.com.br.pitstop.preferences.UsuarioPreferences;
  */
 
 public class TabelaDescricaoVendaRecicleViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private static final int TYPE_HEADER = 0;
-    private static final int TYPE_ITEM = 1;
     List<ItemVenda> item_list;
     Context contexto;
 
@@ -42,67 +40,43 @@ public class TabelaDescricaoVendaRecicleViewAdapter extends RecyclerView.Adapter
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-        switch (viewType){
-            case TYPE_HEADER:
-               View  view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.header_descricao_venda, viewGroup, false);
-                return  new ViewHolderHeader(view);
-            case TYPE_ITEM:
-                view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.tabela_descricao_venda, viewGroup, false);
-                return new ViewHolder(view);
-        }
 
-       return null;
+        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.card_descricao_venda, viewGroup, false);
+        return new ViewHolder(view);
     }
 
 
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int i) {
         UsuarioPreferences up = new UsuarioPreferences(contexto);
-        if(holder instanceof  ViewHolderHeader){
-            if (up.getUsuario().getRole().equals("Funcionario")) {
-                ((ViewHolderHeader) holder).lucro.setText("Total");
-            }
+        if (item_list.size() > 0) {
+            final ItemVenda items = item_list.get(i);
+            EntradaProdutoDAO entradaProdutoDAO = new EntradaProdutoDAO(contexto);
+            ProdutoDAO produtoDAO = new ProdutoDAO(contexto);
+            Produto produto = produtoDAO.procuraPorId(items.getIdProduto());
+            produtoDAO.close();
+            EntradaProduto ep = entradaProdutoDAO.procuraPorId(items.getIdEntradaProduto());
+            entradaProdutoDAO.close();
+            ((ViewHolder) holder).produto.setText(produto.getNome());
 
-        }
-        else {
-            if (item_list.size() > 0) {
-                final ItemVenda items = item_list.get(i-1);
-                EntradaProdutoDAO entradaProdutoDAO = new EntradaProdutoDAO(contexto);
-                ProdutoDAO produtoDAO = new ProdutoDAO(contexto);
-                Produto produto = produtoDAO.procuraPorId(items.getIdProduto());
-                produtoDAO.close();
-                EntradaProduto ep = entradaProdutoDAO.procuraPorId(items.getIdEntradaProduto());
-                entradaProdutoDAO.close();
-                ((ViewHolder)holder).produto.setText(produto.getNome());
+            if (up.temUsuario()) {
+                if (up.getUsuario().getRole().equals("Funcionario")) {
+                    ((ViewHolder) holder).lucro.setText(Util.moedaNoFormatoBrasileiro((produto.getPreco()) * items.getQuantidadeVendida()));
 
-                if (up.temUsuario()) {
-                    if (up.getUsuario().getRole().equals("Funcionario")) {
-                        ((ViewHolder)holder).lucro.setText(Util.moedaNoFormatoBrasileiro((produto.getPreco()) * items.getQuantidadeVendida()));
-
-                    } else {
-                        ((ViewHolder)holder).lucro.setText(Util.moedaNoFormatoBrasileiro((produto.getPreco() - ep.getPrecoDeCompra()) * items.getQuantidadeVendida()));
-                    }
+                } else {
+                    ((ViewHolder) holder).lucro.setText(Util.moedaNoFormatoBrasileiro((produto.getPreco() - ep.getPrecoDeCompra()) * items.getQuantidadeVendida()));
                 }
-                ((ViewHolder)holder).quantidade.setText(String.valueOf(items.getQuantidadeVendida()));
-
             }
+            ((ViewHolder) holder).quantidade.setText(String.valueOf(items.getQuantidadeVendida()));
+
         }
+
     }
 
-    @Override
-    public int getItemViewType(int position) {
-        if (isPositionHeader(position))
-            return TYPE_HEADER;
-
-        return TYPE_ITEM;
-    }
-    private boolean isPositionHeader(int position) {
-        return position == 0;
-    }
 
     @Override
     public int getItemCount() {
-        return item_list.size()+1;
+        return item_list.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -122,11 +96,12 @@ public class TabelaDescricaoVendaRecicleViewAdapter extends RecyclerView.Adapter
 
         @Override
         public void onClick(View view) {
-            Log.e("Posicao clicada foi",""+getAdapterPosition());
+            Log.e("Posicao clicada foi", "" + getAdapterPosition());
 
         }
     }
-    public class ViewHolderHeader extends RecyclerView.ViewHolder{
+
+    public class ViewHolderHeader extends RecyclerView.ViewHolder {
         public TextView produto;
         public TextView quantidade;
         public TextView lucro;
@@ -141,8 +116,6 @@ public class TabelaDescricaoVendaRecicleViewAdapter extends RecyclerView.Adapter
 
 
     }
-
-
 
 
 }

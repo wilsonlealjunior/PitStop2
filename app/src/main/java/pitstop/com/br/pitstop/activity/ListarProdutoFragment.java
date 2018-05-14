@@ -286,7 +286,13 @@ public class ListarProdutoFragment extends Fragment implements SearchView.OnQuer
         swipe.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                spinnerLoja.setSelection(0);
+                int posicaoSelecionadaSpinner = spinnerLoja.getSelectedItemPosition();
+                if (posicaoSelecionadaSpinner == 0) {
+                    carregaLista(null);
+                } else {
+                    carregaLista(lojas.get(posicaoSelecionadaSpinner - 1));
+                }
+
             }
         });
         toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
@@ -343,8 +349,11 @@ public class ListarProdutoFragment extends Fragment implements SearchView.OnQuer
             labelsLojas.add(loja.getNome());
         }
         Intent intent = getActivity().getIntent();
-        lojaVindaDaTelaListaLoja = (Loja) intent.getParcelableExtra("loja");
-        intent.removeExtra("loja");
+        String lojaId = intent.getStringExtra("lojaId");
+        if (lojaId != null) {
+            lojaVindaDaTelaListaLoja = lojaDAO.procuraPorId(lojaId);
+        }
+        intent.removeExtra("lojaId");
         ArrayAdapter<String> spinnerAdapterDe = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, labelsLojas);
         spinnerAdapterDe.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerLoja.setAdapter(spinnerAdapterDe);

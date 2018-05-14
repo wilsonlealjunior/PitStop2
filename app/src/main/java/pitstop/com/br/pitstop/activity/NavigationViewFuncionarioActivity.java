@@ -45,7 +45,6 @@ public class NavigationViewFuncionarioActivity extends AppCompatActivity {
     private static FragmentManager fragmentManager;
     private static NavigationView navigationView;
     private ProgressDialog progressDialog;
-    Loja lojaVindaDaTelaDeListarProduto;
     ObjetosSinkSincronizador objetosSinkSincronizador;
     Usuario usuario;
     ImageButton botaoLogout;
@@ -59,8 +58,6 @@ public class NavigationViewFuncionarioActivity extends AppCompatActivity {
 
         objetosSinkSincronizador = new ObjetosSinkSincronizador(this);
 
-        Intent intent = getIntent();
-        lojaVindaDaTelaDeListarProduto = (Loja) intent.getParcelableExtra("loja");
 
 
         initViews();
@@ -70,21 +67,14 @@ public class NavigationViewFuncionarioActivity extends AppCompatActivity {
         progressDialog.setCancelable(false);
 
         objetosSinkSincronizador.buscaTodos();
-        if (lojaVindaDaTelaDeListarProduto != null) {
-            navigationView.setCheckedItem(R.id.produto);
-            MenuItem item = navigationView.getMenu().findItem(R.id.produto);
-            Fragment fragment = new ListarProdutoFragment();
-            setFragment(fragment, item);
-            //intent.removeExtra("loja");
 
-        } else {
             //At start set home fragment
             if (savedInstanceState == null) {
                 navigationView.setCheckedItem(R.id.produto);
                 MenuItem item = navigationView.getMenu().findItem(R.id.produto);
                 Fragment fragment = new ListarProdutoFragment();
                 setFragment(fragment, item);
-            }
+
         }
         botaoLogout.setOnClickListener(new View.OnClickListener() {
 

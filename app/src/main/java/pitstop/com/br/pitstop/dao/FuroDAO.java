@@ -38,39 +38,9 @@ public class FuroDAO {
     public void insere(Furo furo) {
         verificaSeRealmEstaFechado();
         realm.beginTransaction();
-        Furo furoRealm = realm.createObject(Furo.class, furo.getId());
-        pegarDados(furo, furoRealm);
+        realm.insertOrUpdate(furo);
         realm.commitTransaction();
 
-    }
-
-    private void pegarDados(Furo furo, Furo furoRealm) {
-        furoRealm.setIdLoja(furo.getIdLoja());
-        furoRealm.setIdUsuario(furo.getIdUsuario());
-        furoRealm.setIdProduto(furo.getIdProduto());
-        furoRealm.setPrecoDeVenda(furo.getPrecoDeVenda());
-        furoRealm.setDesativado(furo.getDesativado());
-        furoRealm.setSincronizado(furo.getSincronizado());
-        furoRealm.setQuantidade(furo.getQuantidade());
-        furoRealm.setData(furo.getData());
-        furoRealm.setValor(furo.getValor());
-        for (ItemFuro itemFuro: furo.getFuroEntradeProdutos()) {
-            ItemFuro itemFuroRealm;
-            ItemFuro itemFuroBuscado  = realm.where(ItemFuro.class)
-                    .equalTo("id",itemFuro.getId())
-                    .findFirst();
-            if(itemFuroBuscado==null){
-                itemFuroRealm = realm.createObject(ItemFuro.class,itemFuro.getId());
-                furoRealm.getFuroEntradeProdutos().add(itemFuroRealm);
-            }else{
-                itemFuroRealm = itemFuroBuscado;
-            }
-            itemFuroRealm.setIdFuro(itemFuro.getIdFuro());
-            itemFuroRealm.setPrecoDeVenda(itemFuro.getPrecoDeVenda());
-            itemFuroRealm.setIdEntradaProduto(itemFuro.getIdEntradaProduto());
-            itemFuroRealm.setQuantidade(itemFuro.getQuantidade());
-            itemFuroRealm.setSincronizado(itemFuro.getSincronizado());
-        }
     }
 
     public void insereLista(List<Furo> furos) {
@@ -195,8 +165,7 @@ public class FuroDAO {
     public void altera(Furo furo) {
         verificaSeRealmEstaFechado();
         realm.beginTransaction();
-        Furo furoRealm = realm.where(Furo.class).equalTo("id", furo.getId()).findFirst();
-        pegarDados(furo, furoRealm);
+        realm.insertOrUpdate(furo);
         realm.commitTransaction();
     }
 

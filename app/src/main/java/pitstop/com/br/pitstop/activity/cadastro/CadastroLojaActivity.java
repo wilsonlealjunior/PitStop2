@@ -81,7 +81,11 @@ public class CadastroLojaActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("Cadastrar Loja");
 
         Intent intent = getIntent();
-        Loja loja = (Loja) intent.getParcelableExtra("loja");
+        String lojaId = intent.getStringExtra("lojaId");
+        Loja loja=null;
+        if(lojaId!=null) {
+             loja = lojaDAO.procuraPorId(lojaId);
+        }
         if (loja != null) {
             cadastroLojaHelper.preencheFormulario(loja);
         }

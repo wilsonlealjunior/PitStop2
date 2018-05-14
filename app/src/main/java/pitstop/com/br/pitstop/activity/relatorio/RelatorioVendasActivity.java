@@ -6,6 +6,7 @@ import java.util.Locale;
 
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
@@ -51,7 +52,6 @@ import java.util.Date;
 import java.util.List;
 
 import de.greenrobot.event.EventBus;
-import io.realm.Realm;
 import okhttp3.ResponseBody;
 
 import pitstop.com.br.pitstop.R;
@@ -123,18 +123,26 @@ public class RelatorioVendasActivity extends AppCompatActivity {
     UsuarioPreferences up = new UsuarioPreferences(this);
     EntradaProdutoDAO entradaProdutoDAO = new EntradaProdutoDAO(this);
     ProdutoDAO produtoDAO = new ProdutoDAO(this);
-    TextView tvResumeCardLucro;
-    TextView tvResumeCardTotal;
     TextView textViewLoja;
     TextView textViewFuncionario;
-    CardView cardViewResumo;
     ViewGroup viewRoot;
     DataHoraView dataHoraView;
     ProgressDialog progressDialog;
     Button btnGerarRelatorioPDF;
     private Button btnGerarRelatorio;
-    CardView cardViewFiltros;
+    CardView cardViewSelecionarFiltros;
     LinearLayout llProgressBar;
+    LinearLayout relatorioFiltrosView;
+    TextView relatorioFormaDePagamento;
+    TextView relatorioLoja;
+    TextView relatorioFuncionario;
+    TextView relatorioDataInicial;
+    TextView relatorioaDataFinal;
+    TextView relatorioTotal;
+    TextView relatorioLucro;
+    Button btnNovaConsulta;
+    LinearLayout linearLayoutRelatorioVendas;
+    TextView nenhumRegistroEncontrado;
 
 
     @Override
@@ -190,23 +198,32 @@ public class RelatorioVendasActivity extends AppCompatActivity {
         getSupportActionBar().setHomeButtonEnabled(true);      //Ativar o botão
         getSupportActionBar().setTitle("Relatorio de Vendas");
 
+
         linearLayoutRootRelatorioVendas = (LinearLayout) findViewById(R.id.ll_root_relatorio_vendas);
         snackbar = Snackbar.make(linearLayoutRootRelatorioVendas, "", Snackbar.LENGTH_LONG);
         btnGerarRelatorio = (Button) findViewById(R.id.gerar_relatorio);
         btnGerarRelatorioPDF = (Button) findViewById(R.id.gerar_relatorio_pdf);
-        tvResumeCardTotal = (TextView) findViewById(R.id.resumo_card_total);
-        tvResumeCardLucro = (TextView) findViewById(R.id.resumo_card_lucro);
-        cardViewResumo = (CardView) findViewById(R.id.lista_transacoes_resumo);
-        cardViewFiltros = (CardView) findViewById(R.id.card_view_filtros);
+        cardViewSelecionarFiltros = (CardView) findViewById(R.id.card_view_filtros);
         textViewLoja = (TextView) findViewById(R.id.tv_loja);
         llProgressBar = (LinearLayout) findViewById(R.id.progressBar);
         llProgressBar.setVisibility(View.GONE);
         textViewFuncionario = (TextView) findViewById(R.id.tv_funcionario);
         progressDialog = new ProgressDialog(this);
         progressDialog.setCancelable(false);
-
-        cardViewResumo.setVisibility(View.GONE);
-
+        relatorioFiltrosView = (LinearLayout) findViewById(R.id.filtros_view);
+        relatorioFiltrosView.setVisibility(View.GONE);
+        relatorioaDataFinal = findViewById(R.id.relatorio_data_final);
+        relatorioDataInicial = findViewById(R.id.relatorio_data_inicial);
+        relatorioLoja = findViewById(R.id.relatorio_loja);
+        relatorioFormaDePagamento = findViewById(R.id.relatorio_forma_pagamento);
+        relatorioTotal = findViewById(R.id.relatorio_total);
+        relatorioLucro = findViewById(R.id.relatorio_lucro);
+        relatorioFuncionario = findViewById(R.id.relatorio_funcionario);
+        btnNovaConsulta = findViewById(R.id.nova_consulta);
+        linearLayoutRelatorioVendas = findViewById(R.id.ll_relatorio_vendas);
+        linearLayoutRelatorioVendas.setVisibility(View.GONE);
+        nenhumRegistroEncontrado = findViewById(R.id.nenhum_registro_encontrado);
+        nenhumRegistroEncontrado.setVisibility(View.GONE);
 
         listaDeVendasRecycleView = (RecyclerView) findViewById(R.id.lista_de_vendas);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
@@ -370,26 +387,47 @@ public class RelatorioVendasActivity extends AppCompatActivity {
 
             }
         });
+        btnNovaConsulta.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                relatorioVendas.clear();
+                vendasReyclerViewAdapter.notifyDataSetChanged();
+                Util.collapse(relatorioFiltrosView, null);
+                Util.expand(cardViewSelecionarFiltros, null);
+                Util.collapse(linearLayoutRelatorioVendas, null);
+                toolbar.getMenu().findItem(R.id.filtro).setVisible(false);
+
+            }
+        });
 
         vendasReyclerViewAdapter.setOnItemClickListener(new TabelaRelatorioVendasReyclerViewAdapter.ItemClickListener() {
             @Override
             public void onItemClick(int position) {
-                if (position != 0) {
-                    vendaClicada = (Venda) relatorioVendas.get(position - 1);
-                    Log.e("Venda clicada", String.valueOf(position - 1));
-                    ShowCustomDialogwithList();
-                }
+
+                vendaClicada = (Venda) relatorioVendas.get(position);
+                Log.e("Venda clicada", String.valueOf(position));
+                ShowCustomDialogwithList();
+
             }
         });
         vendasReyclerViewAdapter.setOnItemDeleteListener(new TabelaRelatorioVendasReyclerViewAdapter.ItemDeleteListener() {
             @Override
-            public void onItemDelete(int position) {
-                if (position != 0) {
-                    PodeDeletarVenda = true;
-                    Venda venda = (Venda) relatorioVendas.get(position - 1);
-                    DeletarVenda(venda);
+            public void onItemDelete(final int position) {
+                Util.alert(RelatorioVendasActivity.this, "Deletar Venda", "Deseja deletar a venda?", "Sim", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        PodeDeletarVenda = true;
+                        Venda venda = (Venda) relatorioVendas.get(position);
+                        DeletarVenda(venda);
+                    }
+                }, "Não", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
 
-                }
+                    }
+                }, null, null);
+
+
             }
         });
 
@@ -400,7 +438,6 @@ public class RelatorioVendasActivity extends AppCompatActivity {
 //                lucro.setVisibility(View.GONE);
                 textViewFuncionario.setVisibility(View.GONE);
                 textViewLoja.setVisibility(View.GONE);
-                tvResumeCardLucro.setVisibility(View.GONE);
 
 
             }
@@ -595,7 +632,10 @@ public class RelatorioVendasActivity extends AppCompatActivity {
         if (!isValid()) {
             return;
         }
-
+        Util.collapse(cardViewSelecionarFiltros, null);
+        Util.expand(relatorioFiltrosView, null);
+        Util.expand(linearLayoutRelatorioVendas, null);
+        toolbar.getMenu().findItem(R.id.filtro).setVisible(true);
 
         relatorioVendas.clear();
 
@@ -668,7 +708,10 @@ public class RelatorioVendasActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_filtro, menu);
-
+        if (cardViewSelecionarFiltros.getVisibility() == View.VISIBLE)
+            toolbar.getMenu().findItem(R.id.filtro).setVisible(false);
+        else
+            toolbar.getMenu().findItem(R.id.filtro).setVisible(true);
         return super.onCreateOptionsMenu(menu);
 
     }
@@ -677,17 +720,27 @@ public class RelatorioVendasActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                if (vendaDeletada) {
-                    bus.post(new AtualizaListaProdutoEvent());
+                if (cardViewSelecionarFiltros.getVisibility() == View.VISIBLE) {
+                    if (vendaDeletada) {
+                        bus.post(new AtualizaListaProdutoEvent());
+                    }
+                    finish();
+                } else {
+                    relatorioVendas.clear();
+                    vendasReyclerViewAdapter.notifyDataSetChanged();
+                    Util.collapse(relatorioFiltrosView, null);
+                    Util.collapse(linearLayoutRelatorioVendas, null);
+                    Util.expand(cardViewSelecionarFiltros, null);
+                    toolbar.getMenu().findItem(R.id.filtro).setVisible(false);
+
                 }
-                finish();
                 break;
             case R.id.filtro:
-                if (cardViewFiltros.getVisibility() == View.GONE) {
-                    Util.expand(cardViewFiltros, null);
+                if (relatorioFiltrosView.getVisibility() == View.GONE) {
+                    Util.expand(relatorioFiltrosView, null);
                 } else {
-                    Util.collapse(cardViewFiltros, null);
-//                    cardViewFiltros.setVisibility(View.GONE);
+                    Util.collapse(relatorioFiltrosView, null);
+//                    cardViewSelecionarFiltros.setVisibility(View.GONE);
                 }
 
                 break;
@@ -736,7 +789,6 @@ public class RelatorioVendasActivity extends AppCompatActivity {
             llProgressBar.setVisibility(View.VISIBLE);
             relatorioVendas.clear();
             vendasReyclerViewAdapter.notifyDataSetChanged();
-            cardViewResumo.setVisibility(View.GONE);
 
 
         }
@@ -773,13 +825,30 @@ public class RelatorioVendasActivity extends AppCompatActivity {
             return "";
         }
 
+
         @Override
         protected void onPostExecute(String t) {
+
+            if (lojaEscolhida != null)
+                relatorioLoja.setText(Util.capitalize(lojaEscolhida.getNome()));
+            else
+                relatorioLoja.setText("Todas");
+            if (formaDePagamentoEscolhido != null)
+                relatorioFormaDePagamento.setText(Util.capitalize(formaDePagamentoEscolhido));
+            else
+                relatorioFormaDePagamento.setText("Todas");
+
+            if (usuarioEscolhido != null)
+                relatorioFuncionario.setText(Util.capitalize(usuarioEscolhido.getNome()));
+            else
+                relatorioFuncionario.setText("Todos");
+            relatorioDataInicial.setText(Util.dataComDiaEHoraPorExtenso(de.getTime()));
+            relatorioaDataFinal.setText(Util.dataComDiaEHoraPorExtenso(ate.getTime()));
 
             if (up.temUsuario()) {
                 if (up.getUsuario().getRole().equals("Funcionario")) {
                     final NumberFormat formatoBrasileiro = DecimalFormat.getCurrencyInstance(new Locale("pt", "br"));
-                    tvResumeCardTotal.setText(formatoBrasileiro.format(auxTotal).
+                    relatorioTotal.setText(formatoBrasileiro.format(auxTotal).
                             replace("R$", "R$ ").
                             replace("-R$", "R$ -"));
 
@@ -787,11 +856,11 @@ public class RelatorioVendasActivity extends AppCompatActivity {
 //                total.setText("O total das vendas é R$ " + auxTotal + " reais\n" + "O lucro é R$ " + auxLucro + " reais");
                     BigDecimal totalBigDecimaal = new BigDecimal(auxTotal);
                     final NumberFormat formatoBrasileiro = DecimalFormat.getCurrencyInstance(new Locale("pt", "br"));
-                    tvResumeCardTotal.setText(formatoBrasileiro.format(totalBigDecimaal).
+                    relatorioTotal.setText(formatoBrasileiro.format(totalBigDecimaal).
                             replace("R$", "R$ ").
                             replace("-R$", "R$ -"));
                     BigDecimal lucroBigDecimal = new BigDecimal(auxLucro);
-                    tvResumeCardLucro.setText(formatoBrasileiro.format(lucroBigDecimal).
+                    relatorioLucro.setText(formatoBrasileiro.format(lucroBigDecimal).
                             replace("R$", "R$ ").
                             replace("-R$", "R$ -"));
                 }
@@ -800,8 +869,12 @@ public class RelatorioVendasActivity extends AppCompatActivity {
 
 //            listaViewDeVendas.setAdapter(adapterTable);
             vendasReyclerViewAdapter.notifyDataSetChanged();
-            cardViewResumo.setVisibility(View.VISIBLE);
             llProgressBar.setVisibility(View.GONE);
+            if (relatorioVendas.isEmpty()) {
+                nenhumRegistroEncontrado.setVisibility(View.VISIBLE);
+            } else {
+                nenhumRegistroEncontrado.setVisibility(View.GONE);
+            }
 
 
         }
@@ -811,10 +884,21 @@ public class RelatorioVendasActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (vendaDeletada) {
-            bus.post(new AtualizaListaProdutoEvent());
+        if (cardViewSelecionarFiltros.getVisibility() == View.VISIBLE) {
+            if (vendaDeletada) {
+                bus.post(new AtualizaListaProdutoEvent());
+            }
+            super.onBackPressed();
+
+        } else {
+            relatorioVendas.clear();
+            vendasReyclerViewAdapter.notifyDataSetChanged();
+            Util.collapse(linearLayoutRelatorioVendas, null);
+            Util.collapse(relatorioFiltrosView, null);
+            Util.expand(cardViewSelecionarFiltros, null);
+            toolbar.getMenu().findItem(R.id.filtro).setVisible(false);
+
         }
-        super.onBackPressed();
     }
 
 

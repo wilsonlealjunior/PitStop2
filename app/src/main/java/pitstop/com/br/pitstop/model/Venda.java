@@ -20,7 +20,6 @@ public class Venda extends RealmObject{
     String nomeVendedor;
     Date dataDaVenda;
     String formaDePagamento;
-    String MomentoDaUltimaAtualizacao;
     int sincronizado;
     double totalDinheiro;
     double totalCartao;
@@ -77,14 +76,6 @@ public class Venda extends RealmObject{
 
     public int getSincronizado() {
         return sincronizado;
-    }
-
-    public String getMomentoDaUltimaAtualizacao() {
-        return MomentoDaUltimaAtualizacao;
-    }
-
-    public void setMomentoDaUltimaAtualizacao(String momentoDaUltimaAtualizacao) {
-        MomentoDaUltimaAtualizacao = momentoDaUltimaAtualizacao;
     }
 
     public void setItemVendas(RealmList<ItemVenda> itemVendas) {

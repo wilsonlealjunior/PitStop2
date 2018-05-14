@@ -30,8 +30,7 @@ public class AvariaDAO {
     public void insere(Avaria avaria) {
         verificaSeRealmEstaFechado();
         realm.beginTransaction();
-        Avaria avariaRealm = realm.createObject(Avaria.class, avaria.getId());
-        pegarDados(avaria, avariaRealm);
+        realm.insertOrUpdate(avaria);
         realm.commitTransaction();
     }
 
@@ -41,44 +40,7 @@ public class AvariaDAO {
         }
     }
 
-    private void pegarDados(Avaria avaria, Avaria avariaRealm) {
-        avariaRealm.setIdLoja(avaria.getIdLoja());
-        avariaRealm.setSincronizado(avaria.getSincronizado());
-        avariaRealm.setData(avaria.getData());
-        avariaRealm.setPrejuizo(avaria.getPrejuizo());
-        avariaRealm.setDesativado(avaria.getDesativado());
-        avariaRealm.setIdProduto(avaria.getIdProduto());
-        avariaRealm.setQuantidade(avaria.getQuantidade());
-        for (ItemAvaria itemAvaria: avaria.getAvariaEntradeProdutos()) {
-            ItemAvaria itemAvariaRealm;
-            ItemAvaria itemAvariaBuscado  = realm.where(ItemAvaria.class)
-                    .equalTo("id",itemAvaria.getId())
-                    .findFirst();
-            if(itemAvariaBuscado==null){
-                itemAvariaRealm = realm.createObject(ItemAvaria.class,itemAvaria.getId());
-                avariaRealm.getAvariaEntradeProdutos().add(itemAvariaRealm);
-            }else{
-                itemAvariaRealm = itemAvariaBuscado;
-            }
-            itemAvariaRealm.setIdAvaria(itemAvaria.getIdAvaria());
-            itemAvariaRealm.setIdEntradaProduto(itemAvaria.getIdEntradaProduto());
-            itemAvariaRealm.setQuantidade(itemAvaria.getQuantidade());
-            itemAvariaRealm.setSincronizado(itemAvaria.getSincronizado());
-        }
 
-    }
-
-    public void insereLista(List<Avaria> avarias) {
-        verificaSeRealmEstaFechado();
-        for (Avaria avaria : avarias) {
-            realm.beginTransaction();
-            Avaria avariaRealm = realm.createObject(Avaria.class);
-            pegarDados(avaria, avariaRealm);
-            realm.commitTransaction();
-
-
-        }
-    }
 
     public void deleta(Avaria avaria) {
         verificaSeRealmEstaFechado();
@@ -140,7 +102,6 @@ public class AvariaDAO {
                 avarias) {
 
             avaria.sincroniza();
-
             if (existe(avaria)) {
                 if (avaria.estaDesativado()) {
                     deleta(avaria);
@@ -176,8 +137,7 @@ public class AvariaDAO {
     public void altera(Avaria avaria) {
         verificaSeRealmEstaFechado();
         realm.beginTransaction();
-        Avaria avariaRealm = realm.where(Avaria.class).equalTo("id", avaria.getId()).findFirst();
-        pegarDados(avaria, avariaRealm);
+        realm.insertOrUpdate(avaria);
         realm.commitTransaction();
     }
 

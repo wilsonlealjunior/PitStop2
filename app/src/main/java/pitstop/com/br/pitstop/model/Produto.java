@@ -15,7 +15,7 @@ import io.realm.annotations.Required;
  * Created by wilso on 20/09/2017.
  */
 
-public class Produto extends RealmObject implements Parcelable, Comparable<Produto> {
+public class Produto extends RealmObject {
     @PrimaryKey
     private String id;
     private String nome;
@@ -25,61 +25,13 @@ public class Produto extends RealmObject implements Parcelable, Comparable<Produ
     private Loja loja;
     private RealmList<EntradaProduto> entradaProdutos = new RealmList<>();
     private int sincronizado;
-    private String momentoDaUltimaAtualizacao;
     @Required
-    private RealmList<String> idProdutoVinculado = new RealmList<>();
+    public RealmList<String> idProdutoVinculado = new RealmList<>();
     private String idProdutoPrincipal;
     private int vinculo;
 
 
-    protected Produto(Parcel in) {
-        id = in.readString();
-        nome = in.readString();
-        estoqueMinimo = in.readInt();
-        quantidade = in.readInt();
-        preco = in.readDouble();
-        loja = in.readParcelable(Loja.class.getClassLoader());
-        sincronizado = in.readInt();
-        momentoDaUltimaAtualizacao = in.readString();
-        idProdutoPrincipal = in.readString();
-        vinculo = in.readInt();
-        entradaProdutos.addAll(in.createTypedArrayList(EntradaProduto.CREATOR));
-        idProdutoVinculado.addAll(in.createTypedArrayList(in.STRING_CREATOR));
 
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(id);
-        dest.writeString(nome);
-        dest.writeInt(estoqueMinimo);
-        dest.writeInt(quantidade);
-        dest.writeDouble(preco);
-        dest.writeParcelable(loja, flags);
-        dest.writeInt(sincronizado);
-        dest.writeString(momentoDaUltimaAtualizacao);
-        dest.writeString(idProdutoPrincipal);
-        dest.writeInt(vinculo);
-        dest.writeTypedList(entradaProdutos);
-        dest.writeStringList(idProdutoVinculado);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    public static final Creator<Produto> CREATOR = new Creator<Produto>() {
-        @Override
-        public Produto createFromParcel(Parcel in) {
-            return new Produto(in);
-        }
-
-        @Override
-        public Produto[] newArray(int size) {
-            return new Produto[size];
-        }
-    };
 
     public String getIdProdutoPrincipal() {
         return idProdutoPrincipal;
@@ -87,14 +39,6 @@ public class Produto extends RealmObject implements Parcelable, Comparable<Produ
 
     public void setIdProdutoPrincipal(String idProdutoPrincipal) {
         this.idProdutoPrincipal = idProdutoPrincipal;
-    }
-
-    public String getMomentoDaUltimaAtualizacao() {
-        return momentoDaUltimaAtualizacao;
-    }
-
-    public void setMomentoDaUltimaAtualizacao(String momentoDaUltimaAtualizacao) {
-        this.momentoDaUltimaAtualizacao = momentoDaUltimaAtualizacao;
     }
 
     public RealmList<String> getIdProdutoVinculado() {
@@ -246,11 +190,7 @@ public class Produto extends RealmObject implements Parcelable, Comparable<Produ
         this.sincronizado = 0;
     }
 
-    @Override
-    public int compareTo(@NonNull Produto produto) {
-        return nome.compareTo(produto.getNome());
 
-    }
 
 }
 

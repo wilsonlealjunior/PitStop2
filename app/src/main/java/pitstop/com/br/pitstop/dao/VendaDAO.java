@@ -13,6 +13,7 @@ import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmQuery;
+import io.realm.Sort;
 import pitstop.com.br.pitstop.Util;
 import pitstop.com.br.pitstop.model.Avaria;
 import pitstop.com.br.pitstop.model.ItemFuro;
@@ -27,7 +28,6 @@ import pitstop.com.br.pitstop.model.Venda;
 
 public class VendaDAO {
     private Realm realm;
-    private SQLiteDatabase database;
     Context context;
 
     public VendaDAO(Context context) {
@@ -39,8 +39,7 @@ public class VendaDAO {
     public void insere(Venda venda) {
         verificaSeRealmEstaFechado();
         realm.beginTransaction();
-        Venda vendaRealm = realm.createObject(Venda.class, venda.getId());
-        pegarDados(venda, vendaRealm);
+        realm.insertOrUpdate(venda);
         realm.commitTransaction();
     }
 
@@ -50,43 +49,6 @@ public class VendaDAO {
         }
     }
 
-    private void pegarDados(Venda venda, Venda vendaRealm) {
-        vendaRealm.setNomeVendedor(venda.getNomeVendedor());
-        vendaRealm.setDesativado(venda.getDesativado());
-        vendaRealm.setFormaDePagamento(venda.getFormaDePagamento());
-        vendaRealm.setDataDaVenda(venda.getDataDaVenda());
-        vendaRealm.setSincronizado(venda.getSincronizado());
-        vendaRealm.setIdLoja(venda.getIdLoja());
-        vendaRealm.setTotalDinheiro(venda.getTotalDinheiro());
-        vendaRealm.setTotalCartao(venda.getTotalCartao());
-        vendaRealm.setLucro(venda.getLucro());
-        for (ItemVenda itemVenda: venda.getItemVendas()) {
-            ItemVenda itemVendaRealm;
-            ItemVenda itemVendaBuscado  = realm.where(ItemVenda.class)
-                    .equalTo("id",itemVenda.getId())
-                    .findFirst();
-            if(itemVendaBuscado==null){
-                itemVendaRealm = realm.createObject(ItemVenda.class,itemVenda.getId());
-                vendaRealm.getItemVendas().add(itemVendaRealm);
-            }else{
-                itemVendaRealm = itemVendaBuscado;
-            }
-            itemVendaRealm.setIdVenda(itemVenda.getIdVenda());
-            itemVendaRealm.setIdEntradaProduto(itemVenda.getIdEntradaProduto());
-            itemVendaRealm.setIdVenda(itemVenda.getIdVenda());
-            itemVendaRealm.setPrecoDeVenda(itemVenda.getPrecoDeVenda());
-            itemVendaRealm.setQuantidadeVendida(itemVenda.getQuantidadeVendida());
-            itemVendaRealm.setSincronizado(itemVenda.getSincronizado());
-            itemVendaRealm.setIdProduto(itemVenda.getIdProduto());
-        }
-    }
-
-    public void insereLista(List<Venda> vendas) {
-        verificaSeRealmEstaFechado();
-        for (Venda venda : vendas) {
-            insere(venda);
-        }
-    }
 
     public void deleta(Venda venda) {
         verificaSeRealmEstaFechado();
@@ -105,7 +67,8 @@ public class VendaDAO {
         Date dateFim = Util.converteDoFormatoSQLParaDate(ate);
         RealmQuery<Venda> consultaRelatorio = realm.where(Venda.class)
                 .equalTo("desativado", 0)
-                .between("dataDaVenda", dateOrigem, dateFim);
+                .between("dataDaVenda", dateOrigem, dateFim)
+                .sort("dataDaVenda", Sort.DESCENDING);
         if (loja != null) {
             consultaRelatorio.equalTo("idLoja", loja.getId());
         }
@@ -115,6 +78,7 @@ public class VendaDAO {
         if (formaDePagamento != null) {
             consultaRelatorio.contains("formaDePagamento", formaDePagamento);
         }
+
         return realm.copyFromRealm(consultaRelatorio.findAll());
     }
 
@@ -236,15 +200,14 @@ public class VendaDAO {
     public void altera(Venda venda) {
         verificaSeRealmEstaFechado();
         realm.beginTransaction();
-        Venda vendaRealm = realm.where(Venda.class).equalTo("id", venda.getId()).findFirst();
-        pegarDados(venda, vendaRealm);
+        realm.insertOrUpdate(venda);
         realm.commitTransaction();
     }
 
 
     public Venda procuraPorId(String nome) {
         verificaSeRealmEstaFechado();
-        Venda vendaRealm =  realm.where(Venda.class)
+        Venda vendaRealm = realm.where(Venda.class)
                 .equalTo("id", nome)
                 .equalTo("desativado", 0)
                 .findFirst();

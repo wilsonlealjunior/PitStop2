@@ -63,7 +63,6 @@ public class NavigationViewActivity extends AppCompatActivity {
     ImageButton botaoLogout;
 
 
-    Loja lojaVindaDaTelaDeListarProduto;
     Usuario usuario;
 
 
@@ -71,12 +70,8 @@ public class NavigationViewActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_navigation_view);
-
-
         objetosSinkSincronizador = new ObjetosSinkSincronizador(this);
 
-        Intent intent = getIntent();
-        lojaVindaDaTelaDeListarProduto = (Loja) intent.getParcelableExtra("loja");
 
         initViews();
         setUpHeaderView();
@@ -96,23 +91,15 @@ public class NavigationViewActivity extends AppCompatActivity {
 
         objetosSinkSincronizador.buscaTodos();
 
-        if (lojaVindaDaTelaDeListarProduto != null) {
-            navigationView.setCheckedItem(R.id.produto);
-            MenuItem item = navigationView.getMenu().findItem(R.id.produto);
-            Fragment fragment = new ListarProdutoFragment();
+        //At start set home fragment
+        if (savedInstanceState == null) {
+
+            navigationView.setCheckedItem(R.id.dashboard);
+            MenuItem item = navigationView.getMenu().findItem(R.id.dashboard);
+            Fragment fragment = new DashboardFragment();
             setFragment(fragment, item);
-            //intent.removeExtra("loja");
-
-        } else {
-            //At start set home fragment
-            if (savedInstanceState == null) {
-
-                navigationView.setCheckedItem(R.id.dashboard);
-                MenuItem item = navigationView.getMenu().findItem(R.id.dashboard);
-                Fragment fragment = new DashboardFragment();
-                setFragment(fragment, item);
-            }
         }
+
 
         botaoLogout.setOnClickListener(new View.OnClickListener() {
 

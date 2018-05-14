@@ -23,7 +23,7 @@ public class Application extends android.app.Application {
         super.onCreate();
         Realm.init(this);
         RealmConfiguration realmConfig = new RealmConfiguration.Builder()
-                .deleteRealmIfMigrationNeeded()
+                .schemaVersion(0)
                 .name("PitStop.realm")
                 .build();
         Realm.setDefaultConfiguration(realmConfig);

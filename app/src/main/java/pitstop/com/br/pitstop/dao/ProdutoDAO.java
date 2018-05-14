@@ -31,31 +31,8 @@ public class ProdutoDAO {
     public void insere(Produto produto) {
         verificaSeRealmEstaFechado();
         realm.beginTransaction();
-        Produto produtoRealm;
-        if (produto.getId() == null) {
-            produtoRealm = realm.createObject(Produto.class, UUID.randomUUID().toString());
-        } else {
-            produtoRealm = realm.createObject(Produto.class, produto.getId());
-        }
-        pegarDados(produto,produtoRealm);
+        realm.insertOrUpdate(produto);
         realm.commitTransaction();
-    }
-
-    private void pegarDados(Produto produto, Produto produtoRealm) {
-        verificaSeRealmEstaFechado();
-        produtoRealm.setNome(produto.getNome());
-        produtoRealm.setPreco(produto.getPreco());
-        produtoRealm.setQuantidade(produto.getQuantidade());
-        produtoRealm.setEstoqueMinimo(produto.getEstoqueMinimo());
-        Loja lojaRealm = realm.where(Loja.class)
-                .equalTo("id",produto.getLoja().getId())
-                .findFirst();
-        produtoRealm.setLoja(lojaRealm);
-        produtoRealm.setSincronizado(produto.getSincronizado());
-        produtoRealm.setIdProdutoPrincipal(produto.getIdProdutoPrincipal());
-        produtoRealm.setVinculo(produto.getVinculo());
-        produtoRealm.getIdProdutoVinculado().deleteAllFromRealm();
-        produtoRealm.getIdProdutoVinculado().addAll(produto.getIdProdutoVinculado());
     }
 
     public void insereLista(List<Produto> produtos) {
@@ -87,10 +64,8 @@ public class ProdutoDAO {
     public boolean existeProdutosCadastrados() {
         verificaSeRealmEstaFechado();
         Number n = realm.where(Produto.class).count();
-        return n.intValue()>0;
+        return n.intValue() > 0;
     }
-
-
 
 
     public void sincroniza(List<Produto> produtos) {
@@ -115,9 +90,9 @@ public class ProdutoDAO {
     private boolean existe(Produto produto) {
         verificaSeRealmEstaFechado();
         Number n = realm.where(Produto.class)
-                .equalTo("id",produto.getId())
+                .equalTo("id", produto.getId())
                 .count();
-        return n.intValue()>0;
+        return n.intValue() > 0;
     }
 
     public void close() {
@@ -128,20 +103,16 @@ public class ProdutoDAO {
         verificaSeRealmEstaFechado();
         List<Produto> produtos = new ArrayList<Produto>();
         produtos.addAll(realm.where(Produto.class)
-                .equalTo("sincronizado",0)
+                .equalTo("sincronizado", 0)
                 .findAll());
         return realm.copyFromRealm(produtos);
     }
 
 
-
     public void altera(Produto produto) {
         verificaSeRealmEstaFechado();
         realm.beginTransaction();
-        Produto produtoRealm = realm.where(Produto.class)
-                .equalTo("id", produto.getId())
-                .findFirst();
-        pegarDados(produto, produtoRealm);
+        realm.insertOrUpdate(produto);
         realm.commitTransaction();
 
     }
@@ -150,7 +121,7 @@ public class ProdutoDAO {
         verificaSeRealmEstaFechado();
         List<Produto> produtos = new ArrayList<Produto>();
         produtos.addAll(realm.where(Produto.class)
-                .equalTo("loja.id",loja.getId())
+                .equalTo("loja.id", loja.getId())
                 .sort("nome")
                 .findAll());
         return realm.copyFromRealm(produtos);
@@ -159,8 +130,8 @@ public class ProdutoDAO {
     public Produto procuraPorNomeELoja(String nome, Loja loja) {
         verificaSeRealmEstaFechado();
         Produto produto = realm.where(Produto.class)
-                .equalTo("loja.id",loja.getId())
-                .equalTo("nome",nome)
+                .equalTo("loja.id", loja.getId())
+                .equalTo("nome", nome)
                 .findFirst();
         return realm.copyFromRealm(produto);
     }
@@ -175,7 +146,7 @@ public class ProdutoDAO {
 
     public Produto procuraPorNome(String nome) {
         Produto produto = realm.where(Produto.class)
-                .equalTo("nome",nome)
+                .equalTo("nome", nome)
                 .findFirst();
         return realm.copyFromRealm(produto);
 

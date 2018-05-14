@@ -149,7 +149,7 @@ public class ListarLojaFragment extends Fragment implements SearchView.OnQueryTe
             public void onItemClick(int position) {
                 Intent intentVaiProFormulario = getActivity().getIntent();
                 Loja l = lojas.get(position);
-                intentVaiProFormulario.putExtra("loja", l);
+                intentVaiProFormulario.putExtra("lojaId", l.getId());
                 Fragment fragment = new ListarProdutoFragment();
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();

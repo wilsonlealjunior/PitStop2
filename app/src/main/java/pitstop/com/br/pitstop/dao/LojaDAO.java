@@ -71,23 +71,10 @@ public class LojaDAO {
     public void insere(Loja loja) {
         verificaSeRealmEstaFechado();
         realm.beginTransaction();
-        Loja lojaRealm;
-        if (loja.getId() == null) {
-            lojaRealm = realm.createObject(Loja.class, UUID.randomUUID().toString());
-        } else {
-            lojaRealm = realm.createObject(Loja.class, loja.getId());
-        }
-        pegarDados(loja, lojaRealm);
+        realm.insertOrUpdate(loja);
         realm.commitTransaction();
     }
 
-    private void pegarDados(Loja loja, Loja lojaRealm) {
-        verificaSeRealmEstaFechado();
-        loja.setId(loja.getId());
-        lojaRealm.setNome(loja.getNome());
-        lojaRealm.setEndereco(loja.getEndereco());
-        lojaRealm.setSincronizado(loja.getSincronizado());
-    }
 
     public void insereLista(List<Loja> Lojas) {
         verificaSeRealmEstaFechado();
@@ -132,10 +119,7 @@ public class LojaDAO {
     public void altera(Loja loja) {
         verificaSeRealmEstaFechado();
         realm.beginTransaction();
-        Loja lojaRealm = realm.where(Loja.class)
-                .equalTo("id", loja.getId())
-                .findFirst();
-        pegarDados(loja, lojaRealm);
+        realm.insertOrUpdate(loja);
         realm.commitTransaction();
     }
 

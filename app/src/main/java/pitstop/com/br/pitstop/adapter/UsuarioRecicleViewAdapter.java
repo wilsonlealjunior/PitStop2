@@ -106,7 +106,7 @@ public class UsuarioRecicleViewAdapter extends RecyclerView.Adapter<UsuarioRecic
             public void onClick(View v) {
 //                Log.e("Produto", l.getNome());
                 Intent intentVaiProFormulario = new Intent(contexto, SignupActivity.class);
-                intentVaiProFormulario.putExtra("usuario", u);
+                intentVaiProFormulario.putExtra("usuarioNome", u.getNome());
                 contexto.startActivity(intentVaiProFormulario);
             }
         });

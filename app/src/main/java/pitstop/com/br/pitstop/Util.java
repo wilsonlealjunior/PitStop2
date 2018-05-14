@@ -1,5 +1,10 @@
 package pitstop.com.br.pitstop;
 
+import android.content.Context;
+import android.content.DialogInterface;
+import android.support.v7.app.AlertDialog;
+import android.text.Html;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,12 +15,15 @@ import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 
 import java.text.DecimalFormat;
+import java.text.Normalizer;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
@@ -39,7 +47,6 @@ public abstract class Util {
     public static String[] separaData(String data) {
         return data.split("/");
     }
-
 
 
     public static String convertDataParaString(long date) {
@@ -66,7 +73,7 @@ public abstract class Util {
     }
 
     public static String formataDataComDiaMesEAno(int dia, int mes, int ano) {
-        return String.format("%02d/%02d/%04d", dia, mes , ano);
+        return String.format("%02d/%02d/%04d", dia, mes, ano);
     }
 
     public static String horaOuDataOMaisRecente(Date data) {
@@ -185,6 +192,39 @@ public abstract class Util {
         return new SimpleDateFormat("'Dia 'dd' às 'HH:mm", localeBR).format(dataDaOcorrencia);
     }
 
+    public static AlertDialog alert(Context context, String title, String message, final String positiveButton, final DialogInterface.OnClickListener positiveListener, String negativeButton, final DialogInterface.OnClickListener negativeListener, final String neutralButton, final DialogInterface.OnClickListener neutralListener) {
+        AlertDialog.Builder bld = new AlertDialog.Builder(context, R.style.MyAlertDialogStyle);
+        bld
+                .setIcon(R.mipmap.ic_launcher)
+                .setTitle(title)
+                .setMessage(Html.fromHtml(message))
+                .setCancelable(false)
+                .setPositiveButton(positiveButton, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (positiveListener != null)
+                            positiveListener.onClick(dialog, which);
+                    }
+                });
+
+        if (negativeButton != null) {
+            bld.setNegativeButton(negativeButton, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    if (negativeListener != null)
+                        negativeListener.onClick(dialog, which);
+                }
+            });
+        }
+
+        if (neutralButton != null)
+            bld.setNeutralButton(neutralButton, neutralListener);
+
+        AlertDialog alerta = bld.create();
+        alerta.show();
+        return alerta;
+    }
+
     public static String dataComDiaDaSemanaEHoraPorExtenso(long datetime) {
         Calendar calendar = Calendar.getInstance();
         Date dataDaOcorrencia = new Date(datetime);
@@ -201,6 +241,60 @@ public abstract class Util {
     }
 
     /* Fim conversões e formatações de data */
+    /* Início tratamento e manipulação de strings */
+
+    public static String removeAcentuacao(String string) {
+        return Normalizer.normalize(string, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
+    }
+
+    public static String formatarAltura(double altura) {
+        return String.format("%.0f", altura);
+    }
+
+    public static String formatarPesoOuImc(double pesoOuImc) {
+        return String.format("%.1f", pesoOuImc);
+    }
+
+    public static String toNameCase(String input) {
+        return toTitleCase(input, new String[]{"de", "do", "dos", "da", "e"});
+    }
+
+    public static String firstNames(String input) {
+        String[] words = input.split("\\s+");
+        if (words.length == 0) {
+            return input;
+        }
+        if (words.length == 1) {
+            return Character.toUpperCase(words[0].charAt(0)) + words[0].substring(1).toLowerCase();
+        }
+        return Character.toUpperCase(words[0].charAt(0)) + words[0].substring(1).toLowerCase() + " " +
+                Character.toUpperCase(words[words.length - 1].charAt(0)) + words[words.length - 1].substring(1).toLowerCase();
+    }
+
+    public static String toTitleCase(String input, String[] exceptWords) {
+        if (TextUtils.isEmpty(input)) return "";
+
+        String[] words = input.split("\\s+");
+        StringBuilder sb = new StringBuilder();
+        List<String> exceptWordsList = Arrays.asList(exceptWords);
+
+        if (words[0].length() > 0) {
+            for (int i = 0; i < words.length; i++) {
+                if (exceptWordsList.contains(words[i].toLowerCase())) {
+                    sb.append(words[i].toLowerCase());
+                } else {
+                    sb.append(Character.toUpperCase(words[i].charAt(0)));
+                    sb.append(words[i].subSequence(1, words[i].length()).toString().toLowerCase());
+                }
+
+                if (i < words.length - 1) {
+                    sb.append(" ");
+                }
+            }
+        }
+        return sb.toString();
+    }
+
     public static String toCamelCase(String input) {
         StringBuilder titleCase = new StringBuilder();
         boolean nextTitleCase = true;
@@ -217,6 +311,12 @@ public abstract class Util {
         }
         return titleCase.toString();
     }
+
+    public static String capitalize(final String line) {
+        return Character.toUpperCase(line.charAt(0)) + line.substring(1);
+    }
+
+
     public static Object getKeyFromValue(Map hm, Object value) {
         for (Object o : hm.keySet()) {
             if (hm.get(o).toString().equals(value.toString())) {
@@ -225,6 +325,9 @@ public abstract class Util {
         }
         return null;
     }
+
+    /* Fim tratamento e manipulação de strings */
+
 
     public static Animation expand(final View v, Animation.AnimationListener listener) {
         v.measure(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -305,6 +408,7 @@ public abstract class Util {
         }
         return date;
     }
+
     public static Date converteDoFormatoSQLParaDate(String data) {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date date = null;

@@ -35,21 +35,10 @@ public class MovimentacaoProdutoDAO {
     public void insere(MovimentacaoProduto movimentacaoProduto) {
         verificaSeRealmEstaFechado();
         realm.beginTransaction();
-        MovimentacaoProduto movimentacaoProdutoRealm;
-        movimentacaoProdutoRealm = realm.createObject(MovimentacaoProduto.class, movimentacaoProduto.getId());
-        pegarDados(movimentacaoProduto, movimentacaoProdutoRealm);
+        realm.insertOrUpdate(movimentacaoProduto);
         realm.commitTransaction();
     }
 
-    private void pegarDados(MovimentacaoProduto movimentacaoProduto, MovimentacaoProduto movimentacaoProdutoRealm) {
-        movimentacaoProdutoRealm.setDesativado(movimentacaoProduto.getDesativado());
-        movimentacaoProdutoRealm.setIdLojaDe(movimentacaoProduto.getIdLojaDe());
-        movimentacaoProdutoRealm.setIdProduto(movimentacaoProduto.getIdProduto());
-        movimentacaoProdutoRealm.setIdLojaPara(movimentacaoProduto.getIdLojaPara());
-        movimentacaoProdutoRealm.setQuantidade(movimentacaoProduto.getQuantidade());
-        movimentacaoProdutoRealm.setSincronizado(movimentacaoProduto.getSincronizado());
-        movimentacaoProdutoRealm.setData(movimentacaoProduto.getData());
-    }
 
     public void insereLista(List<MovimentacaoProduto> movimentacaoProdutos) {
         verificaSeRealmEstaFechado();
@@ -136,10 +125,7 @@ public class MovimentacaoProdutoDAO {
     public void altera(MovimentacaoProduto movimentacaoProduto) {
         verificaSeRealmEstaFechado();
         realm.beginTransaction();
-        MovimentacaoProduto movimentacaoProdutoRealm = realm.where(MovimentacaoProduto.class)
-                .equalTo("id", movimentacaoProduto.getId())
-                .findFirst();
-        pegarDados(movimentacaoProduto, movimentacaoProdutoRealm);
+        realm.insertOrUpdate(movimentacaoProduto);
         realm.commitTransaction();
     }
 
