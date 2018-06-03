@@ -37,7 +37,7 @@ public class UsuarioPreferences {
         editor.putString(USUARIO_LOGADO_LOJA_ID, loja.getId());
         editor.putString(USUARIO_LOGADO_LOJA_NOME, loja.getNome());
         editor.putString(USUARIO_LOGADO_LOJA_ENDERECO, loja.getEndereco());
-        editor.commit();
+        editor.apply();
 
     }
 
@@ -49,7 +49,7 @@ public class UsuarioPreferences {
         if (usuario.getSenha() != null) {
             editor.putString(USUARIO_LOGADO_SENHA, usuario.getSenha());
         }
-        editor.commit();
+        editor.apply();
 
     }
 
@@ -85,13 +85,13 @@ public class UsuarioPreferences {
     public void deletar() {
         SharedPreferences preferences = getSharedPreferences();
         SharedPreferences.Editor editor = preferences.edit();
-        editor.remove(USUARIO_LOGADO_NOME).commit();
-        editor.remove(USUARIO_LOGADO_SENHA).commit();
-        editor.remove(USUARIO_LOGADO_ROLE).commit();
-        editor.remove(USUARIO_LOGADO_LOJA_ENDERECO).commit();
-        editor.remove(USUARIO_LOGADO_LOJA_ID).commit();
-        editor.remove(USUARIO_LOGADO_LOJA_NOME).commit();
-        editor.remove(USUARIO_PREFERENCES).commit();
+        editor.remove(USUARIO_LOGADO_NOME).apply();
+        editor.remove(USUARIO_LOGADO_SENHA).apply();
+        editor.remove(USUARIO_LOGADO_ROLE).apply();
+        editor.remove(USUARIO_LOGADO_LOJA_ENDERECO).apply();
+        editor.remove(USUARIO_LOGADO_LOJA_ID).apply();
+        editor.remove(USUARIO_LOGADO_LOJA_NOME).apply();
+        editor.remove(USUARIO_PREFERENCES).apply();
     }
 
     public boolean temUsuario() {

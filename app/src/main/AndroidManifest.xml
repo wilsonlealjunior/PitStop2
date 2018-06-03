@@ -16,10 +16,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".activity.MainActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize" />
-        <activity
-            android:name=".activity.cadastro.CadastroProdutoActivity"
+            android:name=".activity.produto.CadastroProdutoActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity android:name=".SignupActivity" />
         <activity
@@ -32,46 +29,45 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activity.cadastro.CadastroLojaActivity"
+            android:name=".activity.loja.CadastroLojaActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
             android:name=".activity.NavigationViewActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
-        <activity android:name=".activity.cadastro.CadastroEntradaProdutoActivity" />
+        <activity android:name=".activity.entradaproduto.CadastroEntradaProdutoActivity" />
         <activity
-            android:name=".activity.cadastro.CadastrarVendasActivity"
+            android:name=".activity.venda.CadastrarVendasActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
-            android:name=".activity.cadastro.CadastroMovimentacaoProdutoActivity"
+            android:name=".activity.movimentacaoproduto.CadastroMovimentacaoProdutoActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
-            android:name=".activity.relatorio.RelatorioVendasActivity"
+            android:name=".activity.venda.RelatorioVendasActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
-            android:name=".activity.relatorio.RelatorioEntradaProdutoActivity"
+            android:name=".activity.entradaproduto.RelatorioEntradaProdutoActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
-            android:name=".activity.relatorio.RelatorioMovimentacaoProdutoActivity"
+            android:name=".activity.movimentacaoproduto.RelatorioMovimentacaoProdutoActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
-            android:name=".activity.cadastro.CadastroAvariaActivity"
+            android:name=".activity.avaria.CadastroAvariaActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
             android:name=".activity.NavigationViewFuncionarioActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
-            android:name=".activity.relatorio.RelatorioAvariaActivity"
+            android:name=".activity.avaria.RelatorioAvariaActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
-            android:name=".activity.cadastro.CadastroFuroActivity"
+            android:name=".activity.furo.CadastroFuroActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
-            android:name=".activity.relatorio.RelatorioFuroActivity"
+            android:name=".activity.furo.RelatorioFuroActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
             android:name=".activity.relatorio.RelatorioGeralActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
-        <activity android:name=".activity.Dashboard" />
 
 
     </application>

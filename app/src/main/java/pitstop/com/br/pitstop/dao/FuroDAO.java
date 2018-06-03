@@ -8,6 +8,7 @@ import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmQuery;
+import io.realm.Sort;
 import pitstop.com.br.pitstop.Util;
 import pitstop.com.br.pitstop.model.Furo;
 import pitstop.com.br.pitstop.model.ItemAvaria;
@@ -84,7 +85,9 @@ public class FuroDAO {
         Date dateFim = Util.converteDoFormatoSQLParaDate(ate);
         RealmQuery<Furo> consultaRelatorioPrejuizo = realm.where(Furo.class)
                 .equalTo("desativado", 0)
-                .between("data", dateOrigem, dateFim);
+                .between("data", dateOrigem, dateFim)
+                .sort("data", Sort.DESCENDING);
+
 
         String funcionarioId = "%";
         String idLoja = "%";
@@ -107,7 +110,9 @@ public class FuroDAO {
         Date dateFim = Util.converteDoFormatoSQLParaDate(ate);
         RealmQuery<Furo> consultaRelatorio = realm.where(Furo.class)
                 .equalTo("desativado", 0)
-                .between("data", dateOrigem, dateFim);
+                .between("data", dateOrigem, dateFim)
+                .sort("data", Sort.DESCENDING);
+
         if (!idloja.equals("%")) {
             consultaRelatorio.equalTo("idLoja", idloja);
         }
@@ -150,7 +155,7 @@ public class FuroDAO {
     }
 
     public void close() {
-       realm.close();
+        realm.close();
     }
 
     public List<Furo> listaNaoSincronizados() {
@@ -172,7 +177,7 @@ public class FuroDAO {
 
     public Furo procuraPorId(String id) {
         verificaSeRealmEstaFechado();
-        Furo furoRealm =  realm.where(Furo.class)
+        Furo furoRealm = realm.where(Furo.class)
                 .equalTo("id", id)
                 .equalTo("desativado", 0)
                 .findFirst();

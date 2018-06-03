@@ -8,10 +8,14 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import de.greenrobot.event.EventBus;
 import dmax.dialog.SpotsDialog;
+import io.realm.Realm;
+import io.realm.RealmList;
+import io.realm.RealmObject;
 import pitstop.com.br.pitstop.R;
 import pitstop.com.br.pitstop.dao.AvariaDAO;
 import pitstop.com.br.pitstop.dao.EntradaProdutoDAO;
@@ -31,6 +35,7 @@ import pitstop.com.br.pitstop.model.Loja;
 import pitstop.com.br.pitstop.model.MovimentacaoProduto;
 import pitstop.com.br.pitstop.model.ObjetosSink;
 import pitstop.com.br.pitstop.model.Produto;
+import pitstop.com.br.pitstop.model.RealmString;
 import pitstop.com.br.pitstop.model.Usuario;
 import pitstop.com.br.pitstop.model.Venda;
 import pitstop.com.br.pitstop.preferences.ObjetosSinkPreferences;
@@ -61,7 +66,9 @@ public class ObjetosSinkSincronizador {
     VendaDAO vendaDAO;
     UsuarioDAO usuarioDAO;
     FuroDAO furoDAO;
+    Realm realm;
     boolean sincronizacaoAtiva = false;
+
 
     public ObjetosSinkSincronizador(Context context) {
         this.context = context;
@@ -144,39 +151,90 @@ public class ObjetosSinkSincronizador {
 
 
     private void sincronizaObjetosSinkInternos() {
-        Log.e("Recuperando nao Sinc","Produtos");
+        //esse produto é comoo o servidor está esperando
+        List<ObjetosSink.Produto> produtosAppParaServidor = new ArrayList<>();
+        Log.e("Recuperando nao Sinc", "Produtos");
         final List<Produto> produtos = produtoDAO.listaNaoSincronizados();
         produtoDAO.close();
-        Log.e("Recuperando nao Sinc","Lojas");
+        for (Produto p : produtos) {
+            ObjetosSink.Produto produto = new ObjetosSink.Produto();
+
+            produto.id = (p.getId());
+            produto.nome = (p.getNome());
+            produto.estoqueMinimo = (p.getEstoqueMinimo());
+            produto.quantidade = (p.getQuantidade());
+            produto.preco = (p.getPreco());
+            produto.loja = (p.getLoja());
+            produto.sincronizado = (p.getSincronizado());
+            produto.idProdutoPrincipal = (p.getIdProdutoPrincipal());
+            produto.vinculo = (p.getVinculo());
+            for (RealmString idProdutoVinculoadoRealm : p.idProdutoVinculado) {
+                produto.idProdutoVinculado.add((idProdutoVinculoadoRealm.getValor()));
+            }
+
+            produtosAppParaServidor.add(produto);
+
+        }
+
+        Log.e("Recuperando nao Sinc", "Lojas");
         final List<Loja> lojas = lojaDAO.listaNaoSincronizados();
         lojaDAO.close();
-        Log.e("Recuperando nao Sinc","Avarias");
+        Log.e("Recuperando nao Sinc", "Avarias");
         final List<Avaria> avarias = avariaDAO.listaNaoSincronizados();
         avariaDAO.close();
-        Log.e("Recuperando nao Sinc","Entrada de Produto");
+        Log.e("Recuperando nao Sinc", "Entrada de Produto");
+        List<ObjetosSink.EntradaProduto> entradaProdutosAppParaServidor = new ArrayList<>();
         final List<EntradaProduto> entradaProdutos = entradaProdutoDAO.listaNaoSincronizados();
+        for (EntradaProduto ep : entradaProdutos) {
+            ObjetosSink.EntradaProduto entradaProduto = new ObjetosSink.EntradaProduto();
+            entradaProduto.id = ep.getId();
+            entradaProduto.precoDeCompra = ep.getPrecoDeCompra();
+            entradaProduto.quantidade = ep.getQuantidade();
+            entradaProduto.data = ep.getData();
+            entradaProduto.sincronizado = ep.getSincronizado();
+            entradaProduto.quantidadeVendidaMovimentada = ep.getQuantidadeVendidaMovimentada();
+            entradaProduto.desativado = ep.getDesativado();
+            ObjetosSink.Produto produto = new ObjetosSink.Produto();
+            produto.id = (ep.getProduto().getId());
+            produto.nome = (ep.getProduto().getNome());
+            produto.estoqueMinimo = (ep.getProduto().getEstoqueMinimo());
+            produto.quantidade = (ep.getProduto().getQuantidade());
+            produto.preco = (ep.getProduto().getPreco());
+            produto.loja = (ep.getProduto().getLoja());
+            produto.sincronizado = (ep.getProduto().getSincronizado());
+            produto.idProdutoPrincipal = (ep.getProduto().getIdProdutoPrincipal());
+            produto.vinculo = (ep.getProduto().getVinculo());
+            for (RealmString idProdutoVinculoadoRealm : ep.getProduto().getIdProdutoVinculado()) {
+                produto.idProdutoVinculado.add((idProdutoVinculoadoRealm.getValor()));
+            }
+
+
+            entradaProduto.produto = produto;
+            entradaProdutosAppParaServidor.add(entradaProduto);
+
+        }
         entradaProdutoDAO.close();
-        Log.e("Recuperando nao Sinc","Movimentacao de produto");
+        Log.e("Recuperando nao Sinc", "Movimentacao de produto");
         final List<MovimentacaoProduto> movimentacaoProdutos = movimentacaoProdutoDAO.listaNaoSincronizados();
         movimentacaoProdutoDAO.close();
-        Log.e("Recuperando nao Sinc","Venda");
+        Log.e("Recuperando nao Sinc", "Venda");
         vendaDAO = new VendaDAO(context);
         final List<Venda> vendas = vendaDAO.listaNaoSincronizados();
         vendaDAO.close();
-        Log.e("Recuperando nao Sinc","Usuarios");
+        Log.e("Recuperando nao Sinc", "Usuarios");
         final List<Usuario> usuarios = usuarioDAO.listaNaoSincronizados();
         usuarioDAO.close();
-        Log.e("Recuperando nao Sinc","Furos");
+        Log.e("Recuperando nao Sinc", "Furos");
         final List<Furo> furos = furoDAO.listaNaoSincronizados();
         furoDAO.close();
 
         final ObjetosSink objetosSink = new ObjetosSink();
         objetosSink.setAvarias(avarias);
-        objetosSink.setEntradaProdutos(entradaProdutos);
+        objetosSink.setEntradaProdutos(entradaProdutosAppParaServidor);
         objetosSink.setLojas(lojas);
         objetosSink.setMovimentacaoProdutos(movimentacaoProdutos);
         objetosSink.setVendas(vendas);
-        objetosSink.setProdutos(produtos);
+        objetosSink.setProdutos(produtosAppParaServidor);
         objetosSink.setUsuarios(usuarios);
         objetosSink.setFuros(furos);
         Call<ObjetosSink> call = new RetrofitInializador().getObjetosSinkService().atualiza(objetosSink);
@@ -185,37 +243,54 @@ public class ObjetosSinkSincronizador {
             @Override
             public void onResponse(Call<ObjetosSink> call, Response<ObjetosSink> response) {
                 dialog.setMessage("Sincronizando Servidor");
+
                 final ObjetosSink objetosSink = response.body();
 
-                Log.e("Sincronizando","Lojas");
+                Log.e("Sincronizando", "Lojas");
                 lojaDAO = new LojaDAO(context);
                 lojaDAO.sincroniza(objetosSink.getLojas());
                 lojaDAO.close();
-                Log.e("Sincronizando","Produtos");
-                produtoDAO = new ProdutoDAO(context);
-                produtoDAO.sincroniza(objetosSink.getProdutos());
-                produtoDAO.close();
-                Log.e("Sincronizando","Avaria");
+                Log.e("Sincronizando", "Produtos");
+                realm = Realm.getDefaultInstance();
+                for (ObjetosSink.Produto p : objetosSink.getProdutos()) {
+                    Produto produto = realm.where(Produto.class)
+                            .equalTo("id", p.id)
+                            .findFirst();
+                    realm.beginTransaction();
+                    produto.sincroniza();
+                    realm.commitTransaction();
+                }
+                realm.close();
+                Log.e("Sincronizando", "Avaria");
                 avariaDAO = new AvariaDAO(context);
                 avariaDAO.sincroniza(objetosSink.getAvarias());
                 avariaDAO.close();
-                Log.e("Sincronizando","Movimentacao e produto");
+                Log.e("Sincronizando", "Movimentacao e produto");
                 movimentacaoProdutoDAO = new MovimentacaoProdutoDAO(context);
                 movimentacaoProdutoDAO.sincroniza(objetosSink.getMovimentacaoProdutos());
                 movimentacaoProdutoDAO.close();
-                Log.e("Sincronizando","Vendas");
+                Log.e("Sincronizando", "Vendas");
                 vendaDAO = new VendaDAO(context);
                 vendaDAO.sincroniza(objetosSink.getVendas());
                 vendaDAO.close();
-                Log.e("Sincronizando","Entrada de Produtos");
-                entradaProdutoDAO = new EntradaProdutoDAO(context);
-                entradaProdutoDAO.sincroniza(objetosSink.getEntradaProdutos());
-                entradaProdutoDAO.close();
-                Log.e("Sincronizando","Usurios");
+                realm = Realm.getDefaultInstance();
+                Log.e("Sincronizando", "Entrada de Produtos");
+                for (ObjetosSink.EntradaProduto ep : objetosSink.getEntradaProdutos()) {
+                    EntradaProduto entradaProduto = realm.where(EntradaProduto.class)
+                            .equalTo("id", ep.id)
+                            .findFirst();
+                    realm.beginTransaction();
+                    entradaProduto.sincroniza();
+                    if (entradaProduto.estaDesativado())
+                        entradaProduto.deleteFromRealm();
+                    realm.commitTransaction();
+                }
+                realm.close();
+                Log.e("Sincronizando", "Usurios");
                 usuarioDAO = new UsuarioDAO(context);
                 usuarioDAO.sincroniza(objetosSink.getUsuarios());
                 usuarioDAO.close();
-                Log.e("Sincronizando","Furos");
+                Log.e("Sincronizando", "Furos");
                 furoDAO = new FuroDAO(context);
                 furoDAO.sincroniza(objetosSink.getFuros());
                 furoDAO.close();
@@ -234,9 +309,6 @@ public class ObjetosSinkSincronizador {
                 bus.post(new AtualizaListaProdutoEvent());
                 bus.post(new AtualizarGraficos());
                 Toast.makeText(context, "Sincronizado com Sucesso", Toast.LENGTH_LONG).show();
-
-
-//                progressDialog.dismiss();
                 sincronizacaoAtiva = false;
 
 
@@ -247,7 +319,6 @@ public class ObjetosSinkSincronizador {
             public void onFailure(Call<ObjetosSink> call, Throwable t) {
                 dialog.dismiss();
                 Toast.makeText(context, "Houve um erro na sincronização", Toast.LENGTH_LONG).show();
-//                progressDialog.dismiss();
                 sincronizacaoAtiva = false;
 
 
@@ -272,27 +343,49 @@ public class ObjetosSinkSincronizador {
 
         @Override
         protected String doInBackground(Void... params) {
-            Log.e("Persistindo","Usuario");
+            RealmList<Produto> produtosVindosDoServidor = new RealmList<>();
+            for (ObjetosSink.Produto p : objetosSink.getProdutos()) {
+                Produto produto = new Produto();
+
+                produto.setId(p.id);
+                produto.setNome(p.nome);
+                produto.setEstoqueMinimo(p.estoqueMinimo);
+                produto.setQuantidade(p.quantidade);
+                produto.setPreco(p.preco);
+                produto.setLoja(p.loja);
+                produto.setSincronizado(p.sincronizado);
+                produto.setIdProdutoPrincipal(p.idProdutoPrincipal);
+                produto.setVinculo(p.vinculo);
+
+                for (String idProdutoVinculoadoString : p.idProdutoVinculado) {
+                    produto.getIdProdutoVinculado().add(new RealmString(idProdutoVinculoadoString));
+                }
+                produtosVindosDoServidor.add(produto);
+
+            }
+
+
+            Log.e("Persistindo", "Usuario");
             usuarioDAO = new UsuarioDAO(context);
             usuarioDAO.sincroniza(objetosSink.getUsuarios());
             usuarioDAO.close();
-            Log.e("Persistindo","Loja");
+            Log.e("Persistindo", "Loja");
             lojaDAO = new LojaDAO(context);
             lojaDAO.sincroniza(objetosSink.getLojas());
             lojaDAO.close();
-            Log.e("Persistindo","Avaria");
+            Log.e("Persistindo", "Avaria");
             avariaDAO = new AvariaDAO(context);
             avariaDAO.sincroniza(objetosSink.getAvarias());
             avariaDAO.close();
-            Log.e("Persistindo","Movimentacao de produto");
+            Log.e("Persistindo", "Movimentacao de produto");
             movimentacaoProdutoDAO = new MovimentacaoProdutoDAO(context);
             movimentacaoProdutoDAO.sincroniza(objetosSink.getMovimentacaoProdutos());
             movimentacaoProdutoDAO.close();
-            Log.e("Persistindo","Venda");
+            Log.e("Persistindo", "Venda");
             vendaDAO = new VendaDAO(context);
             vendaDAO.sincroniza(objetosSink.getVendas());
             vendaDAO.close();
-            Log.e("Persistindo","Furo");
+            Log.e("Persistindo", "Furo");
             furoDAO = new FuroDAO(context);
             furoDAO.sincroniza(objetosSink.getFuros());
             furoDAO.close();
@@ -303,33 +396,69 @@ public class ObjetosSinkSincronizador {
             // todas as entidades principalmente entrada
             // produto que tem as informações da quantidade,
             // os outros dados como nome preço vai ser sempre dando prioridade para o servidor
-            Log.e("Persistindo","Produto");
+            Log.e("Persistindo", "Produto");
             produtoDAO = new ProdutoDAO(context);
             List<Produto> produtosAlteradosLocalmente = new ArrayList<>();
             produtosAlteradosLocalmente.addAll(produtoDAO.listaNaoSincronizados());
             produtoDAO.close();
-            produtoDAO.sincroniza(objetosSink.getProdutos());
+            produtoDAO.sincroniza(produtosVindosDoServidor);
             produtoDAO.close();
-            Log.e("Persistindo","Entrada de produto");
+            Log.e("Persistindo", "Entrada de produto");
             entradaProdutoDAO = new EntradaProdutoDAO(context);
-            entradaProdutoDAO.sincroniza(objetosSink.getEntradaProdutos());
+            RealmList<EntradaProduto> entradaProdutosVindosDoServidor = new RealmList<>();
+            for (ObjetosSink.EntradaProduto ep : objetosSink.getEntradaProdutos()) {
+                EntradaProduto entradaProduto = new EntradaProduto();
+                entradaProduto.setId(ep.id);
+                entradaProduto.setPrecoDeCompra(ep.precoDeCompra);
+                entradaProduto.setQuantidade(ep.quantidade);
+                entradaProduto.setData(ep.data);
+
+                produtoDAO = new ProdutoDAO(context);
+                Produto produto = produtoDAO.procuraPorId(ep.produto.id);
+                if (produto == null) {
+                    produto = new Produto();
+                    produto.setId(ep.produto.id);
+                }
+                produto.setNome(ep.produto.nome);
+                produto.setEstoqueMinimo(ep.produto.estoqueMinimo);
+                produto.setQuantidade(ep.produto.quantidade);
+                produto.setPreco(ep.produto.preco);
+                produto.setLoja(ep.produto.loja);
+                produto.setSincronizado(ep.produto.sincronizado);
+                produto.setIdProdutoPrincipal(ep.produto.idProdutoPrincipal);
+                produto.setVinculo(ep.produto.vinculo);
+                for (String idProdutoVinculoadoString : ep.produto.idProdutoVinculado) {
+                    produto.idProdutoVinculado.add(new RealmString(idProdutoVinculoadoString));
+                }
+                entradaProduto.setProduto(produto);
+                entradaProduto.setSincronizado(ep.sincronizado);
+
+                entradaProduto.setQuantidadeVendidaMovimentada(ep.quantidadeVendidaMovimentada);
+                entradaProduto.setDesativado(ep.desativado);
+
+                produto.getEntradaProdutos().add(entradaProduto);
+                produtoDAO.altera(produto);
+                produtoDAO.close();
+                entradaProdutosVindosDoServidor.add(entradaProduto);
+            }
+            entradaProdutoDAO.sincroniza(entradaProdutosVindosDoServidor);
             entradaProdutoDAO.close();
             Produto produtoPrincipal;
             //TODO fazer testes testando esse algoritmo
             List<Produto> produtosIncosistente = new ArrayList<>();
             for (Produto produtoLocalAlterado : produtosAlteradosLocalmente) {
-                for (Produto produtoVindoServidor : objetosSink.getProdutos()) {
+                for (Produto produtoVindoServidor : produtosVindosDoServidor) {
                     if (produtoLocalAlterado.getId().equals(produtoVindoServidor.getId())) {
                         if (produtoVindoServidor.vinculado()) {
                             produtoPrincipal = produtoDAO.procuraPorId(produtoVindoServidor.getIdProdutoPrincipal());
                             produtoDAO.close();
-                            produtoPrincipal.getEntradaProdutos().addAll(entradaProdutoDAO.procuraTodosDeUmProduto(produtoPrincipal));
+//                            produtoPrincipal.getEntradaProdutos().addAll(entradaProdutoDAO.procuraTodosDeUmProduto(produtoPrincipal));
                             entradaProdutoDAO.close();
                             produtoPrincipal.calcularQuantidade();
                         } else {
                             produtoPrincipal = produtoDAO.procuraPorId(produtoVindoServidor.getId());
                             produtoDAO.close();
-                            produtoPrincipal.getEntradaProdutos().addAll(entradaProdutoDAO.procuraTodosDeUmProduto(produtoPrincipal));
+//                            produtoPrincipal.getEntradaProdutos().addAll(entradaProdutoDAO.procuraTodosDeUmProduto(produtoPrincipal));
                             entradaProdutoDAO.close();
                             produtoPrincipal.calcularQuantidade();
                         }
@@ -341,8 +470,8 @@ public class ObjetosSinkSincronizador {
             }
 
             for (Produto p : produtosIncosistente) {
-                for (String produtoVinculoId : p.getIdProdutoVinculado()) {
-                    Produto produtoVinculo = produtoDAO.procuraPorId(produtoVinculoId);
+                for (RealmString produtoVinculoId : p.getIdProdutoVinculado()) {
+                    Produto produtoVinculo = produtoDAO.procuraPorId(produtoVinculoId.getValor());
                     produtoDAO.close();
                     produtoVinculo.setQuantidade(p.getQuantidade());
                     produtoVinculo.desincroniza();

@@ -114,7 +114,6 @@ public class FiltroResumoCardView {
 
     private void loadView() {
         ViewGroup view = (ViewGroup) viewRoot.findViewById(R.id.resumo);
-        resumo = view.findViewById(R.id.lista_transacoes_resumo);
         progressBar = view.findViewById(R.id.progressBar);
         progressBar.setVisibility(View.GONE);
         tvResumeCardTotal = (TextView) view.findViewById(R.id.resumo_card_total);

@@ -69,6 +69,9 @@ public class LojaDAO {
 
 
     public void insere(Loja loja) {
+        if(loja.getId()==null){
+            loja.setId(UUID.randomUUID().toString());
+        }
         verificaSeRealmEstaFechado();
         realm.beginTransaction();
         realm.insertOrUpdate(loja);

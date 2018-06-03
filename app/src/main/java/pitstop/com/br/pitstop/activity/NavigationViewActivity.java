@@ -17,20 +17,22 @@ import android.view.View;
 import de.greenrobot.event.EventBus;
 import pitstop.com.br.pitstop.LoginActivity;
 import pitstop.com.br.pitstop.R;
-import pitstop.com.br.pitstop.activity.cadastro.CadastrarVendasActivity;
-import pitstop.com.br.pitstop.activity.cadastro.CadastroAvariaActivity;
-import pitstop.com.br.pitstop.activity.cadastro.CadastroEntradaProdutoActivity;
-import pitstop.com.br.pitstop.activity.cadastro.CadastroFuroActivity;
-import pitstop.com.br.pitstop.activity.cadastro.CadastroMovimentacaoProdutoActivity;
-import pitstop.com.br.pitstop.activity.relatorio.RelatorioAvariaActivity;
-import pitstop.com.br.pitstop.activity.relatorio.RelatorioEntradaProdutoActivity;
-import pitstop.com.br.pitstop.activity.relatorio.RelatorioFuroActivity;
+import pitstop.com.br.pitstop.activity.avaria.CadastroAvariaActivity;
+import pitstop.com.br.pitstop.activity.avaria.RelatorioAvariaActivity;
+import pitstop.com.br.pitstop.activity.entradaproduto.CadastroEntradaProdutoActivity;
+import pitstop.com.br.pitstop.activity.entradaproduto.RelatorioEntradaProdutoActivity;
+import pitstop.com.br.pitstop.activity.furo.CadastroFuroActivity;
+import pitstop.com.br.pitstop.activity.furo.RelatorioFuroActivity;
+import pitstop.com.br.pitstop.activity.loja.ListarLojaFragment;
+import pitstop.com.br.pitstop.activity.movimentacaoproduto.CadastroMovimentacaoProdutoActivity;
+import pitstop.com.br.pitstop.activity.movimentacaoproduto.RelatorioMovimentacaoProdutoActivity;
+import pitstop.com.br.pitstop.activity.produto.ListarProdutoFragment;
 import pitstop.com.br.pitstop.activity.relatorio.RelatorioGeralActivity;
-import pitstop.com.br.pitstop.activity.relatorio.RelatorioMovimentacaoProdutoActivity;
-import pitstop.com.br.pitstop.activity.relatorio.RelatorioVendasActivity;
+import pitstop.com.br.pitstop.activity.usuario.ListarUsuarioFragment;
+import pitstop.com.br.pitstop.activity.venda.CadastrarVendasActivity;
+import pitstop.com.br.pitstop.activity.venda.RelatorioVendasActivity;
 import pitstop.com.br.pitstop.event.AtualizaListaLojasEvent;
 import pitstop.com.br.pitstop.event.AtualizaListaProdutoEvent;
-import pitstop.com.br.pitstop.model.Loja;
 import pitstop.com.br.pitstop.model.Usuario;
 import pitstop.com.br.pitstop.preferences.UsuarioPreferences;
 import pitstop.com.br.pitstop.sic.ObjetosSinkSincronizador;
@@ -254,27 +256,16 @@ public class NavigationViewActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(MenuItem item) {
                 final Menu menu = navigationView.getMenu();
 
-
-                //Check and un-check menu item if they are checkable behaviour
-//                if (item.isCheckable()) {
-//                    if (item.isChecked()) item.setChecked(false);
-//                    else item.setChecked(true);
-//                }
-
                 destacarItemSelecionado(item);
 
                 Fragment fragment = null;
                 switch (item.getItemId()) {
                     case R.id.dashboard:
-
-                        objetosSinkSincronizador.buscaTodos();
                         fragment = new DashboardFragment();
                         setFragment(fragment, item);
                         break;
-//
                     case R.id.loja:
 
-                        objetosSinkSincronizador.buscaTodos();
                         fragment = new ListarLojaFragment();
                         //Replace fragment
                         setFragment(fragment, item);
@@ -282,84 +273,62 @@ public class NavigationViewActivity extends AppCompatActivity {
 
                     case R.id.produto:
                         //Replace fragment
-
-                        objetosSinkSincronizador.buscaTodos();
-
                         fragment = new ListarProdutoFragment();
 
                         //Replace fragment
 
-
                         setFragment(fragment, item);
-
-
-//                        setFragment(item);
                         break;
-//                    case R.id.cad_vendas:
-//                        Intent intentVaiProFormularioVendas = new Intent(getApplicationContext(), CadastroVendaActivity.class);
-//                        startActivity(intentVaiProFormularioVendas);
-//                        //Replace fragment
 
-
-//                        setFragment(item);
-//                        break;
                     case R.id.entrada_de_produto:
-                        objetosSinkSincronizador.buscaTodos();
+
                         Intent intentVaiProFormulario = new Intent(getApplicationContext(), CadastroEntradaProdutoActivity.class);
                         startActivity(intentVaiProFormulario);
-//                        overridePendingTransition(R.anim.fadein, R.anim.fadeout);
-                        //Replace fragment
-
-
-//                        setFragment(item);
 
                         break;
                     case R.id.cad_vendas:
-                        objetosSinkSincronizador.buscaTodos();
+
                         Intent intentVaiProCadVendas = new Intent(getApplicationContext(), CadastrarVendasActivity.class);
                         startActivity(intentVaiProCadVendas);
                         break;
                     case R.id.movimentacao_produto:
-                        objetosSinkSincronizador.buscaTodos();
+
                         Intent intentVaiProCadMovProduto = new Intent(getApplicationContext(), CadastroMovimentacaoProdutoActivity.class);
                         startActivity(intentVaiProCadMovProduto);
                         break;
                     case R.id.relatorio_vendas:
-                        objetosSinkSincronizador.buscaTodos();
+
                         Intent intentVaiProRelatVendas = new Intent(getApplicationContext(), RelatorioVendasActivity.class);
                         startActivity(intentVaiProRelatVendas);
                         break;
                     case R.id.relatorio_entrada_produto:
-                        objetosSinkSincronizador.buscaTodos();
+
                         Intent intentVaiPraRelEntradaProdutos = new Intent(getApplicationContext(), RelatorioEntradaProdutoActivity.class);
                         startActivity(intentVaiPraRelEntradaProdutos);
                         break;
                     case R.id.relatorio_movimentacao_produto:
-                        objetosSinkSincronizador.buscaTodos();
+
                         Intent intentVaiProRelMovimProduto = new Intent(getApplicationContext(), RelatorioMovimentacaoProdutoActivity.class);
                         startActivity(intentVaiProRelMovimProduto);
                         break;
                     case R.id.cad_avaria:
-                        objetosSinkSincronizador.buscaTodos();
+
                         Intent intentVaiProCadAvaria = new Intent(getApplicationContext(), CadastroAvariaActivity.class);
                         startActivity(intentVaiProCadAvaria);
                         break;
                     case R.id.relatorio_avaria:
-                        objetosSinkSincronizador.buscaTodos();
+
                         Intent intentVaiProRelatAvaria = new Intent(getApplicationContext(), RelatorioAvariaActivity.class);
                         startActivity(intentVaiProRelatAvaria);
                         break;
                     case R.id.cadastrar_usuario:
-                        objetosSinkSincronizador.buscaTodos();
+
                         fragment = new ListarUsuarioFragment();
                         setFragment(fragment, item);
 
-
-//                        Intent intentVaiProCadUsuario = new Intent(getApplicationContext(), SignupActivity.class);
-//                        startActivity(intentVaiProCadUsuario);
                         break;
                     case R.id.cadastrar_furo:
-                        objetosSinkSincronizador.buscaTodos();
+
                         Intent intentVaiProCadFfuro = new Intent(getApplicationContext(), CadastroFuroActivity.class);
                         startActivity(intentVaiProCadFfuro);
                         break;
@@ -374,33 +343,6 @@ public class NavigationViewActivity extends AppCompatActivity {
                         startActivity(intentVaiProRelGeral);
                         break;
 
-
-//                    case R.id.share_app:
-//
-//                        //Start new Activity or do your stuff
-//
-//
-//                        Toast.makeText(NavigationViewActivity.this, "You Clicked on " + " + item.getTitle().toString() + " + " menu item.", Toast.LENGTH_SHORT).show();
-//                        break;
-//                    case R.id.rate_app:
-//                        //Start new Activity or do your stuff
-//
-//
-//                        Toast.makeText(NavigationViewActivity.this, "You Clicked on " + "  item.getTitle().toString()  " + " menu item.", Toast.LENGTH_SHORT).show();
-//                        break;
-//                    case R.id.settings:
-//                        //Start new Activity or do your stuff
-//
-//
-//                        Toast.makeText(NavigationViewActivity.this, "You Clicked on " + " + item.getTitle().toString() + " + " menu item.", Toast.LENGTH_SHORT).show();
-//                        break;
-//                    case R.id.help:
-//                        //Start new Activity or do your stuff
-//
-//
-//                        Toast.makeText(NavigationViewActivity.this, "You Clicked on " + " + item.getTitle().toString() + " + " menu item.", Toast.LENGTH_SHORT).show();
-//
-//                        break;
 
                 }
                 //Closing drawer on item click

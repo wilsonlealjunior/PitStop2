@@ -23,17 +23,20 @@ import android.widget.TextView;
 import de.greenrobot.event.EventBus;
 import pitstop.com.br.pitstop.LoginActivity;
 import pitstop.com.br.pitstop.R;
-import pitstop.com.br.pitstop.activity.cadastro.CadastrarVendasActivity;
-import pitstop.com.br.pitstop.activity.cadastro.CadastroAvariaActivity;
-import pitstop.com.br.pitstop.activity.cadastro.CadastroEntradaProdutoActivity;
-import pitstop.com.br.pitstop.activity.cadastro.CadastroMovimentacaoProdutoActivity;
-import pitstop.com.br.pitstop.activity.relatorio.RelatorioEntradaProdutoActivity;
+
+import pitstop.com.br.pitstop.activity.avaria.CadastroAvariaActivity;
+import pitstop.com.br.pitstop.activity.entradaproduto.CadastroEntradaProdutoActivity;
+import pitstop.com.br.pitstop.activity.entradaproduto.RelatorioEntradaProdutoActivity;
+import pitstop.com.br.pitstop.activity.loja.ListarLojaFragment;
+import pitstop.com.br.pitstop.activity.movimentacaoproduto.CadastroMovimentacaoProdutoActivity;
+import pitstop.com.br.pitstop.activity.movimentacaoproduto.RelatorioMovimentacaoProdutoActivity;
+import pitstop.com.br.pitstop.activity.produto.ListarProdutoFragment;
 import pitstop.com.br.pitstop.activity.relatorio.RelatorioGeralActivity;
-import pitstop.com.br.pitstop.activity.relatorio.RelatorioMovimentacaoProdutoActivity;
-import pitstop.com.br.pitstop.activity.relatorio.RelatorioVendasActivity;
+
+import pitstop.com.br.pitstop.activity.venda.CadastrarVendasActivity;
+import pitstop.com.br.pitstop.activity.venda.RelatorioVendasActivity;
 import pitstop.com.br.pitstop.event.AtualizaListaLojasEvent;
 import pitstop.com.br.pitstop.event.AtualizaListaProdutoEvent;
-import pitstop.com.br.pitstop.model.Loja;
 import pitstop.com.br.pitstop.model.Usuario;
 import pitstop.com.br.pitstop.preferences.UsuarioPreferences;
 import pitstop.com.br.pitstop.sic.ObjetosSinkSincronizador;

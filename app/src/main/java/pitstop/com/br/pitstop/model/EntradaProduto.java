@@ -30,19 +30,6 @@ public class EntradaProduto extends RealmObject {
     }
 
 
-    protected EntradaProduto(Parcel in) {
-        id = in.readString();
-        precoDeCompra = in.readDouble();
-        quantidade = in.readInt();
-        produto = in.readParcelable(Produto.class.getClassLoader());
-        sincronizado = in.readInt();
-        quantidadeVendidaMovimentada = in.readInt();
-        desativado = in.readInt();
-        data = new Date(in.readLong());
-    }
-
-
-
 
     public void desativar() {
         desativado = 1;

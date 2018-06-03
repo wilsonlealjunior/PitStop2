@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:foreground="?android:attr/selectableItemBackground"
+
     android:orientation="vertical">
 
     <LinearLayout
@@ -12,13 +13,16 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-
+    <View
+        android:layout_width="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_height="1dp"/>
         <LinearLayout
+            android:id="@+id/ll_relatorio_forma_pagamento"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
-            android:layout_marginTop="8dp"
             android:orientation="horizontal">
 
             <TextView
@@ -36,6 +40,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/ll_relatorio_loja"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
@@ -57,6 +62,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/ll_relatorio_funcionario"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
@@ -78,6 +84,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/ll_relatorio_data_inicial"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
@@ -99,6 +106,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/ll_relatorio_data_final"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
@@ -120,6 +128,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/ll_relatorio_total"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
@@ -141,6 +150,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/ll_relatorio_lucro"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
@@ -175,11 +185,12 @@
             android:shadowColor="@android:color/holo_blue_light"
             android:text="Nova Consulta"
             android:textColor="@android:color/white" />
+
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_marginRight="8dp"
             android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
             android:background="@android:color/darker_gray" />
 
     </LinearLayout>

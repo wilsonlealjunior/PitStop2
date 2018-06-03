@@ -18,9 +18,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import pitstop.com.br.pitstop.R;
-import pitstop.com.br.pitstop.activity.cadastro.CadastroProdutoActivity;
 import pitstop.com.br.pitstop.model.Produto;
-import pitstop.com.br.pitstop.preferences.UsuarioPreferences;
 
 public class ItemRankingRecicleViewAdapter extends RecyclerView.Adapter<ItemRankingRecicleViewAdapter.ViewHolder> {
     private List<Produto> produtos;

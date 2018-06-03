@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.List;
 
 import io.realm.Realm;
+import io.realm.Sort;
 import pitstop.com.br.pitstop.Util;
 import pitstop.com.br.pitstop.model.Avaria;
 import pitstop.com.br.pitstop.model.EntradaProduto;
@@ -56,8 +57,7 @@ public class EntradaProdutoDAO {
                 entradaProdutos) {
             entradaProduto.sincroniza();
 
-//            Log.e("EntradaProduto-1", entradaProduto.getId());
-            //Log.e("EntradaProduto-1 - sinc", String.valueOf(entradaProduto.getSincronizado()));
+
             if (existe(entradaProduto)) {
                 close();
                 if (entradaProduto.estaDesativado()) {
@@ -80,8 +80,6 @@ public class EntradaProdutoDAO {
         Number n = realm.where(EntradaProduto.class).equalTo("id", entradaProduto.getId()).count();
         return (n.intValue() > 0);
     }
-
-
 
 
     public void altera(EntradaProduto entradaProduto) {
@@ -129,6 +127,7 @@ public class EntradaProdutoDAO {
             EntradaProduto.addAll(realm.where(EntradaProduto.class)
                     .between("data", dateOrigem, dateFim)
                     .equalTo("desativado", 0)
+                    .sort("data", Sort.DESCENDING)
                     .findAll());
             return realm.copyFromRealm(EntradaProduto);
         } else {
@@ -136,6 +135,7 @@ public class EntradaProdutoDAO {
                     .between("data", dateOrigem, dateFim)
                     .equalTo("produto.loja.id", lojaEscolhidaId)
                     .equalTo("desativado", 0)
+                    .sort("data", Sort.DESCENDING)
                     .findAll());
             return realm.copyFromRealm(EntradaProduto);
 
@@ -147,17 +147,22 @@ public class EntradaProdutoDAO {
         realm.close();
     }
 
-    public List<EntradaProduto> procuraTodosDeUmProduto(Produto produto) {
+ /*   public List<EntradaProduto> procuraTodosDeUmProduto(Produto produto) {
         verificaSeRealmEstaFechado();
         List<EntradaProduto> entradaProdutos = new ArrayList<>();
+        List<EntradaProduto> entradaProdutosRetorno = new ArrayList<>();
         entradaProdutos.addAll(realm.where(EntradaProduto.class)
                 .equalTo("sincronizado", 0)
                 .equalTo("desativado", 0)
                 .equalTo("produto.id", produto.getId())
-                .notEqualTo("quantidade-quantidadeVendidaMovimentada", 0)
                 .findAll());
-        return realm.copyFromRealm(entradaProdutos);
-    }
+        for (EntradaProduto ep : entradaProdutos) {
+            if (ep.getQuantidade() - ep.getQuantidadeVendidaMovimentada() == 0) {
+                entradaProdutosRetorno.add(ep);
+            }
+        }
+        return realm.copyFromRealm(entradaProdutosRetorno);
+    }*/
 
     public EntradaProduto procuraPorId(String id) {
         verificaSeRealmEstaFechado();

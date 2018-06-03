@@ -1,135 +1,133 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <LinearLayout
-        android:id="@+id/ll_root_relatorio_avaria"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+    <include
+        android:id="@+id/main_toolbar"
+        layout="@layout/toolbar" />
 
-        <include
-            android:id="@+id/main_toolbar"
-            layout="@layout/toolbar" />
 
-        <android.support.v7.widget.CardView
-            android:id="@+id/card_view_filtros"
+        <LinearLayout
+            android:id="@+id/ll_root_relatorio_avaria"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="10dp"
-            app:cardUseCompatPadding="true">
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-            <LinearLayout
+            <include
+                android:id="@+id/filtros_view"
+                layout="@layout/filtros_view" />
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/card_view_filtros"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="10dp"
+                app:cardUseCompatPadding="true">
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@color/colorPrimary"
-                    android:orientation="horizontal">
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
 
-                    <ImageView
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:layout_marginLeft="8dp"
-                        android:adjustViewBounds="false"
-                        android:src="@drawable/ic_filter" />
+                        android:background="@color/colorPrimary"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:layout_marginLeft="8dp"
+                            android:adjustViewBounds="false"
+                            android:src="@drawable/ic_filter" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="8dp"
+                            android:text="@string/filtro_do_relatorio"
+                            android:textColor="@android:color/white"
+                            android:textSize="18sp" />
+                    </LinearLayout>
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_margin="8dp"
-                        android:text="@string/filtro_do_relatorio"
-                        android:textColor="@android:color/white"
-                        android:textSize="18sp" />
-                </LinearLayout>
+                        android:text="@string/loja" />
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="8dp"
-                    android:text="@string/loja" />
-
-                <Spinner
-                    android:id="@+id/spinner_loja"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="8dp" />
-
-                <include
-                    android:id="@+id/data_hora_view"
-                    layout="@layout/data_hora_view" />
-
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <Button
-                        android:id="@+id/gerar_relatorio"
-                        android:layout_width="wrap_content"
+                    <Spinner
+                        android:id="@+id/spinner_loja"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_margin="8dp"
-                        android:layout_weight="0.5"
-                        android:padding="8dp"
-                        android:drawableLeft="@drawable/ic_confirmar"
-                        android:drawableStart="@drawable/ic_confirmar"
-                        android:background="@color/colorPrimary"
-                        android:clickable="true"
-                        android:foreground="?android:attr/selectableItemBackground"
-                        android:shadowColor="@android:color/holo_blue_light"
-                        android:text="@string/gerar_relatorio"
-                        android:textColor="@android:color/white" />
+                        android:layout_margin="8dp" />
+
+                    <include
+                        android:id="@+id/data_hora_view"
+                        layout="@layout/data_hora_view" />
 
 
-                    <Button
-                        android:id="@+id/gerar_relatorio_pdf"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_margin="8dp"
-                        android:padding="8dp"
-                        android:drawableLeft="@drawable/ic_pdf"
-                        android:drawableStart="@drawable/ic_pdf"
-                        android:layout_weight="0.5"
-                        android:background="@android:color/holo_red_light"
-                        android:clickable="true"
-                        android:foreground="?android:attr/selectableItemBackground"
-                        android:shadowColor="@android:color/holo_blue_light"
-                        android:text="@string/gerar_pdf"
-                        android:textColor="@android:color/white" />
+                        android:orientation="horizontal">
+
+                        <Button
+                            android:id="@+id/gerar_relatorio"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_margin="8dp"
+                            android:layout_weight="0.5"
+                            android:background="@color/colorPrimary"
+                            android:clickable="true"
+                            android:drawableLeft="@drawable/ic_confirmar"
+                            android:drawableStart="@drawable/ic_confirmar"
+                            android:foreground="?android:attr/selectableItemBackground"
+                            android:padding="8dp"
+                            android:shadowColor="@android:color/holo_blue_light"
+                            android:text="@string/gerar_relatorio"
+                            android:textColor="@android:color/white" />
+
+
+                        <Button
+                            android:id="@+id/gerar_relatorio_pdf"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_margin="8dp"
+                            android:layout_weight="0.5"
+                            android:background="@android:color/holo_red_light"
+                            android:clickable="true"
+                            android:drawableLeft="@drawable/ic_pdf"
+                            android:drawableStart="@drawable/ic_pdf"
+                            android:foreground="?android:attr/selectableItemBackground"
+                            android:padding="8dp"
+                            android:shadowColor="@android:color/holo_blue_light"
+                            android:text="@string/gerar_pdf"
+                            android:textColor="@android:color/white" />
+                    </LinearLayout>
+
+
                 </LinearLayout>
+            </android.support.v7.widget.CardView>
 
-
-            </LinearLayout>
-        </android.support.v7.widget.CardView>
-
-        <include
-            android:id="@+id/lista_transacoes_resumo"
-            layout="@layout/resumo_card" />
-
-        <android.support.v7.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="10dp"
-            app:cardUseCompatPadding="true">
 
             <LinearLayout
+                android:id="@+id/ll_relatorio_avaria"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_margin="8dp"
                 android:orientation="vertical">
 
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@color/colorPrimary"
                     android:orientation="horizontal">
@@ -150,6 +148,18 @@
                         android:textSize="18sp" />
                 </LinearLayout>
 
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/colorPrimary" />
+
+                <TextView
+                    android:id="@+id/nenhum_registro_encontrado"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Nenhum registro encontrado"
+                    android:textColor="@color/colorPrimary" />
+
 
                 <!--<Spinner-->
                 <!--android:id="@+id/loja"-->
@@ -161,13 +171,13 @@
                 <!--android:prompt="@string/loja"-->
                 <!--/>-->
 
-                <pitstop.com.br.pitstop.adapter.NonScrollListView
+                <android.support.v7.widget.RecyclerView
                     android:id="@+id/lista_de_avarias"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                    android:layout_height="match_parent"
+                    tools:listitem="@layout/adapter_avaria" />
             </LinearLayout>
-        </android.support.v7.widget.CardView>
 
-    </LinearLayout>
-</ScrollView>
+        </LinearLayout>
 
+</LinearLayout>

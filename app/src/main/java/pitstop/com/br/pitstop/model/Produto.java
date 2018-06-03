@@ -8,6 +8,7 @@ import java.io.Serializable;
 
 import io.realm.RealmList;
 import io.realm.RealmObject;
+import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
 import io.realm.annotations.Required;
 
@@ -25,12 +26,9 @@ public class Produto extends RealmObject {
     private Loja loja;
     private RealmList<EntradaProduto> entradaProdutos = new RealmList<>();
     private int sincronizado;
-    @Required
-    public RealmList<String> idProdutoVinculado = new RealmList<>();
+    public RealmList<RealmString> idProdutoVinculado = new RealmList<>();
     private String idProdutoPrincipal;
     private int vinculo;
-
-
 
 
     public String getIdProdutoPrincipal() {
@@ -41,10 +39,14 @@ public class Produto extends RealmObject {
         this.idProdutoPrincipal = idProdutoPrincipal;
     }
 
-    public RealmList<String> getIdProdutoVinculado() {
+
+    public RealmList<RealmString> getIdProdutoVinculado() {
         return idProdutoVinculado;
     }
 
+    public void setIdProdutoVinculado(RealmList<RealmString> idProdutoVinculado) {
+        this.idProdutoVinculado = idProdutoVinculado;
+    }
 
     public int getVinculo() {
         return vinculo;
@@ -80,9 +82,6 @@ public class Produto extends RealmObject {
         this.entradaProdutos = entradaProdutos;
     }
 
-    public void setIdProdutoVinculado(RealmList<String> idProdutoVinculado) {
-        this.idProdutoVinculado = idProdutoVinculado;
-    }
 
     public int getEstoqueMinimo() {
         return estoqueMinimo;
@@ -189,7 +188,6 @@ public class Produto extends RealmObject {
     public void desincroniza() {
         this.sincronizado = 0;
     }
-
 
 
 }

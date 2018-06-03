@@ -1,7 +1,11 @@
 package pitstop.com.br.pitstop.model;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+
+import io.realm.RealmList;
+
 
 /**
  * Created by wilso on 28/11/2017.
@@ -18,7 +22,7 @@ public class ObjetosSink {
     List<Furo> furos;
     String momentoDaUltimaAtualizacao;
 
-    public ObjetosSink(){
+    public ObjetosSink() {
         usuarios = new ArrayList<>();
         avarias = new ArrayList<>();
         entradaProdutos = new ArrayList<>();
@@ -28,6 +32,29 @@ public class ObjetosSink {
         vendas = new ArrayList<>();
         furos = new ArrayList<>();
 
+    }
+
+    public static class Produto {
+        public String id;
+        public String nome;
+        public int estoqueMinimo;
+        public int quantidade = 0;
+        public double preco;
+        public Loja loja;
+        public int sincronizado;
+        public RealmList<String> idProdutoVinculado = new RealmList<>();
+        public String idProdutoPrincipal;
+        public int vinculo;
+    }
+    public static class EntradaProduto {
+        public String id;
+        public double precoDeCompra;
+        public int quantidade;
+        public Date data;
+        public Produto produto;
+        public int sincronizado;
+        public int quantidadeVendidaMovimentada;
+        public int desativado = 0;
     }
 
     public String getMomentoDaUltimaAtualizacao() {

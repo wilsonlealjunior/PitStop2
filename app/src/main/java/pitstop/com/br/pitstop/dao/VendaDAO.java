@@ -58,7 +58,7 @@ public class VendaDAO {
                 .findFirst();
         vendaRealm.getItemVendas().deleteAllFromRealm();
         vendaRealm.deleteFromRealm();
-        realm.beginTransaction();
+        realm.commitTransaction();
     }
 
 
@@ -193,7 +193,7 @@ public class VendaDAO {
         vendas.addAll(realm.where(Venda.class)
                 .equalTo("sincronizado", 0)
                 .findAll());
-        return vendas;
+        return realm.copyFromRealm(vendas);
 
     }
 
