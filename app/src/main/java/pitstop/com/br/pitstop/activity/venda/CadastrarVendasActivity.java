@@ -68,7 +68,7 @@ public class CadastrarVendasActivity extends BaseCadastroDeTransacaoDeProdutoAct
     double total = 0.0;
     double totalCartao = 0.0;
     Venda venda;
-    String[] formaDePagamento = new String[]{"dinheiro", "cartao", "dinheiro e cartao"};
+    String[] formaDePagamento = new String[]{"Forma de pagamento", "dinheiro", "cartao", "dinheiro e cartao"};
     UsuarioPreferences usuarioPreferences;
 
 
@@ -105,6 +105,10 @@ public class CadastrarVendasActivity extends BaseCadastroDeTransacaoDeProdutoAct
     public void carregaListaDeProduto(CarregaListaDeProduto event) {
         setupView();
         mostraListaDeProduto();
+    }
+
+    private boolean estaNoModoPaisagem() {
+        return getResources().getBoolean(R.bool.modoPaisagem);
     }
 
     @Override
@@ -243,7 +247,7 @@ public class CadastrarVendasActivity extends BaseCadastroDeTransacaoDeProdutoAct
                 entradaProdutoDAO.close();
                 carrinho.add(prodCarinho);
                 total += prodCarinho.getQuantidade() * prodCarinho.getPreco();
-                hideKeyboard(CadastrarVendasActivity.this,getCurrentFocus());
+                hideKeyboard(CadastrarVendasActivity.this, getCurrentFocus());
                 snackbar.setText("Produto " + produto.getNome() + " adicionado ao carrinho");
                 snackbar.show();
 //                Toast toast = Toast.makeText(CadastrarVendasActivity.this, "Produto " + produto.getNome() + " adicionado ao carrinho", Toast.LENGTH_SHORT);
@@ -370,7 +374,7 @@ public class CadastrarVendasActivity extends BaseCadastroDeTransacaoDeProdutoAct
 //                    Toast.makeText(CadastrarVendasActivity.this, "Não existe produtos no carrinho", Toast.LENGTH_SHORT).show();
                     break;
                 }
-                if (venda.getFormaDePagamento() == null) {
+                if (venda.getFormaDePagamento() == null || spinnerFormaDeVenda.getSelectedItemPosition() == 0) {
                     item.setVisible(true);
                     snackbar.setText("Escolha a forma de pagamento");
                     snackbar.show();
@@ -651,7 +655,7 @@ public class CadastrarVendasActivity extends BaseCadastroDeTransacaoDeProdutoAct
                 produto = (Produto) listView.getItemAtPosition(position);
                 campoProduto.setText(produto.getNome());
 
-                campoPreco.setText(String.valueOf(produto.getPreco()));
+                campoPreco.setText(Util.moedaNoFormatoBrasileiro((produto.getPreco())));
 
                 // Show Alert
                 snackbar.setText("Produto : " + produto.getNome() + " selecionado");
@@ -670,8 +674,10 @@ public class CadastrarVendasActivity extends BaseCadastroDeTransacaoDeProdutoAct
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
 
+        if (i == 0)
+            return;
         venda.setFormaDePagamento(formaDePagamento[i]);
-        if (i == 2) {
+        if (i == 3) {
             campoTotalCartao.setVisibility(View.VISIBLE);
             tvTotalCartao.setVisibility(View.VISIBLE);
 //                campoTotalCartao.setFocusableInTouchMode(true);
